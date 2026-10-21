@@ -242,6 +242,52 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
     }, 900);
   };
 
+  const handleLoadB2BScenario = () => {
+    setDocumentType('Electronic Tax Invoice (VAT Invoice)');
+    setTransactionMode('B2B / Registered Buyer');
+    setBuyer({
+      name: 'Hana Trading PLC',
+      tin: '0012345678',
+      vat: 'VAT-ET-0012345678',
+      nationalId: '',
+      contact: '+251 911 234 567',
+      designatedAgent: true,
+      withholdingReference: 'WHT-2026-9812',
+    });
+    setTinVerified(true);
+    setPaymentMethod('Bank Transfer — CBE');
+    setPaymentReference('CBE-FT-884291');
+    setItems([
+      { id: 1, code: 'GR-104', name: 'Sidamo Coffee 500g', price: 680, qty: 15, uom: 'PCS', discount: 200, vatCategory: 'Standard VAT (15%)', exciseRate: 10, supplyType: 'Goods' },
+      { id: 2, code: 'ST-042', name: 'Leather Notebook', price: 450, qty: 8, uom: 'PCS', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
+    ]);
+    setWithholding(true);
+    showToast('Loaded B2B Wholesale Sample scenario.');
+  };
+
+  const handleLoadRetailScenario = () => {
+    setDocumentType('Electronic Cash / Payment Receipt');
+    setTransactionMode('B2C / Walk-in Customer');
+    setBuyer({
+      name: 'Walk-in Customer',
+      tin: '',
+      vat: '',
+      nationalId: '',
+      contact: '',
+      designatedAgent: false,
+      withholdingReference: '',
+    });
+    setTinVerified(false);
+    setPaymentMethod('Cash');
+    setPaymentReference('');
+    setWithholding(false);
+    setItems([
+      { id: 1, code: 'HM-076', name: 'Coffee Cup Set', price: 780, qty: 1, uom: 'BOX', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
+      { id: 2, code: 'ST-018', name: 'Blue Pen Pack (10pcs)', price: 180, qty: 2, uom: 'BOX', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
+    ]);
+    showToast('Loaded Retail Walk-in Sample scenario.');
+  };
+
   const handleReset = () => {
     setIssuedReceipt(null);
     setItems(INITIAL_ITEMS);
@@ -279,6 +325,24 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
             <span>EIMS connection ready</span>
           </div>
         </div>
+      </div>
+
+      <div className={styles.scenarioBar}>
+        <span className={styles.scenarioLabel}>Quick test scenarios:</span>
+        <button
+          type="button"
+          onClick={handleLoadB2BScenario}
+          className={styles.scenarioBtn}
+        >
+          💼 B2B Wholesale Sample
+        </button>
+        <button
+          type="button"
+          onClick={handleLoadRetailScenario}
+          className={styles.scenarioBtn}
+        >
+          🛒 Retail Walk-in Sample
+        </button>
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
