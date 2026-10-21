@@ -213,3 +213,22 @@
   margin: 0 auto 12px;
   color: var(--color-text-placeholder, #94A3B8);
 }
+
+.tableFooterRow {
+  background-color: var(--color-bg-subtle, #F8FAFC);
+  border-top: 2px solid var(--color-border-subtle, #E2E8F0);
+  font-size: 13px;
+  color: var(--color-navy, #12304A);
+}
+
+.footerSummaryLabel {
+  font-weight: 700;
+  color: var(--color-navy, #12304A);
+}
+
+.footerQtyCell {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--color-navy, #12304A);
+}

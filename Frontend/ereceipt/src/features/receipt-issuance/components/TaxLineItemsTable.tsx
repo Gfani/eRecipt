@@ -239,6 +239,28 @@ export const TaxLineItemsTable: React.FC<TaxLineItemsTableProps> = ({
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr className={styles.tableFooterRow}>
+                <td colSpan={2} className={styles.footerSummaryLabel}>
+                  Total: {items.length} {items.length === 1 ? 'line item' : 'line items'}
+                </td>
+                <td className={styles.footerQtyCell}>
+                  {items.reduce((sum, item) => sum + item.qty, 0)}
+                </td>
+                <td colSpan={5} style={{ textAlign: 'right', fontWeight: 600 }}>
+                  Combined Net + Excise:
+                </td>
+                <td style={{ textAlign: 'right', fontWeight: 800 }} className={styles.amountCell}>
+                  {formatMoney(
+                    items.reduce(
+                      (sum, item) => sum + netLineAmount(item) + lineExcise(item),
+                      0
+                    )
+                  )}
+                </td>
+                <td />
+              </tr>
+            </tfoot>
           </table>
         )}
       </div>
