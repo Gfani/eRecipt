@@ -18,7 +18,7 @@ export const WorkflowPipelineStepper: React.FC<WorkflowPipelineStepperProps> = (
   const steps = [
     { number: '1', title: 'Submitted', copy: 'Complete', status: 'completed' },
     { number: '2', title: 'MoR validation', copy: 'In progress', status: 'in_progress' },
-    { number: '3', title: 'API activation', copy: 'We will notify you', status: 'pending' },
+    { number: '3', title: 'Waiting for approval', copy: 'We will notify you', status: 'pending' },
   ];
 
   return (
