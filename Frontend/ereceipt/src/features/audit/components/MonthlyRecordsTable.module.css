@@ -1,0 +1,108 @@
+.tableCard {
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FFFFFF;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.035);
+}
+
+.tableHeader {
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  padding: 20px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--color-text-muted, #64748B);
+  margin-top: 4px;
+}
+
+.tableResponsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.table th {
+  background-color: var(--color-bg-subtle, #F8FAFC);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  padding: 12px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748B);
+  letter-spacing: 0.02em;
+}
+
+.table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  color: var(--color-text-body, #1F2937);
+  white-space: nowrap;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background-color: var(--color-primary-light, #F0FDFA);
+}
+
+.monthCell {
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+}
+
+.amountCell {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-text-body, #1F2937);
+}
+
+.expenseCell {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted, #64748B);
+}
+
+.taxCell {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #0F766E;
+}
+
+.emptyState {
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--color-text-placeholder, #94A3B8);
+  margin: 0 auto 12px auto;
+}
+
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+}
+
+.emptyCopy {
+  font-size: 13px;
+  color: var(--color-text-muted, #64748B);
+  margin-top: 4px;
+}

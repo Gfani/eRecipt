@@ -1,0 +1,38 @@
+.pageHead {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (min-width: 640px) {
+  .pageHead {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary, #0D9488);
+  margin: 0 0 6px 0;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.copy {
+  font-size: 14px;
+  color: var(--color-text-muted, #64748B);
+  margin-top: 6px;
+}

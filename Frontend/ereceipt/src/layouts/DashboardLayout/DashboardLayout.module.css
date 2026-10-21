@@ -1,0 +1,36 @@
+.layoutContainer {
+  min-height: 100vh;
+  background-color: var(--color-bg-body, #F3F6F8);
+}
+
+.mainWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  .mainWrapper {
+    padding-left: 260px;
+  }
+}
+
+.contentArea {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 16px;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .contentArea {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .contentArea {
+    padding: 28px;
+  }
+}

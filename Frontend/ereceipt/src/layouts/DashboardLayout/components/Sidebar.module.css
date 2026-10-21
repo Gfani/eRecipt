@@ -1,0 +1,153 @@
+.sidebar {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  width: min(288px, 85vw);
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--color-navy, #12304A);
+  padding: 24px 16px;
+  color: #FFFFFF;
+  transition: transform 0.25s ease;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    width: 260px;
+    transform: translateX(0) !important;
+  }
+}
+
+.open {
+  transform: translateX(0);
+}
+
+.closed {
+  transform: translateX(-100%);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+@media (min-width: 1024px) {
+  .backdrop {
+    display: none;
+  }
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+  .closeBtn {
+    display: none;
+  }
+}
+
+.merchantCard {
+  margin-top: 32px;
+  padding: 12px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.merchantAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md, 8px);
+  background-color: var(--color-primary, #0D9488);
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.merchantDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.merchantName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.merchantVerified {
+  font-size: 11px;
+  color: #AFC1CE;
+  margin: 2px 0 0 0;
+}
+
+.navSection {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 8px);
+  border: none;
+  background: transparent;
+  color: #C7D4DE;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.navItem:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+
+.navItemActive {
+  background-color: var(--color-primary, #0D9488);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.bottomSection {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
