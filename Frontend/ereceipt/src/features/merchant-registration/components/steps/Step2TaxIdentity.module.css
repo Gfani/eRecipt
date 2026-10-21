@@ -1,0 +1,11 @@
+.stepContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tinHint {
+  font-size: 11px;
+  color: var(--color-text-muted, #64748B);
+  margin-top: 4px;
+}

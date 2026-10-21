@@ -1,0 +1,139 @@
+.filterCard {
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FFFFFF;
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.035);
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .filterGrid {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-muted, #64748B);
+  pointer-events: none;
+}
+
+.dateInput {
+  padding-left: 44px;
+}
+
+.calcTaxBtn {
+  min-height: 44px;
+  background-color: var(--color-success, #16A34A);
+  border-color: var(--color-success, #16A34A);
+  color: #FFFFFF;
+}
+
+.calcTaxBtn:hover:not(:disabled) {
+  background-color: #15803D;
+  border-color: #15803D;
+}
+
+.summaryBanner {
+  border: 1px solid #A7F3D0;
+  background-color: #ECFDF5;
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.summaryHeaderRow {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .summaryHeaderRow {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.summaryEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0F766E;
+  margin: 0;
+}
+
+.summaryAmount {
+  margin-top: 8px;
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-navy, #12304A);
+  margin-bottom: 0;
+}
+
+.summaryMeta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted, #64748B);
+}
+
+.approvedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full, 999px);
+  border: 1px solid #BBF7D0;
+  background-color: #F0FDF4;
+  color: #157A36;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.approvedRow {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #A7F3D0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .approvedRow {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.approvedTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #166534;
+  margin: 0;
+}
+
+.approvedCopy {
+  font-size: 12px;
+  color: var(--color-text-muted, #64748B);
+  margin-top: 2px;
+}

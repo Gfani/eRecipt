@@ -1,0 +1,74 @@
+.stepContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gpsCard {
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: var(--color-bg-subtle, #F8FAFC);
+  border-radius: var(--radius-lg, 12px);
+  padding: 16px;
+}
+
+.gpsInner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.gpsIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md, 8px);
+  background-color: #FFFFFF;
+  color: var(--color-primary, #0D9488);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.gpsDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.gpsTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+}
+
+.gpsOptional {
+  font-weight: 400;
+  color: var(--color-text-muted, #64748B);
+}
+
+.gpsCopy {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted, #64748B);
+}
+
+.gpsButton {
+  margin-top: 12px;
+}
+
+.gpsStatusText {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.gpsSuccess {
+  color: #0F766E;
+}
+
+.gpsNotice {
+  color: #A85D08;
+}
