@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Wifi, CheckCircle2 } from 'lucide-react';
+import { Wifi, CheckCircle2, RotateCcw } from 'lucide-react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import DocumentClassificationCard from './components/DocumentClassificationCard';
 import BuyerDetailsCard from './components/BuyerDetailsCard';
@@ -263,9 +263,21 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
           </p>
         </div>
 
-        <div className={styles.connectionBadge}>
-          <Wifi size={14} />
-          <span>EIMS connection ready</span>
+        <div className={styles.headerActionsGroup}>
+          <button
+            type="button"
+            onClick={handleReset}
+            className={styles.resetBtn}
+            title="Reset form to default values"
+          >
+            <RotateCcw size={14} />
+            <span>Clear form</span>
+          </button>
+
+          <div className={styles.connectionBadge}>
+            <Wifi size={14} />
+            <span>EIMS connection ready</span>
+          </div>
         </div>
       </div>
 
