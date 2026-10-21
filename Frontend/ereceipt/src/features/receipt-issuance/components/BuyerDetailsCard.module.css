@@ -112,6 +112,23 @@
   gap: 8px;
 }
 
+.tinHelperRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.tinHelperMuted {
+  color: var(--color-text-muted, #64748B);
+}
+
+.tinHelperValid {
+  color: var(--color-success, #16A34A);
+  font-weight: 600;
+}
+
 .verifyBtn {
   display: inline-flex;
   align-items: center;

@@ -108,6 +108,17 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
               <span>{isVerifyingTin ? 'Verifying...' : tinVerified ? 'Verified' : 'Verify TIN'}</span>
             </button>
           </div>
+          <div className={styles.tinHelperRow}>
+            <span
+              className={
+                buyer.tin.length === 10 ? styles.tinHelperValid : styles.tinHelperMuted
+              }
+            >
+              {buyer.tin.length === 10
+                ? '✓ 10 digits entered. Ready for MoR verification.'
+                : `Must be exactly 10 digits (${buyer.tin.length}/10 digits)`}
+            </span>
+          </div>
         </div>
 
         <div>
