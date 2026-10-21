@@ -112,7 +112,7 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
       </div>
 
       {/* Multi-Step Form */}
-      <form onSubmit={handleSubmit} className={styles.formContent}>
+      <form onSubmit={handleSubmit} className={styles.formContent} autoComplete="off">
         {step === 1 && (
           <Step1AccountDetails
             formData={formData}

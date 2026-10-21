@@ -62,6 +62,16 @@
   opacity: 0.7;
 }
 
+/* Prevent browser autofill blue/yellow background */
+.field-input:-webkit-autofill,
+.field-input:-webkit-autofill:hover,
+.field-input:-webkit-autofill:focus,
+.field-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: var(--color-text-body, #1F2937) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Base Buttons */
 .btn-primary {
   display: inline-flex;

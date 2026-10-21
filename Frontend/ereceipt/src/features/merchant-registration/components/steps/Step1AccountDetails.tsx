@@ -19,7 +19,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           required
           type="text"
           className="field-input"
-          placeholder="Your full name"
+          autoComplete="off"
           value={formData.fullName}
           onChange={(e) => onChange({ fullName: e.target.value })}
         />
@@ -31,7 +31,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           required
           type="tel"
           className="field-input"
-          placeholder="+251 9__ ___ ___"
+          autoComplete="off"
           value={formData.phoneNumber}
           onChange={(e) => onChange({ phoneNumber: e.target.value })}
         />
@@ -47,7 +47,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
             required
             type={showPassword ? 'text' : 'password'}
             className={`field-input ${styles.passwordInput}`}
-            placeholder="Enter your password"
+            autoComplete="new-password"
             value={formData.password}
             onChange={(e) => onChange({ password: e.target.value })}
           />
