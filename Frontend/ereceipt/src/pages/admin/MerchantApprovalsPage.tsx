@@ -1,115 +1,76 @@
 import React, { useState } from 'react';
 import { ApprovalsTabFilter } from '../../features/admin/merchant-approvals/components/ApprovalsTabFilter';
 import { ApprovalsTable } from '../../features/admin/merchant-approvals/components/ApprovalsTable';
-import type { ApprovalStatus, MerchantApplication } from '../../features/admin/merchant-approvals/types/approvalsTypes';
+import type { MerchantApplicationItem } from '../../features/admin/types';
 
 export const MerchantApprovalsPage: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<'all' | ApprovalStatus>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [applications, setApplications] = useState<MerchantApplication[]>([
+  const [currentTab, setCurrentTab] = useState('All Applications');
+  const [dateFilter, setDateFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All business categories');
+  const [statusFilter, setStatusFilter] = useState('All statuses');
+
+  const [applications, setApplications] = useState<MerchantApplicationItem[]>([
     {
-      id: 'app-1',
-      businessName: 'Addis Fresh Supermarket PLC',
-      tradeName: 'Fresh Mart Bole',
-      tin: '0048192841',
-      taxCategory: 'VAT 15%',
-      sector: 'Retail',
-      applicantName: 'Yonas Getachew',
-      phone: '+251 91 122 3344',
-      email: 'yonas@freshmart.et',
-      city: 'Addis Ababa',
-      subCity: 'Bole',
-      building: 'Mega Plaza 3rd Floor',
-      submissionDate: '2026-10-21',
-      documents: [
-        { name: 'Trade_License_2026.pdf', type: 'application/pdf', size: '2.4 MB', status: 'verified' },
-        { name: 'TIN_Registration_Cert.pdf', type: 'application/pdf', size: '1.1 MB', status: 'verified' },
-      ],
-      status: 'pending',
+      ref: 'APP-2026-0148',
+      name: 'Meklit Home Goods PLC',
+      tin: '0012847391',
+      merchantId: 'MER-10482',
+      category: 'Retail',
+      date: '18 Oct 2026',
+      status: 'Pending',
+      address: 'Addis Ababa, Lideta Sub-city',
     },
     {
-      id: 'app-2',
-      businessName: 'Awash Highland Logistics',
-      tradeName: 'Awash Express Delivery',
-      tin: '0059281720',
-      taxCategory: 'VAT 15%',
-      sector: 'Services',
-      applicantName: 'Mulugeta Bekele',
-      phone: '+251 92 334 5566',
-      email: 'mulugeta@awashexpress.et',
-      city: 'Addis Ababa',
-      subCity: 'Kirkos',
-      building: 'Meskel Flower Tower 1st Floor',
-      submissionDate: '2026-10-21',
-      documents: [
-        { name: 'Transport_Ministry_Permit.pdf', type: 'application/pdf', size: '1.9 MB', status: 'verified' },
-      ],
-      status: 'pending',
+      ref: 'APP-2026-0147',
+      name: 'Desta Pharmacy',
+      tin: '0017932054',
+      merchantId: 'MER-10481',
+      category: 'Pharmacy',
+      date: '18 Oct 2026',
+      status: 'Under Review',
+      address: 'Adama, Bole Sub-city',
     },
     {
-      id: 'app-3',
-      businessName: 'Lucy Traditional Coffee Roasters',
-      tradeName: 'Lucy Coffee House',
-      tin: '0039281720',
-      taxCategory: 'TOT 2%',
-      sector: 'Hospitality',
-      applicantName: 'Rahel Wolde',
-      phone: '+251 93 445 6677',
-      email: 'rahel@lucycoffee.et',
-      city: 'Addis Ababa',
-      subCity: 'Yeka',
-      building: 'Megenagna Roundabout No. 12',
-      submissionDate: '2026-10-20',
-      documents: [
-        { name: 'Trade_License_Yeka.pdf', type: 'application/pdf', size: '1.5 MB', status: 'verified' },
-      ],
-      status: 'action_required',
+      ref: 'APP-2026-0145',
+      name: 'Blue Nile Stationery',
+      tin: '0014638290',
+      merchantId: 'MER-10479',
+      category: 'Wholesale',
+      date: '17 Oct 2026',
+      status: 'Additional Information Required',
+      address: 'Bahir Dar, Belay Zeleke Sub-city',
     },
   ]);
 
   const filteredApps = applications.filter((app) => {
-    const matchesTab = currentTab === 'all' || app.status === currentTab;
-    const matchesQuery =
-      searchQuery.trim() === '' ||
-      app.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.tin.includes(searchQuery.trim());
-    return matchesTab && matchesQuery;
+    const matchesTab = currentTab === 'All Applications' || app.status === currentTab;
+    const matchesCategory =
+      categoryFilter === 'All business categories' || app.category === categoryFilter;
+    const matchesStatus =
+      statusFilter === 'All statuses' || app.status.includes(statusFilter);
+    return matchesTab && matchesCategory && matchesStatus;
   });
-
-  const counts = {
-    all: applications.length,
-    pending: applications.filter((a) => a.status === 'pending').length,
-    action_required: applications.filter((a) => a.status === 'action_required').length,
-    approved: applications.filter((a) => a.status === 'approved').length,
-    rejected: applications.filter((a) => a.status === 'rejected').length,
-  };
 
   return (
     <div>
       <ApprovalsTabFilter
         currentTab={currentTab}
         onTabChange={setCurrentTab}
-        counts={counts}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        dateFilter={dateFilter}
+        onDateChange={setDateFilter}
+        categoryFilter={categoryFilter}
+        onCategoryChange={setCategoryFilter}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
       />
       <ApprovalsTable
         applications={filteredApps}
-        onApprove={(id) => {
+        onReviewMerchant={(ref) => {
           setApplications((prev) =>
-            prev.map((a) => (a.id === id ? { ...a, status: 'approved' } : a))
+            prev.map((a) => (a.ref === ref ? { ...a, status: 'Approved' } : a))
           );
         }}
-        onRequestClarification={(id) => {
-          setApplications((prev) =>
-            prev.map((a) => (a.id === id ? { ...a, status: 'action_required' } : a))
-          );
-        }}
-        onReject={(id) => {
-          setApplications((prev) =>
-            prev.map((a) => (a.id === id ? { ...a, status: 'rejected' } : a))
-          );
-        }}
+        getToneForStatus={(status) => (status.includes('Approved') ? 'success' : 'pending')}
       />
     </div>
   );

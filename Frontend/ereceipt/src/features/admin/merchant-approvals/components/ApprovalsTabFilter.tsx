@@ -1,67 +1,85 @@
 import React from 'react';
-import { Search } from 'lucide-react';
-import type { ApprovalStatus } from '../types/approvalsTypes';
 import styles from './ApprovalsTabFilter.module.css';
 
 interface ApprovalsTabFilterProps {
-  currentTab: 'all' | ApprovalStatus;
-  onTabChange: (tab: 'all' | ApprovalStatus) => void;
-  counts: {
-    all: number;
-    pending: number;
-    action_required: number;
-    approved: number;
-    rejected: number;
-  };
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  currentTab: string;
+  onTabChange: (tab: string) => void;
+  dateFilter: string;
+  onDateChange: (val: string) => void;
+  categoryFilter: string;
+  onCategoryChange: (val: string) => void;
+  statusFilter: string;
+  onStatusChange: (val: string) => void;
 }
 
 export const ApprovalsTabFilter: React.FC<ApprovalsTabFilterProps> = ({
   currentTab,
   onTabChange,
-  counts,
-  searchQuery,
-  onSearchChange,
+  dateFilter,
+  onDateChange,
+  categoryFilter,
+  onCategoryChange,
+  statusFilter,
+  onStatusChange,
 }) => {
   const tabs = [
-    { key: 'all' as const, label: 'All', count: counts.all },
-    { key: 'pending' as const, label: 'Pending Review', count: counts.pending },
-    { key: 'action_required' as const, label: 'Requires Action', count: counts.action_required },
-    { key: 'approved' as const, label: 'Approved', count: counts.approved },
-    { key: 'rejected' as const, label: 'Rejected', count: counts.rejected },
+    'All Applications',
+    'Pending',
+    'Under Review',
+    'Additional Information Required',
+    'Approved',
+    'Rejected',
   ];
 
   return (
-    <div className={styles.filterBar}>
-      <div className={styles.tabsGroup}>
+    <div>
+      <div className={styles.tabList}>
         {tabs.map((tab) => {
-          const isActive = currentTab === tab.key;
+          const isActive = currentTab === tab;
           return (
             <button
-              key={tab.key}
+              key={tab}
               type="button"
-              className={`${styles.tabBtn} ${isActive ? styles.tabBtnActive : ''}`}
-              onClick={() => onTabChange(tab.key)}
+              className={`${styles.tabButton} ${
+                isActive ? styles.tabButtonActive : styles.tabButtonInactive
+              }`}
+              onClick={() => onTabChange(tab)}
             >
-              <span>{tab.label}</span>
-              <span className={`${styles.tabBadge} ${isActive ? styles.tabBadgeActive : ''}`}>
-                {tab.count}
-              </span>
+              {tab}
             </button>
           );
         })}
       </div>
 
-      <div className={styles.searchWrapper}>
-        <Search size={16} className={styles.searchIcon} />
+      <div className={styles.filterGrid}>
         <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="Search business name or TIN..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          type="date"
+          className={styles.field}
+          aria-label="Submission date"
+          value={dateFilter}
+          onChange={(e) => onDateChange(e.target.value)}
         />
+        <select
+          className={styles.field}
+          value={categoryFilter}
+          onChange={(e) => onCategoryChange(e.target.value)}
+        >
+          <option>All business categories</option>
+          <option>Retail</option>
+          <option>Pharmacy</option>
+          <option>Hospitality</option>
+          <option>Wholesale</option>
+          <option>Automotive</option>
+        </select>
+        <select
+          className={styles.field}
+          value={statusFilter}
+          onChange={(e) => onStatusChange(e.target.value)}
+        >
+          <option>All statuses</option>
+          <option>Pending</option>
+          <option>Under Review</option>
+        </select>
       </div>
     </div>
   );

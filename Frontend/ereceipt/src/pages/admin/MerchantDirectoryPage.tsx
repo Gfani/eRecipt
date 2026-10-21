@@ -1,66 +1,60 @@
 import React, { useState } from 'react';
 import { TaxpayerSearchCard } from '../../features/admin/merchant-directory/components/TaxpayerSearchCard';
 import { MerchantDirectoryTable } from '../../features/admin/merchant-directory/components/MerchantDirectoryTable';
-import type { DirectoryMerchant } from '../../features/admin/merchant-directory/types/directoryTypes';
+import type { DirectoryMerchantItem } from '../../features/admin/types';
 
 export const MerchantDirectoryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSector, setSelectedSector] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [directoryQuery, setDirectoryQuery] = useState('');
 
-  const [merchants] = useState<DirectoryMerchant[]>([
+  const [merchants] = useState<DirectoryMerchantItem[]>([
     {
-      id: 'm-1',
-      legalName: 'Abyssinia Trading PLC',
-      tradeName: 'Abyssinia General Import',
-      tin: '0048192041',
-      sector: 'Wholesale',
-      taxCategory: 'VAT 15%',
-      city: 'Addis Ababa',
-      subCity: 'Arada',
-      accreditationNo: 'EIMS-2026-0094',
-      registeredDate: '2026-10-18',
-      status: 'active',
-      contactPhone: '+251 91 778 9900',
+      name: 'Lomi Café and Bakery',
+      tin: '0019274635',
+      id: 'MER-10476',
+      category: 'Hospitality',
+      classification: 'VAT',
+      status: 'Approved',
+      authorization: 'Authorized',
     },
     {
-      id: 'm-2',
-      legalName: "Kaldi's Coffee Roasting PLC",
-      tradeName: "Kaldi's Coffee Bole",
-      tin: '0019284729',
-      sector: 'Hospitality',
-      taxCategory: 'VAT 15%',
-      city: 'Addis Ababa',
-      subCity: 'Bole',
-      accreditationNo: 'EIMS-2026-0093',
-      registeredDate: '2026-09-12',
-      status: 'active',
-      contactPhone: '+251 91 234 5678',
+      name: 'Meklit Home Goods PLC',
+      tin: '0012847391',
+      id: 'MER-10482',
+      category: 'Retail',
+      classification: 'Needs Further Review',
+      status: 'Pending',
+      authorization: 'Not authorized',
+    },
+    {
+      name: 'Desta Pharmacy',
+      tin: '0017932054',
+      id: 'MER-10481',
+      category: 'Pharmacy',
+      classification: 'VAT',
+      status: 'Under Review',
+      authorization: 'Not authorized',
     },
   ]);
 
-  const filteredMerchants = merchants.filter((m) => {
-    const matchesSearch =
-      searchQuery.trim() === '' ||
-      m.legalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.tin.includes(searchQuery.trim());
-    const matchesSector = selectedSector === 'all' || m.sector === selectedSector;
-    const matchesStatus = selectedStatus === 'all' || m.status === selectedStatus;
-    return matchesSearch && matchesSector && matchesStatus;
-  });
+  const filteredMerchants = merchants.filter(
+    (m) =>
+      !directoryQuery ||
+      `${m.tin} ${m.id} ${m.name}`.toLowerCase().includes(directoryQuery.toLowerCase())
+  );
 
   return (
     <div>
       <TaxpayerSearchCard
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        selectedSector={selectedSector}
-        onSectorChange={setSelectedSector}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        totalResults={filteredMerchants.length}
+        onSearchSubmit={() => setDirectoryQuery(searchQuery)}
       />
-      <MerchantDirectoryTable merchants={filteredMerchants} />
+      <MerchantDirectoryTable
+        merchants={filteredMerchants}
+        onViewDetails={(tin) => alert(`Viewing details for TIN ${tin}`)}
+        getToneForStatus={(status) => (status.includes('Approved') ? 'success' : 'pending')}
+      />
     </div>
   );
 };

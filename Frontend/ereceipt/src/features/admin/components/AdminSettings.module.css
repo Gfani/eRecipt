@@ -1,0 +1,110 @@
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.section {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 24px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #17201B;
+}
+
+.fieldsStack {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.field {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  padding: 8px 12px;
+  color: #1F2937;
+  font-size: 14px;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #176B4D;
+}
+
+.fieldReadOnly {
+  background-color: #F7F8F5;
+  color: #64748B;
+  cursor: default;
+}
+
+.saveBtn {
+  border-radius: 8px;
+  background-color: #123D2C;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+  cursor: pointer;
+  width: fit-content;
+  margin-top: 8px;
+}
+
+.saveBtn:hover {
+  background-color: #0D3022;
+}
+
+.togglesList {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid #E4E9E5;
+  font-size: 14px;
+  color: #17201B;
+  cursor: pointer;
+}
+
+.toggleRow:last-child {
+  border-bottom: none;
+}
+
+.toggleInput {
+  width: 42px;
+  height: 24px;
+  accent-color: #123D2C;
+  cursor: pointer;
+}

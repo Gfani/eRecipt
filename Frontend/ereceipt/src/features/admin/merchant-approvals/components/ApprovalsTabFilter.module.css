@@ -1,86 +1,62 @@
-.filterBar {
+.tabList {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid #DDE3DE;
+  padding: 12px;
 }
 
-.tabsGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #E2E8F0;
-  padding: 4px;
-  border-radius: var(--radius-md, 8px);
-}
-
-.tabBtn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 6px;
+.tabButton {
+  white-space: nowrap;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
   border: none;
-  background: transparent;
-  color: var(--color-text-secondary, #4B6375);
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
+  border-radius: 4px;
   transition: all 0.15s ease;
 }
 
-.tabBtn:hover {
-  color: var(--color-navy, #12304A);
-}
-
-.tabBtnActive {
-  background-color: #FFFFFF;
-  color: var(--color-navy, #12304A);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.tabBadge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background-color: #CBD5E1;
-  color: #334155;
-}
-
-.tabBadgeActive {
-  background-color: var(--color-primary, #0D9488);
+.tabButtonActive {
+  background-color: #123D2C;
   color: #FFFFFF;
 }
 
-.searchWrapper {
-  position: relative;
-  min-width: 280px;
+.tabButtonInactive {
+  background-color: transparent;
+  color: #667069;
 }
 
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94A3B8;
+.tabButtonInactive:hover {
+  background-color: #F1F4F1;
 }
 
-.searchInput {
+.filterGrid {
+  display: grid;
+  gap: 12px;
+  border-bottom: 1px solid #DDE3DE;
+  padding: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .filterGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.field {
   width: 100%;
-  padding: 9px 12px 9px 38px;
-  border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  min-height: 40px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
   background-color: #FFFFFF;
+  padding: 8px 12px;
+  color: #1F2937;
   font-size: 13px;
-  color: var(--color-navy, #12304A);
   outline: none;
-  transition: border-color 0.15s ease;
 }
 
-.searchInput:focus {
-  border-color: var(--color-primary, #0D9488);
+.field:focus {
+  border-color: #176B4D;
 }

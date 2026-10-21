@@ -1,101 +1,75 @@
 import React from 'react';
-import { ExternalLink, CheckCircle2, AlertTriangle, ShieldX } from 'lucide-react';
-import type { DirectoryMerchant } from '../types/directoryTypes';
+import { Search } from 'lucide-react';
+import { Badge } from '../../components/Badge';
+import type { DirectoryMerchantItem, Tone } from '../../types';
 import styles from './MerchantDirectoryTable.module.css';
 
 interface MerchantDirectoryTableProps {
-  merchants: DirectoryMerchant[];
-  onSelectMerchant?: (merchant: DirectoryMerchant) => void;
+  merchants: DirectoryMerchantItem[];
+  onViewDetails: (tin: string) => void;
+  getToneForStatus: (status: string) => Tone;
 }
 
 export const MerchantDirectoryTable: React.FC<MerchantDirectoryTableProps> = ({
   merchants,
-  onSelectMerchant,
+  onViewDetails,
+  getToneForStatus,
 }) => {
-  const getStatusBadge = (status: DirectoryMerchant['status']) => {
-    switch (status) {
-      case 'active':
-        return (
-          <span className={`${styles.badge} ${styles.statusActive}`}>
-            <CheckCircle2 size={12} />
-            <span>Active</span>
-          </span>
-        );
-      case 'under_audit':
-        return (
-          <span className={`${styles.badge} ${styles.statusAudit}`}>
-            <AlertTriangle size={12} />
-            <span>Under Audit</span>
-          </span>
-        );
-      case 'suspended':
-        return (
-          <span className={`${styles.badge} ${styles.statusSuspended}`}>
-            <ShieldX size={12} />
-            <span>Suspended</span>
-          </span>
-        );
-    }
-  };
-
   return (
     <div className={styles.tableCard}>
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.th}>Legal Business & Trade Name</th>
-              <th className={styles.th}>TIN</th>
-              <th className={styles.th}>Sector</th>
-              <th className={styles.th}>Tax Regime</th>
-              <th className={styles.th}>Location</th>
-              <th className={styles.th}>Accreditation Ref</th>
-              <th className={styles.th}>Taxpayer Status</th>
-              <th className={styles.th} style={{ textAlign: 'right' }}>Action</th>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th className={styles.th}>Registered Business Name</th>
+            <th className={styles.th}>TIN</th>
+            <th className={styles.th}>Merchant ID</th>
+            <th className={styles.th}>Category</th>
+            <th className={styles.th}>Tax Classification</th>
+            <th className={styles.th}>Merchant Status</th>
+            <th className={styles.th}>Receipt Authorization</th>
+            <th className={styles.th} style={{ textAlign: 'right' }}>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {merchants.map((item) => (
+            <tr key={item.tin}>
+              <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
+              <td className={`${styles.td} ${styles.tdTin}`}>{item.tin}</td>
+              <td className={styles.td}>{item.id}</td>
+              <td className={styles.td}>{item.category}</td>
+              <td className={styles.td}>
+                <Badge tone="info">{item.classification}</Badge>
+              </td>
+              <td className={styles.td}>
+                <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
+              </td>
+              <td className={styles.td}>
+                <Badge tone={getToneForStatus(item.authorization)}>{item.authorization}</Badge>
+              </td>
+              <td className={styles.td} style={{ textAlign: 'right' }}>
+                <button
+                  type="button"
+                  onClick={() => onViewDetails(item.tin)}
+                  className={styles.viewDetailsBtn}
+                >
+                  View Details
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {merchants.length === 0 ? (
-              <tr>
-                <td colSpan={8} className={styles.emptyState}>
-                  No registered merchants found matching this query.
-                </td>
-              </tr>
-            ) : (
-              merchants.map((m) => (
-                <tr key={m.id} className={styles.tr}>
-                  <td className={styles.td}>
-                    <div className={styles.businessCell}>
-                      <span className={styles.businessName}>{m.legalName}</span>
-                      <span className={styles.tradeName}>{m.tradeName}</span>
-                    </div>
-                  </td>
-                  <td className={styles.td}>
-                    <span className={styles.tinCode}>{m.tin}</span>
-                  </td>
-                  <td className={styles.td}>{m.sector}</td>
-                  <td className={styles.td}>{m.taxCategory}</td>
-                  <td className={styles.td}>{m.city}, {m.subCity}</td>
-                  <td className={styles.td}>
-                    <span className={styles.accreditationPill}>{m.accreditationNo}</span>
-                  </td>
-                  <td className={styles.td}>{getStatusBadge(m.status)}</td>
-                  <td className={styles.td} style={{ textAlign: 'right' }}>
-                    <button
-                      type="button"
-                      className={styles.actionBtn}
-                      onClick={() => onSelectMerchant?.(m)}
-                    >
-                      <span>Ledger</span>
-                      <ExternalLink size={12} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+          ))}
+          {merchants.length === 0 && (
+            <tr>
+              <td colSpan={8} className={styles.emptyCell}>
+                <Search size={28} style={{ margin: '0 auto', color: '#929A95' }} />
+                <p className={styles.emptyTitle}>No merchant found</p>
+                <p className={styles.emptySubtext}>
+                  Check the TIN, merchant ID, or business name and try again.
+                </p>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

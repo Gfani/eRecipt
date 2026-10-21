@@ -1,0 +1,199 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.metricCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.metricTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.metricLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #526059;
+  max-width: 160px;
+  margin: 0;
+}
+
+.metricIconBox {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.metricValue {
+  margin: 20px 0 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #17201B;
+}
+
+.metricDetail {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #7A847E;
+}
+
+.splitGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1280px) {
+  .splitGrid {
+    grid-template-columns: 1.45fr 0.75fr;
+  }
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #DDE3DE;
+  padding: 16px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #17201B;
+  margin: 0;
+}
+
+.cardSubtext {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #667069;
+}
+
+.viewAllBtn {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: #176B4D;
+  cursor: pointer;
+  padding: 0;
+}
+
+.viewAllBtn:hover {
+  text-decoration: underline;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+
+.th {
+  border-bottom: 1px solid #DDE3DE;
+  background-color: #F7F8F5;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #667069;
+  white-space: nowrap;
+}
+
+.td {
+  border-bottom: 1px solid #E8ECE9;
+  padding: 12px 16px;
+  color: #3D4741;
+  vertical-align: middle;
+}
+
+.tdMerchant {
+  font-weight: 600;
+  color: #17201B;
+}
+
+.reviewBtn {
+  border-radius: 6px;
+  border: 1px solid #C9D5CD;
+  background-color: #FFFFFF;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #123D2C;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.reviewBtn:hover {
+  background-color: #EEF7F1;
+}
+
+.asideCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+  height: fit-content;
+}
+
+.asideList {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.asideItem {
+  border-left: 2px solid #B9DCC8;
+  padding-left: 16px;
+}
+
+.asideAction {
+  font-size: 12px;
+  font-weight: 600;
+  color: #17201B;
+  margin: 0;
+}
+
+.asideMeta {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #667069;
+}
+
+.asideDate {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #929A95;
+}

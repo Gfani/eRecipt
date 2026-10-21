@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MerchantRegistration } from './features/merchant-registration';
 import { Audit } from './features/audit';
-import { AdminPortal } from './features/admin';
+import { Admin } from './features/admin';
 import './App.css';
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
     const viewParam = params.get('view');
     if (viewParam === 'registration') return 'registration';
     if (viewParam === 'audit') return 'audit';
-    // Default to admin view since user requested to see the admin page
+    // Default to admin view
     return 'admin';
   };
 
@@ -55,7 +55,7 @@ function App() {
           }}
         />
       ) : (
-        <AdminPortal
+        <Admin
           onReturnToMerchant={() => setCurrentView('registration')}
         />
       )}

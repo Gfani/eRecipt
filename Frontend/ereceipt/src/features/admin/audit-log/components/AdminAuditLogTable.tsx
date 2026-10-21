@@ -1,83 +1,127 @@
-import React from 'react';
-import { ShieldCheck } from 'lucide-react';
-import type { AdminAuditEntry } from '../types/adminAuditTypes';
+import React, { useState } from 'react';
+import type { AuditEventItem } from '../../types';
 import styles from './AdminAuditLogTable.module.css';
 
 interface AdminAuditLogTableProps {
-  logs: AdminAuditEntry[];
+  auditEvents?: AuditEventItem[];
 }
 
-export const AdminAuditLogTable: React.FC<AdminAuditLogTableProps> = ({ logs }) => {
-  const getActionBadge = (action: AdminAuditEntry['actionType']) => {
-    switch (action) {
-      case 'MERCHANT_APPROVAL':
-        return <span className={`${styles.actionTag} ${styles.actionApproval}`}>APPROVAL</span>;
-      case 'APPLICATION_REJECTED':
-        return <span className={`${styles.actionTag} ${styles.actionReject}`}>REJECTED</span>;
-      case 'CLARIFICATION_REQUESTED':
-        return <span className={`${styles.actionTag} ${styles.actionClarification}`}>CLARIFICATION</span>;
-      case 'TAX_CLEARANCE_ISSUED':
-        return <span className={`${styles.actionTag} ${styles.actionApproval}`}>TAX CLEARANCE</span>;
-      default:
-        return <span className={`${styles.actionTag} ${styles.actionDefault}`}>{action}</span>;
-    }
-  };
+const defaultEvents: AuditEventItem[] = [
+  {
+    timestamp: '20 Oct 2026 · 16:22',
+    officer: 'Hana Alemu · RO-218',
+    action: 'Merchant application reviewed',
+    reference: 'APP-2026-0147',
+    statusTransition: 'Pending → Under Review',
+    notes: 'Document review initiated',
+  },
+  {
+    timestamp: '20 Oct 2026 · 15:48',
+    officer: 'Bekele Tadesse · RO-184',
+    action: 'Tax report approved',
+    reference: 'TR-2026-0909',
+    statusTransition: 'Under Review → Approved',
+    notes: 'Reconciliation within accepted variance',
+  },
+  {
+    timestamp: '20 Oct 2026 · 14:31',
+    officer: 'Hana Alemu · RO-218',
+    action: 'Additional information requested',
+    reference: 'APP-2026-0145',
+    statusTransition: 'Under Review → More Information',
+    notes: 'Updated trade licence requested',
+  },
+  {
+    timestamp: '20 Oct 2026 · 12:06',
+    officer: 'Meron Girma · RO-203',
+    action: 'Receipt authorization changed',
+    reference: 'MER-10473',
+    statusTransition: 'Authorized → Suspended',
+    notes: 'Administrative review reference AR-1108',
+  },
+];
+
+export const AdminAuditLogTable: React.FC<AdminAuditLogTableProps> = ({
+  auditEvents = defaultEvents,
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [actionFilter, setActionFilter] = useState('All actions');
+  const [dateFilter, setDateFilter] = useState('');
+
+  const filteredEvents = auditEvents.filter((item) => {
+    const matchesSearch =
+      searchQuery.trim() === '' ||
+      item.officer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.reference.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesAction =
+      actionFilter === 'All actions' || item.action.includes(actionFilter);
+    return matchesSearch && matchesAction;
+  });
 
   return (
     <div className={styles.card}>
-      <div className={styles.headerBar}>
-        <div>
-          <h3 className={styles.title}>Officer Administrative Audit Log</h3>
-          <p className={styles.subtitle}>
-            Append-only tamper-proof ledger of every accreditation and tax modification
-          </p>
-        </div>
-
-        <div className={styles.sealPill}>
-          <ShieldCheck size={14} />
-          <span>SHA-256 State Authenticated</span>
-        </div>
+      <div className={styles.filtersRow}>
+        <input
+          className={styles.field}
+          placeholder="Search officer, action, or reference"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className={styles.field}
+          value={actionFilter}
+          onChange={(e) => setActionFilter(e.target.value)}
+        >
+          <option>All actions</option>
+          <option>Merchant decisions</option>
+          <option>Tax report decisions</option>
+          <option>Authorization changes</option>
+        </select>
+        <input
+          type="date"
+          className={styles.field}
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+        />
       </div>
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.th}>Timestamp</th>
-              <th className={styles.th}>Officer Name & ID</th>
-              <th className={styles.th}>Action</th>
-              <th className={styles.th}>Target Entity / TIN</th>
-              <th className={styles.th}>Administrative Details</th>
-              <th className={styles.th}>Officer IP</th>
-              <th className={styles.th}>Hash Seal</th>
+              {[
+                'Date & Time',
+                'Officer',
+                'Action',
+                'Reference',
+                'Previous → New Status',
+                'Reason / Note',
+              ].map((item) => (
+                <th key={item} className={styles.th}>
+                  {item}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {logs.map((log) => (
-              <tr key={log.id} className={styles.tr}>
-                <td className={styles.td}>
-                  <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{log.timestamp}</span>
-                </td>
-                <td className={styles.td}>
-                  <div style={{ fontWeight: 600 }}>{log.officerName}</div>
-                  <div style={{ fontSize: '11px', color: '#64748B' }}>{log.officerId}</div>
-                </td>
-                <td className={styles.td}>{getActionBadge(log.actionType)}</td>
-                <td className={styles.td}>
-                  <div style={{ fontWeight: 600 }}>{log.targetEntity}</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748B' }}>
-                    TIN: {log.tin}
-                  </div>
-                </td>
-                <td className={styles.td}>{log.details}</td>
-                <td className={styles.td} style={{ fontSize: '12px', fontFamily: 'monospace' }}>
-                  {log.ipAddress}
-                </td>
-                <td className={`${styles.td} ${styles.hashCell}`}>{log.hash}</td>
+            {filteredEvents.map((row) => (
+              <tr key={`${row.timestamp}-${row.reference}`}>
+                <td className={styles.td}>{row.timestamp}</td>
+                <td className={styles.td}>{row.officer}</td>
+                <td className={styles.td}>{row.action}</td>
+                <td className={`${styles.td} ${styles.tdRef}`}>{row.reference}</td>
+                <td className={styles.td}>{row.statusTransition}</td>
+                <td className={styles.td}>{row.notes}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className={styles.noticeBar}>
+        Administrative audit entries are append-only in this prototype and cannot be edited from
+        the interface.
       </div>
     </div>
   );
