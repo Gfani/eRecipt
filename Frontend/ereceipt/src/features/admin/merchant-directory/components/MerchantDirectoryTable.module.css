@@ -1,0 +1,71 @@
+.tableCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+
+.th {
+  border-bottom: 1px solid #DDE3DE;
+  background-color: #F7F8F5;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #667069;
+  white-space: nowrap;
+}
+
+.td {
+  border-bottom: 1px solid #E8ECE9;
+  padding: 12px 16px;
+  color: #3D4741;
+  vertical-align: middle;
+}
+
+.tdTin {
+  font-family: monospace;
+}
+
+.tdMerchant {
+  font-weight: 600;
+  color: #17201B;
+}
+
+.viewDetailsBtn {
+  border-radius: 6px;
+  border: 1px solid #C9D5CD;
+  background-color: #FFFFFF;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #123D2C;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.viewDetailsBtn:hover {
+  background-color: #EEF7F1;
+}
+
+.emptyCell {
+  padding: 56px 20px;
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 12px 0 0 0;
+  font-weight: 600;
+  color: #17201B;
+}
+
+.emptySubtext {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #667069;
+}

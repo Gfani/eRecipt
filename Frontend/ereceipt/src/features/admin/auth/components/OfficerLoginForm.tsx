@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import styles from './OfficerLoginForm.module.css';
 
-export const OfficerLoginForm: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+interface OfficerLoginFormProps {
+  onLogin?: () => void;
+  onReturnToMerchant?: () => void;
+}
+
+export const OfficerLoginForm: React.FC<OfficerLoginFormProps> = ({
+  onLogin,
+  onReturnToMerchant,
+}) => {
+  const [username, setUsername] = useState('officer.demo');
+  const [password, setPassword] = useState('Revenue123');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -12,12 +20,10 @@ export const OfficerLoginForm: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Demonstration/Prototype login workflow
     setTimeout(() => {
-      console.log('Officer Login attempt:', { username, password, rememberMe });
       setIsLoading(false);
-      // Example navigation: window.location.href = '/admin/overview';
-    }, 600);
+      onLogin?.();
+    }, 300);
   };
 
   return (
@@ -133,9 +139,14 @@ export const OfficerLoginForm: React.FC = () => {
 
           {/* Return Footer Link */}
           <div className={styles.footerRow}>
-            <a href="/" className={styles.returnLink}>
+            <button
+              type="button"
+              onClick={onReturnToMerchant || (() => window.location.assign('/'))}
+              className={styles.returnLink}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
               Return to eReceipt
-            </a>
+            </button>
           </div>
         </div>
       </div>

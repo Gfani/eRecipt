@@ -1,0 +1,234 @@
+.card {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+}
+
+.tabList {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid #DDE3DE;
+  padding: 12px;
+}
+
+.tabButton {
+  white-space: nowrap;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.tabButtonActive {
+  background-color: #123D2C;
+  color: #FFFFFF;
+}
+
+.tabButtonInactive {
+  background-color: transparent;
+  color: #667069;
+}
+
+.tabButtonInactive:hover {
+  background-color: #F1F4F1;
+}
+
+.filterGrid {
+  display: grid;
+  gap: 12px;
+  border-bottom: 1px solid #DDE3DE;
+  padding: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .filterGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.field {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  padding: 8px 12px;
+  color: #1F2937;
+  font-size: 13px;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #176B4D;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+
+.th {
+  border-bottom: 1px solid #DDE3DE;
+  background-color: #F7F8F5;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #667069;
+  white-space: nowrap;
+}
+
+.td {
+  border-bottom: 1px solid #E8ECE9;
+  padding: 12px 16px;
+  color: #3D4741;
+  vertical-align: middle;
+}
+
+.tdRef {
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.tdMerchant {
+  font-weight: 600;
+  color: #17201B;
+}
+
+.tdNumber {
+  font-family: monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.reviewBtn {
+  border-radius: 6px;
+  border: 1px solid #C9D5CD;
+  background-color: #FFFFFF;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #123D2C;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.reviewBtn:hover {
+  background-color: #EEF7F1;
+}
+
+/* Report Review sub-view styles */
+.reviewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #176B4D;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: fit-content;
+}
+
+.backBtn:hover {
+  text-decoration: underline;
+}
+
+.twoColGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1280px) {
+  .twoColGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.section {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #17201B;
+}
+
+.reconcileGrid {
+  margin-top: 20px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .reconcileGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.reconcileCard {
+  background-color: #F7F8F5;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.reconcileCardDiff {
+  background-color: #FFF7E6;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.explanationAlert {
+  margin-top: 16px;
+  border-left: 4px solid #D97706;
+  background-color: #FFFBEB;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #526059;
+}
+
+.actionsBar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+@media (min-width: 640px) {
+  .actionsBar {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.subNotice {
+  font-size: 12px;
+  color: #667069;
+  line-height: 1.5;
+  margin: 0;
+}

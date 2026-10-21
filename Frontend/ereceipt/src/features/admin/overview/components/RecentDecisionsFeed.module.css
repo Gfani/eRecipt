@@ -1,0 +1,43 @@
+.asideCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #17201B;
+  margin: 0;
+}
+
+.asideList {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.asideItem {
+  border-left: 2px solid #B9DCC8;
+  padding-left: 16px;
+}
+
+.asideAction {
+  font-size: 12px;
+  font-weight: 600;
+  color: #17201B;
+  margin: 0;
+}
+
+.asideMeta {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #667069;
+}
+
+.asideDate {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #929A95;
+}

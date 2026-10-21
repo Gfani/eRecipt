@@ -1,0 +1,61 @@
+.rootContainer {
+  min-height: 100vh;
+  background-color: #F7F5EF;
+  color: #17201B;
+  font-family: inherit;
+}
+
+.mainLayout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .mainLayout {
+    padding-left: 256px;
+  }
+}
+
+.mainContent {
+  margin: 0 auto;
+  max-width: 1600px;
+  width: 100%;
+  padding: 16px;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .mainContent {
+    padding: 28px;
+  }
+}
+
+.pageHeader {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .pageHeader {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.headingTitle {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #17201B;
+  margin: 0;
+}
+
+.headingCopy {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #667069;
+}

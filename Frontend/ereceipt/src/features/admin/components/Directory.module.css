@@ -1,0 +1,264 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.searchCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 24px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #176B4D;
+  margin: 0;
+}
+
+.title {
+  margin: 8px 0 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #17201B;
+}
+
+.searchRow {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .searchRow {
+    flex-direction: row;
+  }
+}
+
+.searchInput {
+  flex: 1;
+  min-height: 42px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #1F2937;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: #176B4D;
+}
+
+.searchBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  background-color: #123D2C;
+  border: none;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.searchBtn:hover {
+  background-color: #0D3022;
+}
+
+.tableCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+
+.th {
+  border-bottom: 1px solid #DDE3DE;
+  background-color: #F7F8F5;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #667069;
+  white-space: nowrap;
+}
+
+.td {
+  border-bottom: 1px solid #E8ECE9;
+  padding: 12px 16px;
+  color: #3D4741;
+  vertical-align: middle;
+}
+
+.tdTin {
+  font-family: monospace;
+}
+
+.tdMerchant {
+  font-weight: 600;
+  color: #17201B;
+}
+
+.viewDetailsBtn {
+  border-radius: 6px;
+  border: 1px solid #C9D5CD;
+  background-color: #FFFFFF;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #123D2C;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.viewDetailsBtn:hover {
+  background-color: #EEF7F1;
+}
+
+.emptyCell {
+  padding: 56px 20px;
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 12px 0 0 0;
+  font-weight: 600;
+  color: #17201B;
+}
+
+.emptySubtext {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #667069;
+}
+
+/* Merchant Details sub-view */
+.detailsHeaderCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 24px;
+}
+
+.detailsTopRow {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .detailsTopRow {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.badgesGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tabsBar {
+  margin-top: 24px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-top: 1px solid #DDE3DE;
+  padding-top: 16px;
+}
+
+.tabBtn {
+  white-space: nowrap;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.tabBtnActive {
+  background-color: #123D2C;
+  color: #FFFFFF;
+}
+
+.tabBtnInactive {
+  background-color: transparent;
+  color: #667069;
+}
+
+.tabBtnInactive:hover {
+  background-color: #F1F4F1;
+}
+
+.overviewGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .overviewGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.card {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+}
+
+.cardHeading {
+  font-weight: 700;
+  color: #17201B;
+  margin: 0;
+  font-size: 14px;
+}
+
+.idGrid {
+  margin-top: 20px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .idGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.statsList {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.statItemLabel {
+  font-size: 12px;
+  color: #667069;
+  margin: 0;
+}
+
+.statItemValue {
+  margin: 4px 0 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #17201B;
+}

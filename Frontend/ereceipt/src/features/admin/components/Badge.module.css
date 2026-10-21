@@ -1,0 +1,49 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.success {
+  background-color: #ECFDF3;
+  color: #157A36;
+  border-color: #BBF7D0;
+}
+
+.pending {
+  background-color: #FFFBEB;
+  color: #A85D08;
+  border-color: #FDE68A;
+}
+
+.error {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border-color: #FECACA;
+}
+
+.info {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border-color: #BFDBFE;
+}
+
+.neutral {
+  background-color: #F8FAFC;
+  color: #526176;
+  border-color: #E2E8F0;
+}
