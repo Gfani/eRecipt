@@ -53,6 +53,7 @@ export const Step4BusinessLocation: React.FC<Step4Props> = ({ formData, onChange
           type="text"
           className="field-input"
           autoComplete="off"
+          placeholder="e.g. Addis Ababa"
           value={formData.city}
           onChange={(e) => onChange({ city: e.target.value })}
         />
@@ -65,6 +66,7 @@ export const Step4BusinessLocation: React.FC<Step4Props> = ({ formData, onChange
           type="text"
           className="field-input"
           autoComplete="off"
+          placeholder="e.g. Bole"
           value={formData.subCity}
           onChange={(e) => onChange({ subCity: e.target.value })}
         />
@@ -77,6 +79,7 @@ export const Step4BusinessLocation: React.FC<Step4Props> = ({ formData, onChange
           type="text"
           className="field-input"
           autoComplete="off"
+          placeholder="e.g. Morning Star Mall"
           value={formData.buildingName}
           onChange={(e) => onChange({ buildingName: e.target.value })}
         />
@@ -89,6 +92,7 @@ export const Step4BusinessLocation: React.FC<Step4Props> = ({ formData, onChange
           type="text"
           className="field-input"
           autoComplete="off"
+          placeholder="e.g. 2nd floor"
           value={formData.floor}
           onChange={(e) => onChange({ floor: e.target.value })}
         />

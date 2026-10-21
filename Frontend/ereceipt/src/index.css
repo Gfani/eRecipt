@@ -49,6 +49,7 @@
 
 .field-input::placeholder {
   color: var(--color-text-placeholder, #94A3B8);
+  opacity: 1;
 }
 
 .field-input:focus {
