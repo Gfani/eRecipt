@@ -1,0 +1,105 @@
+.pageHead {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (min-width: 640px) {
+  .pageHead {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary, #0D9488);
+  margin: 0 0 6px 0;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.copy {
+  font-size: 14px;
+  color: var(--color-text-muted, #64748B);
+  margin-top: 6px;
+}
+
+.connectionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid #BBF7D0;
+  background-color: #F0FDF4;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #157A36;
+  white-space: nowrap;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1200px) {
+  .bottomGrid {
+    grid-template-columns: 1.25fr 0.75fr;
+  }
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--color-navy, #12304A);
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-xl);
+  font-size: 14px;
+  font-weight: 600;
+  animation: slideUp 200ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.toastIcon {
+  color: #5EEAD4;
+  flex-shrink: 0;
+}
