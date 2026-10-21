@@ -15,13 +15,15 @@ export const Step5Review: React.FC<Step5Props> = ({ formData, onChange, onGoToSt
       ? `${formData.tin.slice(0, 3)}•••••${formData.tin.slice(-2)}`
       : formData.tin || 'Not entered';
 
-  const taxpayerText = `${formData.sellerLegalName || 'Legal name'} · TIN ${maskedTin}`;
+  const taxpayerText = formData.sellerLegalName
+    ? `${formData.sellerLegalName} · TIN ${maskedTin}`
+    : `TIN ${maskedTin}`;
   const licenseText = formData.uploadedFileName
-    ? `${formData.uploadedFileName} (License #${formData.businessLicenseNumber || 'N/A'})`
-    : 'Business documents attached';
+    ? `${formData.uploadedFileName}${formData.businessLicenseNumber ? ` · License #${formData.businessLicenseNumber}` : ''}`
+    : (formData.businessLicenseNumber ? `License #${formData.businessLicenseNumber}` : 'Business documents attached');
 
   const locationParts = [formData.city, formData.subCity, formData.buildingName, formData.floor].filter(Boolean);
-  const locationText = locationParts.join(' · ') + (formData.gpsLocation ? ` · GPS ${formData.gpsLocation}` : '');
+  const locationText = (locationParts.join(' · ') || 'No business address entered') + (formData.gpsLocation ? ` · GPS ${formData.gpsLocation}` : '');
 
   return (
     <div className={styles.stepContainer}>
