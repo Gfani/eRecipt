@@ -1,0 +1,87 @@
+.progressBarContainer {
+  margin-bottom: 32px;
+}
+
+.progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748B);
+  margin-bottom: 12px;
+}
+
+.progressTrack {
+  height: 6px;
+  background-color: var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-full, 999px);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--color-primary, #0D9488);
+  border-radius: var(--radius-full, 999px);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.headingWrapper {
+  margin-bottom: 28px;
+}
+
+.pageTitle {
+  margin-top: 8px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--color-navy, #12304A);
+  line-height: 1.2;
+}
+
+.pageSubtitle {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-muted, #64748B);
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.buttonsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.fullWidthBtn {
+  width: 100%;
+}
+
+.switchAuthRow {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-muted, #64748B);
+}
+
+.signInLink {
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  color: var(--color-primary, #0D9488);
+  cursor: pointer;
+  padding: 0 4px;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.signInLink:hover {
+  color: var(--color-primary-hover, #0A7F75);
+  text-decoration: underline;
+}

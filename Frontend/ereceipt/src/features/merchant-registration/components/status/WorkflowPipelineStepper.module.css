@@ -1,0 +1,151 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.statusIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #FFF7E6;
+  color: var(--color-warning, #D97706);
+  margin-bottom: 20px;
+}
+
+.badgePending {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 12px;
+  border-radius: var(--radius-full, 999px);
+  border: 1px solid var(--color-warning-border, #FDE68A);
+  background-color: var(--color-warning-bg, #FFFBEB);
+  color: var(--color-warning-text, #A85D08);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+  line-height: 1.25;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: 32px;
+  }
+}
+
+.description {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-muted, #64748B);
+  max-width: 600px;
+}
+
+.referenceBox {
+  margin-top: 28px;
+  padding: 20px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.referenceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.referenceLabel {
+  color: var(--color-text-muted, #64748B);
+}
+
+.referenceValue {
+  color: var(--color-navy, #12304A);
+  font-weight: 700;
+}
+
+.pipelineGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+@media (min-width: 640px) {
+  .pipelineGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+.pipelineStep {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stepCircleActive {
+  background-color: var(--color-primary, #0D9488);
+  color: #FFFFFF;
+}
+
+.stepCirclePending {
+  background-color: var(--color-bg-alt, #E2E8F0);
+  color: var(--color-text-muted, #64748B);
+}
+
+.stepTitle {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+}
+
+.stepCopy {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-muted, #64748B);
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 36px;
+}
