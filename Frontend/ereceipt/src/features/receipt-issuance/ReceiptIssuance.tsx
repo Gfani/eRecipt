@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Wifi, CheckCircle2, RotateCcw } from 'lucide-react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import DocumentClassificationCard from './components/DocumentClassificationCard';
@@ -103,6 +103,38 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Auto-save form draft to localStorage
+  useEffect(() => {
+    try {
+      const draft = {
+        documentType,
+        transactionMode,
+        buyer,
+        originalIrn,
+        adjustmentReason,
+        tinVerified,
+        withholding,
+        paymentMethod,
+        paymentReference,
+        items,
+      };
+      window.localStorage.setItem('ereceipt:pos_draft', JSON.stringify(draft));
+    } catch {
+      // LocalStorage might be disabled or full
+    }
+  }, [
+    documentType,
+    transactionMode,
+    buyer,
+    originalIrn,
+    adjustmentReason,
+    tinVerified,
+    withholding,
+    paymentMethod,
+    paymentReference,
+    items,
+  ]);
 
   // Financial calculations
   const subtotal = items.reduce((sum, item) => sum + netLineAmount(item), 0);
@@ -289,12 +321,18 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
   };
 
   const handleReset = () => {
+    try {
+      window.localStorage.removeItem('ereceipt:pos_draft');
+    } catch {
+      // Ignore
+    }
     setIssuedReceipt(null);
     setItems(INITIAL_ITEMS);
     setBuyer(INITIAL_BUYER);
     setOriginalIrn('');
     setAdjustmentReason('');
     setPaymentReference('');
+    showToast('Form cleared and draft reset.');
   };
 
   return (
