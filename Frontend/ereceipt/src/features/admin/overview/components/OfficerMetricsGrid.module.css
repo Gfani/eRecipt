@@ -1,0 +1,102 @@
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(18, 48, 74, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #4B6375);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.iconWrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconPrimary {
+  background-color: #F0FDFA;
+  color: var(--color-primary, #0D9488);
+}
+
+.iconWarning {
+  background-color: #FFFBEB;
+  color: #D97706;
+}
+
+.iconSuccess {
+  background-color: #F0FDF4;
+  color: #16A34A;
+}
+
+.iconInfo {
+  background-color: #EFF6FF;
+  color: #2563EB;
+}
+
+.cardValue {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-navy, #12304A);
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.trendBadge {
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.trendUp {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.trendDown {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
+
+.subtext {
+  color: var(--color-text-muted, #718096);
+}

@@ -1,0 +1,126 @@
+.tableCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.th {
+  background-color: #F8FAFC;
+  padding: 14px 18px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #4B6375);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  white-space: nowrap;
+}
+
+.td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  color: var(--color-navy, #12304A);
+  vertical-align: middle;
+}
+
+.tr:hover {
+  background-color: #F8FAFC;
+}
+
+.businessCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.businessName {
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+}
+
+.tradeName {
+  font-size: 11px;
+  color: var(--color-text-muted, #718096);
+}
+
+.tinCode {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #F1F5F9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #334155;
+}
+
+.accreditationPill {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0D9488;
+  background-color: #F0FDFA;
+  border: 1px solid #CCFBF1;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusActive {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.statusAudit {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.statusSuspended {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background: #FFFFFF;
+  color: var(--color-navy, #12304A);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:hover {
+  border-color: var(--color-primary, #0D9488);
+  color: var(--color-primary, #0D9488);
+}
+
+.emptyState {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--color-text-muted, #718096);
+}

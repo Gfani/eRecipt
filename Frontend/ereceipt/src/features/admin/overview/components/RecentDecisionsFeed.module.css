@@ -1,0 +1,127 @@
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--color-text-secondary, #4B6375);
+}
+
+.feedList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feedItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FAFCFD;
+  transition: background-color 0.15s ease;
+}
+
+.feedItem:hover {
+  background-color: #F0FDFA;
+}
+
+.actionIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.iconApproved {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.iconRejected {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
+
+.iconClarification {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.iconFlagged {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.contentCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.merchantName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+}
+
+.timestamp {
+  font-size: 11px;
+  color: var(--color-text-muted, #718096);
+  white-space: nowrap;
+}
+
+.detailsRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #4B6375);
+}
+
+.tinTag {
+  font-family: monospace;
+  font-size: 11px;
+  background-color: #EDF2F7;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #2D3748;
+}
+
+.notes {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #4B6375);
+  font-style: italic;
+}

@@ -1,0 +1,86 @@
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tabsGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #E2E8F0;
+  padding: 4px;
+  border-radius: var(--radius-md, 8px);
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary, #4B6375);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tabBtn:hover {
+  color: var(--color-navy, #12304A);
+}
+
+.tabBtnActive {
+  background-color: #FFFFFF;
+  color: var(--color-navy, #12304A);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tabBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background-color: #CBD5E1;
+  color: #334155;
+}
+
+.tabBadgeActive {
+  background-color: var(--color-primary, #0D9488);
+  color: #FFFFFF;
+}
+
+.searchWrapper {
+  position: relative;
+  min-width: 280px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 9px 12px 9px 38px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FFFFFF;
+  font-size: 13px;
+  color: var(--color-navy, #12304A);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--color-primary, #0D9488);
+}

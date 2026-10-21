@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { MerchantRegistration } from './features/merchant-registration';
 import { Audit } from './features/audit';
+import { AdminPortal } from './features/admin';
 import './App.css';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'registration' | 'audit'>('audit');
+  const getInitialView = (): 'registration' | 'audit' | 'admin' => {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('view');
+    if (viewParam === 'registration') return 'registration';
+    if (viewParam === 'audit') return 'audit';
+    // Default to admin view since user requested to see the admin page
+    return 'admin';
+  };
+
+  const [currentView, setCurrentView] = useState<'registration' | 'audit' | 'admin'>(getInitialView);
 
   return (
     <div className="app-container">
@@ -22,7 +32,14 @@ function App() {
           className={`switcher-btn ${currentView === 'audit' ? 'switcher-btn-active' : ''}`}
           onClick={() => setCurrentView('audit')}
         >
-          Audit
+          Audit (Merchant)
+        </button>
+        <button
+          type="button"
+          className={`switcher-btn ${currentView === 'admin' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('admin')}
+        >
+          Revenue Admin Portal
         </button>
       </aside>
 
@@ -31,11 +48,15 @@ function App() {
           onSignInClick={() => setCurrentView('audit')}
           onHomeClick={() => setCurrentView('audit')}
         />
-      ) : (
+      ) : currentView === 'audit' ? (
         <Audit
           onNavigate={(screen) => {
             if (screen === 'registration') setCurrentView('registration');
           }}
+        />
+      ) : (
+        <AdminPortal
+          onReturnToMerchant={() => setCurrentView('registration')}
         />
       )}
     </div>

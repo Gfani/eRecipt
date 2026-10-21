@@ -1,0 +1,122 @@
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.topBar {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titleGroup h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-navy, #12304A);
+}
+
+.titleGroup p {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: var(--color-text-secondary, #4B6375);
+}
+
+.summaryMetrics {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #718096);
+}
+
+.summaryValue {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-navy, #12304A);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.th {
+  background-color: #F8FAFC;
+  padding: 14px 18px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #4B6375);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  white-space: nowrap;
+}
+
+.td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  color: var(--color-navy, #12304A);
+  vertical-align: middle;
+}
+
+.tr:hover {
+  background-color: #F8FAFC;
+}
+
+.tinCode {
+  font-family: monospace;
+  font-size: 12px;
+  background-color: #F1F5F9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.currencyCell {
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.statusReconciled {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.statusPending {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.statusFlagged {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
