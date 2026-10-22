@@ -225,6 +225,56 @@
   color: #526059;
 }
 
+.merchantSignupBox {
+  margin-top: 20px;
+  border-radius: 10px;
+  border: 1px solid #C8E6C9;
+  background-color: #F1F8E9;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.merchantSignupInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.merchantSignupTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1B5E20;
+}
+
+.merchantSignupDesc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #33691E;
+}
+
+.merchantSignupBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 14px;
+  background-color: #1B5E20;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  width: fit-content;
+}
+
+.merchantSignupBtn:hover {
+  background-color: #144718;
+}
+
 .returnBtn {
   border: none;
   background: none;

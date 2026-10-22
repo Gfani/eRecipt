@@ -4,11 +4,13 @@ import styles from './OfficerLoginForm.module.css';
 interface OfficerLoginFormProps {
   onLogin?: () => void;
   onReturnToMerchant?: () => void;
+  onNavigateToRegistration?: () => void;
 }
 
 export const OfficerLoginForm: React.FC<OfficerLoginFormProps> = ({
   onLogin,
   onReturnToMerchant,
+  onNavigateToRegistration,
 }) => {
   const [username, setUsername] = useState('officer.demo');
   const [password, setPassword] = useState('Revenue123');
@@ -167,6 +169,23 @@ export const OfficerLoginForm: React.FC<OfficerLoginFormProps> = ({
             </p>
           </div>
 
+          {/* Merchant Sign Up Callout */}
+          <div className={styles.merchantCardPrompt}>
+            <div className={styles.merchantPromptText}>
+              <span className={styles.merchantPromptTitle}>Are you a Merchant or Business Owner?</span>
+              <p className={styles.merchantPromptSub}>
+                Register your business to begin issuing digital fiscal receipts and file tax reports.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onNavigateToRegistration || (() => window.location.assign('/?view=registration'))}
+              className={styles.merchantSignupButton}
+            >
+              Sign Up as Merchant →
+            </button>
+          </div>
+
           {/* Return Footer Link */}
           <div className={styles.footerRow}>
             <button
@@ -175,7 +194,7 @@ export const OfficerLoginForm: React.FC<OfficerLoginFormProps> = ({
               className={styles.returnLink}
               style={{ background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              Return to eReceipt
+              Return to Merchant Workspace
             </button>
           </div>
         </div>

@@ -94,7 +94,10 @@ function App() {
           onHomeClick={() => handleNavigate('receipt-issuance')}
         />
       ) : currentView === 'admin' ? (
-        <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'audit')} />
+        <Admin
+          onReturnToMerchant={(screen) => handleNavigate(screen || 'audit')}
+          onNavigate={handleNavigate}
+        />
       ) : (
         <Audit initialScreen={merchantScreen} onNavigate={handleNavigate} />
       )}

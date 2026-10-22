@@ -31,9 +31,10 @@ import styles from './Admin.module.css';
 
 interface AdminProps {
   onReturnToMerchant?: (screen?: string) => void;
+  onNavigate?: (screen: string) => void;
 }
 
-export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
+export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant, onNavigate }) => {
   const [signedIn, setSignedIn] = useState(true);
   const [page, setPage] = useState<AdminPage>('overview');
   const [globalSearch, setGlobalSearch] = useState('');
@@ -447,6 +448,14 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       <OfficerSignIn
         onSuccess={() => setSignedIn(true)}
         onReturnToMerchant={onReturnToMerchant}
+        onNavigateToRegistration={() => {
+          if (onNavigate) {
+            onNavigate('registration');
+          } else {
+            setSignedIn(true);
+            navigate('registration');
+          }
+        }}
       />
     );
   }

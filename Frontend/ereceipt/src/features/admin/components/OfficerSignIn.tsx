@@ -5,11 +5,13 @@ import styles from './OfficerSignIn.module.css';
 interface OfficerSignInProps {
   onSuccess: () => void;
   onReturnToMerchant?: () => void;
+  onNavigateToRegistration?: () => void;
 }
 
 export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
   onSuccess,
   onReturnToMerchant,
+  onNavigateToRegistration,
 }) => {
   const [username, setUsername] = useState('officer.demo');
   const [password, setPassword] = useState('Revenue123');
@@ -136,6 +138,23 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
             <br />
             Fictional demonstration data only. No government database is accessed.
           </div>
+
+          {/* Prominent Merchant Sign Up Card */}
+          <div className={styles.merchantSignupBox}>
+            <div className={styles.merchantSignupInfo}>
+              <span className={styles.merchantSignupTitle}>Are you a Merchant or Business Owner?</span>
+              <p className={styles.merchantSignupDesc}>
+                Register your business to begin issuing digital fiscal receipts and file tax reports.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onNavigateToRegistration || (() => window.location.assign('/?view=registration'))}
+              className={styles.merchantSignupBtn}
+            >
+              Register as Merchant →
+            </button>
+          </div>
         </div>
 
         <button
@@ -143,7 +162,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
           onClick={onReturnToMerchant}
           className={styles.returnBtn}
         >
-          Return to eReceipt
+          Return to Merchant Workspace
         </button>
       </main>
 
