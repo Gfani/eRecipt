@@ -9,7 +9,7 @@ Add the names of the project members below.
 | No. | Full Name | Role / Responsibility |
 |---:|---|---|
 | 1 | *Fanuel Goitom* | *Add role* |
-| 2 | *Fiema Yaregal * | *Add role* |
+| 2 | *Fiema Yaregal* | *Add role* |
 | 3 | *Fikirte Gebretsadik* | *Add role* |
 | 4 | *Fuad Aman* | *Add role* |
 | 5 | *Gelila Sintayehu* | *Add role* |
