@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { MerchantRegistration } from './features/merchant-registration';
 import { Audit } from './features/audit';
-import { Admin } from './features/admin';
+import { ReceiptIssuance } from './features/receipt-issuance';
 import './App.css';
 
-function App() {
-  const getInitialView = (): 'registration' | 'audit' | 'admin' => {
-    const params = new URLSearchParams(window.location.search);
-    const viewParam = params.get('view');
-    if (viewParam === 'registration') return 'registration';
-    if (viewParam === 'audit') return 'audit';
-    // Default to admin view
-    return 'admin';
-  };
+type AppView = 'receipt-issuance' | 'audit' | 'registration';
 
-  const [currentView, setCurrentView] = useState<'registration' | 'audit' | 'admin'>(getInitialView);
+function App() {
+  const [currentView, setCurrentView] = useState<AppView>('receipt-issuance');
+
+  const handleNavigate = (screen: string) => {
+    if (screen === 'registration') {
+      setCurrentView('registration');
+    } else if (screen === 'audit') {
+      setCurrentView('audit');
+    } else if (screen === 'pos' || screen === 'receipt-issuance' || screen === 'receipt') {
+      setCurrentView('receipt-issuance');
+    }
+  };
 
   return (
     <div className="app-container">
@@ -22,10 +25,10 @@ function App() {
       <aside className="view-switcher-pill" aria-label="Feature navigation">
         <button
           type="button"
-          className={`switcher-btn ${currentView === 'registration' ? 'switcher-btn-active' : ''}`}
-          onClick={() => setCurrentView('registration')}
+          className={`switcher-btn ${currentView === 'receipt-issuance' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('receipt-issuance')}
         >
-          Merchant Registration
+          Issue Receipt (My Part)
         </button>
         <button
           type="button"
@@ -41,23 +44,24 @@ function App() {
         >
           Revenue Admin Portal
         </button>
+        <button
+          type="button"
+          className={`switcher-btn ${currentView === 'registration' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('registration')}
+        >
+          Merchant Registration
+        </button>
       </aside>
 
-      {currentView === 'registration' ? (
+      {currentView === 'receipt-issuance' ? (
+        <ReceiptIssuance onNavigate={handleNavigate} />
+      ) : currentView === 'registration' ? (
         <MerchantRegistration
           onSignInClick={() => setCurrentView('audit')}
-          onHomeClick={() => setCurrentView('audit')}
-        />
-      ) : currentView === 'audit' ? (
-        <Audit
-          onNavigate={(screen) => {
-            if (screen === 'registration') setCurrentView('registration');
-          }}
+          onHomeClick={() => setCurrentView('receipt-issuance')}
         />
       ) : (
-        <Admin
-          onReturnToMerchant={() => setCurrentView('registration')}
-        />
+        <Audit onNavigate={handleNavigate} />
       )}
     </div>
   );

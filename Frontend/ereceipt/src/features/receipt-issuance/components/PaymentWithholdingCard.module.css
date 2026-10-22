@@ -1,0 +1,170 @@
+.card {
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.035);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  padding: 20px;
+}
+
+.title {
+  color: var(--color-navy, #12304A);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.copy {
+  margin: 4px 0 0 0;
+  color: var(--color-text-muted, #64748B);
+  font-size: 12px;
+}
+
+.grid {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text-secondary, #334155);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.selectField {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-border-input, #CBD5E1);
+  border-radius: var(--radius-md, 8px);
+  background: #FFFFFF;
+  padding: 10px 14px;
+  color: var(--color-text-body, #1F2937);
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.selectField:focus {
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
+}
+
+.inputField {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-border-input, #CBD5E1);
+  border-radius: var(--radius-md, 8px);
+  background: #FFFFFF;
+  padding: 10px 14px;
+  color: var(--color-text-body, #1F2937);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.inputField:focus {
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
+}
+
+.indicatorBox {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid #FDE68A;
+  background-color: #FFFBEB;
+  padding: 14px;
+}
+
+.indicatorBoxEligible {
+  border-color: #A7F3D0;
+  background-color: #ECFDF5;
+}
+
+.indicatorIcon {
+  margin-top: 2px;
+  flex-shrink: 0;
+  color: #D97706;
+}
+
+.indicatorIconEligible {
+  color: #0D9488;
+}
+
+.indicatorTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+  margin: 0;
+}
+
+.indicatorCopy {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #475569);
+}
+
+.checkboxCard {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FFFFFF;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.checkboxCard:hover {
+  border-color: var(--color-border-input, #CBD5E1);
+}
+
+.checkbox {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary, #0D9488);
+  cursor: pointer;
+}
+
+.checkboxTitle {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-navy, #12304A);
+}
+
+.checkboxCopy {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-muted, #64748B);
+}
+
+.fullCol {
+  grid-column: 1 / -1;
+}
