@@ -35,7 +35,14 @@ function App() {
           className={`switcher-btn ${currentView === 'audit' ? 'switcher-btn-active' : ''}`}
           onClick={() => setCurrentView('audit')}
         >
-          Audit
+          Audit (Merchant)
+        </button>
+        <button
+          type="button"
+          className={`switcher-btn ${currentView === 'admin' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('admin')}
+        >
+          Revenue Admin Portal
         </button>
         <button
           type="button"

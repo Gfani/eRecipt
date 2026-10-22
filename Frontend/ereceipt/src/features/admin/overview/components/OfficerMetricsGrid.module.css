@@ -1,0 +1,49 @@
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metricCard {
+  border: 1px solid #DDE3DE;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.metricTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.metricLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #526059;
+  max-width: 160px;
+  margin: 0;
+}
+
+.metricIconBox {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.metricValue {
+  margin: 20px 0 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #17201B;
+}
+
+.metricDetail {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #7A847E;
+}
