@@ -15,7 +15,6 @@ import { TaxReportReview } from './components/TaxReportReview';
 import { TaxRecordsLedger } from './components/TaxRecordsLedger';
 import { AdminAuditLog } from './components/AdminAuditLog';
 import { AdminSettings } from './components/AdminSettings';
-import { ReceiptIssuanceContent } from '../receipt-issuance';
 
 import type {
   AdminPage,
@@ -31,13 +30,9 @@ import styles from './Admin.module.css';
 
 interface AdminProps {
   onReturnToMerchant?: (screen?: string) => void;
-  onNavigateToIssueReceipt?: () => void;
 }
 
-export const Admin: React.FC<AdminProps> = ({
-  onReturnToMerchant,
-  onNavigateToIssueReceipt,
-}) => {
+export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
   const [signedIn, setSignedIn] = useState(true);
   const [page, setPage] = useState<AdminPage>('overview');
   const [globalSearch, setGlobalSearch] = useState('');
@@ -249,7 +244,6 @@ export const Admin: React.FC<AdminProps> = ({
     merchantReview: 'Merchant Review',
     directory: 'Merchant Directory',
     merchantDetails: 'Merchant Details',
-    pos: 'Issue Receipt (Point of Sale)',
     sales: 'Sales Records',
     reports: 'Tax Reports',
     reportReview: 'Tax Report Review',
@@ -399,7 +393,6 @@ export const Admin: React.FC<AdminProps> = ({
         currentPage={page}
         onNavigate={navigate}
         onSignOut={() => setSignedIn(false)}
-        onNavigateToIssueReceipt={onNavigateToIssueReceipt}
       />
 
       {/* Main Container */}
@@ -493,12 +486,6 @@ export const Admin: React.FC<AdminProps> = ({
               )}
               getToneForStatus={getToneForStatus}
             />
-          )}
-
-          {page === 'pos' && (
-            <div style={{ marginTop: '16px' }}>
-              <ReceiptIssuanceContent />
-            </div>
           )}
 
           {page === 'sales' && <SalesRecords />}
