@@ -1,0 +1,199 @@
+.tableCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #eef2f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+/* Filter Bar */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px 10px 42px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.searchInput::placeholder {
+  color: #94a3b8;
+}
+
+.searchInput:focus {
+  border-color: #0b8060;
+  box-shadow: 0 0 0 3px rgba(11, 128, 96, 0.1);
+}
+
+/* Year Select Pill */
+.yearSelectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 30px 0 36px;
+  background-color: #ffffff;
+  height: 40px;
+}
+
+.calendarIcon {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.yearSelect {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  appearance: none;
+}
+
+.chevronIcon {
+  position: absolute;
+  right: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+/* Table Area */
+.tableResponsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table thead th {
+  padding: 14px 24px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  background-color: #fafbfc;
+}
+
+.detailsHeader {
+  text-align: right;
+}
+
+.tableRow {
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tableRow:hover {
+  background-color: #f8fafc;
+}
+
+.table tbody td {
+  padding: 18px 24px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+/* Month Cell */
+.monthCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.monthName {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.yearText {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* Monetary Cells */
+.incomeCell {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.taxCell {
+  font-weight: 500;
+  color: #334155;
+}
+
+.expensesCell {
+  font-weight: 500;
+  color: #334155;
+}
+
+/* Action Button */
+.actionCell {
+  text-align: right;
+}
+
+.viewDetailsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.viewDetailsBtn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.emptyState {
+  text-align: center;
+  color: #94a3b8;
+  padding: 36px !important;
+}
+
+@media (max-width: 768px) {
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
