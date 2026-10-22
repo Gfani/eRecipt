@@ -183,6 +183,11 @@
   box-shadow: 0 0 0 3px rgba(23, 107, 77, 0.15);
 }
 
+.input::placeholder {
+  color: #8E9B93;
+  opacity: 0.75;
+}
+
 .inputError {
   border-color: #DC2626 !important;
 }

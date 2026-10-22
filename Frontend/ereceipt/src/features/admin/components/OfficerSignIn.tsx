@@ -308,7 +308,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                         setAuthError('');
                       }}
                       className={styles.input}
-                      placeholder="e.g. Fanuel Kassahun"
+                      autoComplete="off"
                       required
                     />
                   </div>
@@ -326,7 +326,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                         setAuthError('');
                       }}
                       className={styles.input}
-                      placeholder="e.g. officer.fani"
+                      autoComplete="off"
                       required
                     />
                   </div>
@@ -346,7 +346,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                         setAuthError('');
                       }}
                       className={styles.input}
-                      placeholder="e.g. RO-250"
+                      autoComplete="off"
                       required
                     />
                   </div>
@@ -364,7 +364,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                         setAuthError('');
                       }}
                       className={styles.input}
-                      placeholder="e.g. officer@mor.gov.et"
+                      autoComplete="off"
                       required
                     />
                   </div>
@@ -423,6 +423,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                         }}
                         className={styles.input}
                         placeholder="Min 6 characters"
+                        autoComplete="new-password"
                         required
                       />
                       <button
@@ -450,6 +451,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                       }}
                       className={styles.input}
                       placeholder="Repeat password"
+                      autoComplete="new-password"
                       required
                     />
                   </div>

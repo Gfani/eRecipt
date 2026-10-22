@@ -156,7 +156,7 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
               id="businessEmail"
               type="email"
               className={`${styles.input} ${errors.businessEmail ? styles.inputError : ''}`}
-              placeholder="billing@company.et"
+              autoComplete="off"
               {...register('businessEmail')}
             />
             {errors.businessEmail ? (
