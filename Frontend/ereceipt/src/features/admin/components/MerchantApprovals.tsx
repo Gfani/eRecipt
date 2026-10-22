@@ -7,12 +7,14 @@ interface MerchantApprovalsProps {
   applications: MerchantApplicationItem[];
   onReviewMerchant: (ref: string) => void;
   getToneForStatus: (status: string) => Tone;
+  onNavigateToRegistration?: () => void;
 }
 
 export const MerchantApprovals: React.FC<MerchantApprovalsProps> = ({
   applications,
   onReviewMerchant,
   getToneForStatus,
+  onNavigateToRegistration,
 }) => {
   const [filterTab, setFilterTab] = useState('All Applications');
   const [dateFilter, setDateFilter] = useState('');
@@ -39,23 +41,47 @@ export const MerchantApprovals: React.FC<MerchantApprovalsProps> = ({
 
   return (
     <div className={styles.card}>
-      {/* Filter Tabs */}
-      <div className={styles.tabList}>
-        {filterTabs.map((tab) => {
-          const isActive = filterTab === tab;
-          return (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setFilterTab(tab)}
-              className={`${styles.tabButton} ${
-                isActive ? styles.tabButtonActive : styles.tabButtonInactive
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
+      {/* Filter Tabs & Register Action Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div className={styles.tabList} style={{ marginBottom: 0 }}>
+          {filterTabs.map((tab) => {
+            const isActive = filterTab === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setFilterTab(tab)}
+                className={`${styles.tabButton} ${
+                  isActive ? styles.tabButtonActive : styles.tabButtonInactive
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+        {onNavigateToRegistration && (
+          <button
+            type="button"
+            onClick={onNavigateToRegistration}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.5rem 1rem',
+              backgroundColor: '#1E4D2B',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            <span>+</span>
+            <span>Register New Merchant</span>
+          </button>
+        )}
       </div>
 
       {/* Inputs Filters */}

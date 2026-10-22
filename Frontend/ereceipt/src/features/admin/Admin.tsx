@@ -15,6 +15,7 @@ import { TaxReportReview } from './components/TaxReportReview';
 import { TaxRecordsLedger } from './components/TaxRecordsLedger';
 import { AdminAuditLog } from './components/AdminAuditLog';
 import { AdminSettings } from './components/AdminSettings';
+import { MerchantRegistration } from '../merchant-registration';
 
 import type {
   AdminPage,
@@ -262,6 +263,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
   const pageTitles: Record<AdminPage, string> = {
     overview: 'Overview',
     approvals: 'Merchant Approvals',
+    registration: 'Register Merchant',
     merchantReview: 'Merchant Review',
     directory: 'Merchant Directory',
     merchantDetails: 'Merchant Details',
@@ -372,6 +374,25 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
           item.ref === selectedApplication.ref ? { ...item, status: nextStatus } : item
         )
       );
+
+      // Live sync with merchant side local profile
+      try {
+        const storedProfileRaw = window.localStorage.getItem('ereceipt:merchant_profile');
+        if (storedProfileRaw) {
+          const stored = JSON.parse(storedProfileRaw);
+          if (
+            stored.referenceNumber === selectedApplication.ref ||
+            stored.tin === selectedApplication.tin ||
+            stored.sellerLegalName === selectedApplication.name
+          ) {
+            stored.status = nextStatus;
+            window.localStorage.setItem('ereceipt:merchant_profile', JSON.stringify(stored));
+            window.dispatchEvent(new Event('ereceipt:profile_updated'));
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to sync merchant profile state:', err);
+      }
       setAuditEvents((current) => [
         {
           timestamp: nowFormatted,
@@ -485,7 +506,40 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
               applications={applications}
               onReviewMerchant={reviewMerchant}
               getToneForStatus={getToneForStatus}
+              onNavigateToRegistration={() => navigate('registration')}
             />
+          )}
+
+          {page === 'registration' && (
+            <div style={{ background: '#ffffff', borderRadius: '12px', padding: '1.5rem', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#0f172a', margin: 0 }}>Onboard New Merchant</h2>
+                  <p style={{ fontSize: '0.875rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>Register a new taxpayer directly into the revenue clearance system.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('approvals')}
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 500, color: '#334155', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer' }}
+                >
+                  Back to Approvals Queue
+                </button>
+              </div>
+              <MerchantRegistration
+                onSignInClick={() => {
+                  fetch('http://localhost:5000/api/admin/merchants/applications')
+                    .then((res) => res.json())
+                    .then((data) => {
+                      if (data.success && Array.isArray(data.data)) {
+                        setApplications(data.data);
+                      }
+                    })
+                    .catch(() => {});
+                  navigate('approvals');
+                }}
+                onHomeClick={() => navigate('overview')}
+              />
+            </div>
           )}
 
           {page === 'merchantReview' && (
