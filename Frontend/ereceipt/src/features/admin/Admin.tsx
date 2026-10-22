@@ -41,7 +41,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
 
   const [decision, setDecision] = useState<Decision | null>(null);
   const [decisionReason, setDecisionReason] = useState('');
-  const [selectedMerchantRef, setSelectedMerchantRef] = useState('APP-2026-0148');
+  const [selectedMerchantRef, setSelectedMerchantRef] = useState('');
   const [selectedReportRef, setSelectedReportRef] = useState('TR-2026-0918');
 
   // Synchronize applications and directory from backend on mount
@@ -49,8 +49,11 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     fetch('http://localhost:5000/api/admin/merchants/applications')
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        if (data.success && Array.isArray(data.data)) {
           setApplications(data.data);
+          if (data.data.length > 0) {
+            setSelectedMerchantRef((prev) => prev || data.data[0].ref);
+          }
         }
       })
       .catch(() => {});
@@ -58,65 +61,14 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     fetch('http://localhost:5000/api/admin/merchants/directory')
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        if (data.success && Array.isArray(data.data)) {
           setMerchants(data.data);
         }
       })
       .catch(() => {});
   }, []);
 
-  const [applications, setApplications] = useState<MerchantApplicationItem[]>([
-    {
-      ref: 'APP-2026-0148',
-      name: 'Meklit Home Goods PLC',
-      tin: '0012847391',
-      merchantId: 'MER-10482',
-      category: 'Retail',
-      date: '18 Oct 2026',
-      status: 'Pending',
-      address: 'Addis Ababa, Lideta Sub-city',
-    },
-    {
-      ref: 'APP-2026-0147',
-      name: 'Desta Pharmacy',
-      tin: '0017932054',
-      merchantId: 'MER-10481',
-      category: 'Pharmacy',
-      date: '18 Oct 2026',
-      status: 'Under Review',
-      address: 'Adama, Bole Sub-city',
-    },
-    {
-      ref: 'APP-2026-0145',
-      name: 'Blue Nile Stationery',
-      tin: '0014638290',
-      merchantId: 'MER-10479',
-      category: 'Wholesale',
-      date: '17 Oct 2026',
-      status: 'Additional Information Required',
-      address: 'Bahir Dar, Belay Zeleke Sub-city',
-    },
-    {
-      ref: 'APP-2026-0142',
-      name: 'Lomi Café and Bakery',
-      tin: '0019274635',
-      merchantId: 'MER-10476',
-      category: 'Hospitality',
-      date: '16 Oct 2026',
-      status: 'Approved',
-      address: 'Addis Ababa, Bole Sub-city',
-    },
-    {
-      ref: 'APP-2026-0139',
-      name: 'Walia Auto Parts',
-      tin: '0016528347',
-      merchantId: 'MER-10473',
-      category: 'Automotive',
-      date: '15 Oct 2026',
-      status: 'Rejected',
-      address: 'Hawassa, Tabor Sub-city',
-    },
-  ]);
+  const [applications, setApplications] = useState<MerchantApplicationItem[]>([]);
 
   const [reports, setReports] = useState<TaxReportItem[]>([
     {
@@ -176,53 +128,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     },
   ]);
 
-  const [merchants, setMerchants] = useState<DirectoryMerchantItem[]>([
-    {
-      name: 'Lomi Café and Bakery',
-      tin: '0019274635',
-      id: 'MER-10476',
-      category: 'Hospitality',
-      classification: 'VAT',
-      status: 'Approved',
-      authorization: 'Authorized',
-    },
-    {
-      name: 'Meklit Home Goods PLC',
-      tin: '0012847391',
-      id: 'MER-10482',
-      category: 'Retail',
-      classification: 'Needs Further Review',
-      status: 'Pending',
-      authorization: 'Not authorized',
-    },
-    {
-      name: 'Desta Pharmacy',
-      tin: '0017932054',
-      id: 'MER-10481',
-      category: 'Pharmacy',
-      classification: 'VAT',
-      status: 'Under Review',
-      authorization: 'Not authorized',
-    },
-    {
-      name: 'Blue Nile Stationery',
-      tin: '0014638290',
-      id: 'MER-10479',
-      category: 'Wholesale',
-      classification: 'TOT',
-      status: 'Approved',
-      authorization: 'Authorized',
-    },
-    {
-      name: 'Walia Auto Parts',
-      tin: '0016528347',
-      id: 'MER-10473',
-      category: 'Automotive',
-      classification: 'VAT',
-      status: 'Suspended',
-      authorization: 'Suspended',
-    },
-  ]);
+  const [merchants, setMerchants] = useState<DirectoryMerchantItem[]>([]);
 
   const [auditEvents, setAuditEvents] = useState<AuditEventItem[]>([
     {
@@ -343,7 +249,19 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     });
 
     if (decision.entity === 'merchant') {
+      if (!selectedApplication) return;
       const previous = selectedApplication.status;
+
+      let currentOfficerName = 'Revenue Officer';
+      try {
+        const activeOfficerRaw = localStorage.getItem('officer_user');
+        if (activeOfficerRaw) {
+          const parsedOff = JSON.parse(activeOfficerRaw);
+          if (parsedOff.name) {
+            currentOfficerName = `${parsedOff.name}${parsedOff.badgeNumber ? ` · ${parsedOff.badgeNumber}` : ''}`;
+          }
+        }
+      } catch {}
 
       // Post decision to live backend
       fetch(`http://localhost:5000/api/admin/merchants/applications/${selectedApplication.ref}/decision`, {
@@ -352,7 +270,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
         body: JSON.stringify({
           kind: decision.kind,
           reason: decisionReason || (decision.kind === 'approve' ? 'Verification checks completed' : 'Administrative action'),
-          officerName: 'Hana Alemu · RO-218',
+          officerName: currentOfficerName,
         }),
       })
         .then((res) => res.json())
@@ -394,7 +312,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       setAuditEvents((current) => [
         {
           timestamp: nowFormatted,
-          officer: 'Hana Alemu · RO-218',
+          officer: currentOfficerName,
           action: `Merchant ${
             decision.kind === 'approve'
               ? 'approved'

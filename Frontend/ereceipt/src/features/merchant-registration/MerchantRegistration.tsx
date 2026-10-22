@@ -37,7 +37,7 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
   const [step, setStep] = useState<RegistrationStep>(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedRef, setSubmittedRef] = useState('EIMS-2026-0094');
+  const [submittedRef, setSubmittedRef] = useState('');
   const [stepError, setStepError] = useState<string | null>(null);
   const [formData, setFormData] = useState<MerchantRegistrationFormData>(initialRegistrationFormData);
 

@@ -8,54 +8,7 @@ const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../../data');
 const DATA_FILE = path.join(DATA_DIR, 'merchant-applications.json');
 
-const INITIAL_APPLICATIONS: StoredMerchantApplication[] = [
-  {
-    id: 'app-001',
-    referenceNumber: 'APP-2026-0148',
-    submissionDate: '18 Oct 2026',
-    status: 'Pending',
-    fullName: 'Meklit Tadesse',
-    phoneNumber: '+251 91 148 2901',
-    passwordHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    sellerLegalName: 'Meklit Home Goods PLC',
-    tradeName: 'Meklit Home Goods',
-    tin: '0012847391',
-    businessLicenseNumber: 'BL-AA-2024-9102',
-    uploadedFileName: 'meklit_trade_license.pdf',
-    uploadedFileSize: '2.4 MB',
-    city: 'Addis Ababa',
-    subCity: 'Lideta',
-    buildingName: 'Sunshine Commercial Center',
-    floor: '2nd Floor, Room 204',
-    gpsLocation: '9.0123, 38.7421',
-    certified: true,
-    createdAt: new Date('2026-10-18T09:30:00Z').toISOString(),
-    updatedAt: new Date('2026-10-18T09:30:00Z').toISOString(),
-  },
-  {
-    id: 'app-002',
-    referenceNumber: 'APP-2026-0147',
-    submissionDate: '17 Oct 2026',
-    status: 'Under Review',
-    fullName: 'Dr. Desta Hailu',
-    phoneNumber: '+251 92 841 0023',
-    passwordHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    sellerLegalName: 'Desta Pharmacy Sole Proprietorship',
-    tradeName: 'Desta Pharmacy',
-    tin: '0049102847',
-    businessLicenseNumber: 'BL-AA-2023-4412',
-    uploadedFileName: 'desta_pharmacy_permit.pdf',
-    uploadedFileSize: '1.8 MB',
-    city: 'Addis Ababa',
-    subCity: 'Bole',
-    buildingName: 'Medhanealem Plaza',
-    floor: 'Ground Floor, Unit G-03',
-    gpsLocation: '8.9951, 38.7892',
-    certified: true,
-    createdAt: new Date('2026-10-17T11:15:00Z').toISOString(),
-    updatedAt: new Date('2026-10-17T11:15:00Z').toISOString(),
-  },
-];
+const INITIAL_APPLICATIONS: StoredMerchantApplication[] = [];
 
 class MerchantApplicationStorage {
   private cache: StoredMerchantApplication[] = [];

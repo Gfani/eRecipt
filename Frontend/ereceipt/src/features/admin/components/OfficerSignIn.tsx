@@ -21,8 +21,8 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
   const [authMode, setAuthMode] = useState<'signin' | 'register'>('signin');
 
   // Sign In state
-  const [username, setUsername] = useState('officer.demo');
-  const [password, setPassword] = useState('Revenue123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberOfficer, setRememberOfficer] = useState(false);
 
@@ -76,13 +76,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
       }
       onSuccess();
     } catch (err: any) {
-      // Offline fallback for demo prototype credentials
-      if (username.trim().toLowerCase() === 'officer.demo' && password === 'Revenue123') {
-        localStorage.setItem('officer_token', 'demo-token');
-        onSuccess();
-      } else {
-        setAuthError(err.message || 'Invalid username or password.');
-      }
+      setAuthError(err.message || 'Invalid username or password.');
     } finally {
       setIsLoading(false);
     }
@@ -141,23 +135,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
       }
       onSuccess();
     } catch (err: any) {
-      // Offline fallback
-      if (err.message && err.message.includes('already taken')) {
-        setAuthError(err.message);
-      } else {
-        const fallbackOfficer = {
-          id: `off-${Date.now()}`,
-          name: regFullName.trim(),
-          username: regUsername.trim(),
-          badgeNumber: regBadgeNumber.trim().toUpperCase(),
-          role: regRole,
-          email: regEmail.trim(),
-          branch: regBranch,
-        };
-        localStorage.setItem('officer_token', 'demo-token');
-        localStorage.setItem('officer_user', JSON.stringify(fallbackOfficer));
-        onSuccess();
-      }
+      setAuthError(err.message || 'Officer registration failed. Please check your information.');
     } finally {
       setIsLoading(false);
     }
@@ -228,7 +206,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                       setAuthError('');
                     }}
                     className={`${styles.input} ${authError ? styles.inputError : ''}`}
-                    placeholder="Officer username (e.g. officer.demo)"
+                    placeholder="Officer username"
                     autoComplete="username"
                   />
                 </div>
@@ -281,7 +259,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                   <button
                     type="button"
                     className={styles.forgotLink}
-                    onClick={() => alert('Prototype credentials are: officer.demo / Revenue123')}
+                    onClick={() => alert('Please contact the Ministry system administrator to reset your credentials.')}
                   >
                     Forgot Password?
                   </button>
@@ -291,12 +269,6 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                   {isLoading ? 'Signing In...' : 'Sign In as Officer'}
                 </button>
               </form>
-
-              <div className={styles.credentialsBox}>
-                <b>Prototype credentials:</b> officer.demo / Revenue123
-                <br />
-                Fictional demonstration data only. No government database is accessed.
-              </div>
 
               <div className={styles.switchPromptBox}>
                 <span>Need authorized officer access? </span>

@@ -45,17 +45,17 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
     defaultValues: {
       legalName: initialValues?.legalName ?? storedProfile.sellerLegalName,
       tradeName: initialValues?.tradeName ?? storedProfile.tradeName,
-      businessEmail: initialValues?.businessEmail ?? 'billing@abyssiniacloud.et',
+      businessEmail: initialValues?.businessEmail ?? '',
       phone: initialValues?.phone ?? storedProfile.phoneNumber,
-      businessSector: initialValues?.businessSector ?? 'Retail & Commercial Trade',
+      businessSector: initialValues?.businessSector ?? '',
       city: initialValues?.city ?? storedProfile.city,
       subCity: initialValues?.subCity ?? storedProfile.subCity,
-      woreda: initialValues?.woreda ?? 'Woreda 03',
+      woreda: initialValues?.woreda ?? '',
       houseNumber:
         initialValues?.houseNumber ??
         (storedProfile.buildingName
           ? `${storedProfile.buildingName}${storedProfile.floor ? `, ${storedProfile.floor}` : ''}`
-          : 'Bldg 4A, Suite 201'),
+          : ''),
     },
   });
 
@@ -86,9 +86,9 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
           tin={
             storedProfile.tin && storedProfile.tin.length === 10
               ? `${storedProfile.tin.slice(0, 3)}•••••${storedProfile.tin.slice(-2)}`
-              : '001•••••42'
+              : storedProfile.tin || '—'
           }
-          merchantReference={storedProfile.referenceNumber || 'AM-2081'}
+          merchantReference={storedProfile.referenceNumber || '—'}
           taxAuthority="Ministry of Revenues (MoR)"
         />
       </div>

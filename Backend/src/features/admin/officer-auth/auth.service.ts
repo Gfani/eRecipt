@@ -17,42 +17,7 @@ const AUDIT_FILE = path.join(DATA_DIR, 'admin-audit-log.json');
 
 type StoredOfficer = OfficerUser & { passwordHash: string };
 
-// Pre-seeded revenue administration officers
-const INITIAL_OFFICERS: StoredOfficer[] = [
-  {
-    id: 'off-001',
-    username: 'officer.demo',
-    passwordHash: 'Revenue123',
-    name: 'Hana Alemu',
-    badgeNumber: 'RO-218',
-    role: 'REVENUE_OFFICER',
-    email: 'hana.alemu@mor.gov.et',
-    branch: 'Addis Ababa Large Taxpayers Branch',
-    createdAt: '2024-01-15T08:00:00.000Z',
-  },
-  {
-    id: 'off-002',
-    username: 'auditor.demo',
-    passwordHash: 'Revenue123',
-    name: 'Bekele Tadesse',
-    badgeNumber: 'RO-184',
-    role: 'SENIOR_AUDITOR',
-    email: 'bekele.tadesse@mor.gov.et',
-    branch: 'Central Tax Enforcement Division',
-    createdAt: '2023-06-10T08:00:00.000Z',
-  },
-  {
-    id: 'off-003',
-    username: 'admin.demo',
-    passwordHash: 'Revenue123',
-    name: 'Meron Girma',
-    badgeNumber: 'RO-203',
-    role: 'ADMIN',
-    email: 'meron.girma@mor.gov.et',
-    branch: 'Ministry of Revenues HQ',
-    createdAt: '2023-01-01T08:00:00.000Z',
-  },
-];
+const INITIAL_OFFICERS: StoredOfficer[] = [];
 
 // Active sessions map: token -> OfficerUser & expiresAt
 interface Session {
@@ -254,8 +219,10 @@ export class OfficerAuthService {
     if (!session) {
       this.ensureLoaded();
       if (cleanToken === 'demo-token' || cleanToken === 'mock-demo-token') {
-        const { passwordHash: _, ...officer } = this.officersCache[0] || INITIAL_OFFICERS[0];
-        return officer;
+        if (this.officersCache.length > 0) {
+          const { passwordHash: _, ...officer } = this.officersCache[0];
+          return officer;
+        }
       }
       return null;
     }

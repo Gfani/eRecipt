@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         .join('')
         .slice(0, 2)
         .toUpperCase()
-    : 'AM';
+    : 'ME';
 
   const navItems = [
     { key: 'dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className={styles.merchantCard}>
           <span className={styles.merchantAvatar}>{merchantInitials}</span>
           <div className={styles.merchantDetails}>
-            <p className={styles.merchantName}>{profile.tradeName || 'Abeba Market'}</p>
+            <p className={styles.merchantName}>{profile.tradeName || 'Merchant Business'}</p>
             <p className={styles.merchantVerified}>
               {profile.status === 'Approved' ? 'Verified merchant' : 'Pending accreditation'}
             </p>

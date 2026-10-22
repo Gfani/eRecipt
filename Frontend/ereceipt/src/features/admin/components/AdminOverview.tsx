@@ -25,19 +25,24 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
   onNavigateToReports,
   getToneForStatus,
 }) => {
+  const pendingCount = applications.filter(
+    (a) => a.status === 'Pending' || a.status === 'Under Review'
+  ).length;
+  const approvedCount = applications.filter((a) => a.status === 'Approved').length;
+
   const metricCards = [
     {
       label: 'Pending Merchant Applications',
-      value: '12',
-      detail: '4 received today',
+      value: String(pendingCount),
+      detail: `${applications.filter((a) => a.status === 'Pending').length} awaiting review`,
       icon: UserCheck,
       bgColor: '#FFF7E6',
       iconColor: '#A85D08',
     },
     {
       label: 'Approved Merchants',
-      value: '1,284',
-      detail: '23 this month',
+      value: String(approvedCount),
+      detail: 'Accredited in registry',
       icon: Building2,
       bgColor: '#E8F5EE',
       iconColor: '#176B4D',
@@ -92,7 +97,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
             <div className={styles.cardHeader}>
               <div>
                 <h2 className={styles.cardTitle}>Pending Merchant Applications</h2>
-                <p className={styles.cardSubtext}>Fictional prototype records requiring attention</p>
+                <p className={styles.cardSubtext}>Submitted applications requiring verification and review</p>
               </div>
               <button
                 type="button"
@@ -117,27 +122,35 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {applications.slice(0, 3).map((item) => (
-                    <tr key={item.ref}>
-                      <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
-                      <td className={styles.td}>{item.tin}</td>
-                      <td className={styles.td}>{item.merchantId}</td>
-                      <td className={styles.td}>{item.category}</td>
-                      <td className={styles.td}>{item.date}</td>
-                      <td className={styles.td}>
-                        <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
-                      </td>
-                      <td className={styles.td} style={{ textAlign: 'right' }}>
-                        <button
-                          type="button"
-                          onClick={() => onReviewMerchant(item.ref)}
-                          className={styles.reviewBtn}
-                        >
-                          Review
-                        </button>
+                  {applications.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '28px 16px', color: '#667069' }}>
+                        No pending merchant applications.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    applications.slice(0, 3).map((item) => (
+                      <tr key={item.ref}>
+                        <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
+                        <td className={styles.td}>{item.tin}</td>
+                        <td className={styles.td}>{item.merchantId}</td>
+                        <td className={styles.td}>{item.category}</td>
+                        <td className={styles.td}>{item.date}</td>
+                        <td className={styles.td}>
+                          <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
+                        </td>
+                        <td className={styles.td} style={{ textAlign: 'right' }}>
+                          <button
+                            type="button"
+                            onClick={() => onReviewMerchant(item.ref)}
+                            className={styles.reviewBtn}
+                          >
+                            Review
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

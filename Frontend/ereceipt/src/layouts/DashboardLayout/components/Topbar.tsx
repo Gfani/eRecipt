@@ -25,7 +25,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu }) => {
         .join('')
         .slice(0, 2)
         .toUpperCase()
-    : 'TG';
+    : 'ME';
 
   return (
     <header className={styles.topbar}>
@@ -71,8 +71,8 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu }) => {
         <button type="button" className={styles.userProfile}>
           <span className={styles.userAvatar}>{userInitials}</span>
           <div className={styles.userInfo}>
-            <p className={styles.userName}>{profile.fullName || 'Tigist Getachew'}</p>
-            <p className={styles.userRole}>Owner · {profile.tradeName || 'Merchant'}</p>
+            <p className={styles.userName}>{profile.fullName || 'Merchant Account'}</p>
+            <p className={styles.userRole}>Owner · {profile.tradeName || 'Registered Business'}</p>
           </div>
           <ChevronDown size={14} style={{ color: '#64748B' }} />
         </button>
