@@ -4,7 +4,7 @@ import { Audit } from './features/audit';
 import { ReceiptIssuance } from './features/receipt-issuance';
 import './App.css';
 
-type AppView = 'receipt-issuance' | 'audit' | 'registration';
+type AppView = 'receipt-issuance' | 'audit' | 'registration' | 'admin';
 
 function App() {
   const [currentView, setCurrentView] = useState<AppView>('receipt-issuance');
