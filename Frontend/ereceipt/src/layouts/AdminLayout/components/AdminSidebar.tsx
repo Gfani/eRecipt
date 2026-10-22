@@ -2,7 +2,6 @@ import React from 'react';
 import {
   LayoutDashboard,
   UserCheck,
-  UserPlus,
   Building2,
   History,
   FileText,
@@ -29,7 +28,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const navItems: [string, string, React.ComponentType<{ size?: number }>][] = [
     ['overview', 'Overview', LayoutDashboard],
     ['approvals', 'Merchant Approvals', UserCheck],
-    ['registration', 'Register Merchant', UserPlus],
     ['directory', 'Merchant Directory', Building2],
     ['sales', 'Sales Records', History],
     ['reports', 'Tax Reports', FileText],

@@ -22,3 +22,13 @@ export interface OfficerAuthResponse {
   expiresIn: string;
   officer: OfficerUser;
 }
+
+export interface OfficerRegisterRequest {
+  fullName: string;
+  username: string;
+  badgeNumber: string;
+  email: string;
+  branch: string;
+  role?: OfficerRole;
+  password: string;
+}

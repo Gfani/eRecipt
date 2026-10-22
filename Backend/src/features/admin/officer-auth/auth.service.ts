@@ -1,12 +1,28 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
-import type { OfficerUser, OfficerLoginRequest, OfficerAuthResponse } from './auth.types.js';
+import type {
+  OfficerUser,
+  OfficerLoginRequest,
+  OfficerAuthResponse,
+  OfficerRegisterRequest,
+} from './auth.types.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.resolve(__dirname, '../../../../data');
+const OFFICERS_FILE = path.join(DATA_DIR, 'admin-officers.json');
+const AUDIT_FILE = path.join(DATA_DIR, 'admin-audit-log.json');
+
+type StoredOfficer = OfficerUser & { passwordHash: string };
 
 // Pre-seeded revenue administration officers
-const REVENUE_OFFICERS: Array<OfficerUser & { passwordHash: string }> = [
+const INITIAL_OFFICERS: StoredOfficer[] = [
   {
     id: 'off-001',
     username: 'officer.demo',
-    passwordHash: 'Revenue123', // In demo prototype, matching against accepted revenue password
+    passwordHash: 'Revenue123',
     name: 'Hana Alemu',
     badgeNumber: 'RO-218',
     role: 'REVENUE_OFFICER',
@@ -47,12 +63,90 @@ interface Session {
 const activeSessions = new Map<string, Session>();
 
 export class OfficerAuthService {
+  private officersCache: StoredOfficer[] = [];
+  private isLoaded = false;
+
+  private ensureLoaded(): void {
+    if (this.isLoaded) return;
+
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+
+      if (fs.existsSync(OFFICERS_FILE)) {
+        const raw = fs.readFileSync(OFFICERS_FILE, 'utf-8');
+        this.officersCache = JSON.parse(raw);
+      } else {
+        this.officersCache = [...INITIAL_OFFICERS];
+        this.saveToFile();
+      }
+    } catch {
+      this.officersCache = [...INITIAL_OFFICERS];
+    }
+
+    this.isLoaded = true;
+  }
+
+  private saveToFile(): void {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(OFFICERS_FILE, JSON.stringify(this.officersCache, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to persist officers to disk:', err);
+    }
+  }
+
+  /**
+   * Record audit log entry for officer actions
+   */
+  private logAudit(entry: {
+    officer: string;
+    action: string;
+    reference: string;
+    statusTransition: string;
+    notes: string;
+  }): void {
+    try {
+      const timestamp = new Date().toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      const fullEvent = {
+        id: `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        timestamp,
+        ...entry,
+      };
+
+      let events: any[] = [];
+      if (fs.existsSync(AUDIT_FILE)) {
+        try {
+          events = JSON.parse(fs.readFileSync(AUDIT_FILE, 'utf-8'));
+        } catch {
+          events = [];
+        }
+      }
+
+      events.unshift(fullEvent);
+      fs.writeFileSync(AUDIT_FILE, JSON.stringify(events, null, 2), 'utf-8');
+    } catch (err) {
+      console.warn('Failed to record audit event in officer-auth:', err);
+    }
+  }
+
   /**
    * Authenticate officer with username and password
    */
   async login(credentials: OfficerLoginRequest): Promise<OfficerAuthResponse> {
+    this.ensureLoaded();
     const trimmedUsername = credentials.username.trim().toLowerCase();
-    const officerMatch = REVENUE_OFFICERS.find(
+    const officerMatch = this.officersCache.find(
       (o) => o.username.toLowerCase() === trimmedUsername
     );
 
@@ -69,9 +163,7 @@ export class OfficerAuthService {
     const durationMs = credentials.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
     const expiresAt = Date.now() + durationMs;
 
-    // Sanitize officer object (exclude password)
     const { passwordHash: _, ...officer } = officerMatch;
-
     activeSessions.set(token, { officer, expiresAt });
 
     return {
@@ -82,19 +174,87 @@ export class OfficerAuthService {
   }
 
   /**
+   * Register a new revenue officer / admin
+   */
+  async register(payload: OfficerRegisterRequest): Promise<OfficerAuthResponse> {
+    this.ensureLoaded();
+
+    if (!payload.fullName?.trim()) {
+      throw new Error('Full name is required.');
+    }
+    if (!payload.username?.trim()) {
+      throw new Error('Officer username is required.');
+    }
+    if (!payload.badgeNumber?.trim()) {
+      throw new Error('Officer badge or employee ID is required.');
+    }
+    if (!payload.email?.trim()) {
+      throw new Error('Official email is required.');
+    }
+    if (!payload.password || payload.password.length < 6) {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+
+    const cleanUsername = payload.username.trim().toLowerCase();
+    const existing = this.officersCache.find(
+      (o) => o.username.toLowerCase() === cleanUsername
+    );
+
+    if (existing) {
+      throw new Error(`Officer username "${payload.username}" is already taken.`);
+    }
+
+    const newOfficer: StoredOfficer = {
+      id: `off-${Date.now()}`,
+      username: payload.username.trim(),
+      passwordHash: payload.password,
+      name: payload.fullName.trim(),
+      badgeNumber: payload.badgeNumber.trim().toUpperCase(),
+      role: payload.role || 'REVENUE_OFFICER',
+      email: payload.email.trim().toLowerCase(),
+      branch: payload.branch?.trim() || 'Addis Ababa Large Taxpayers Branch',
+      createdAt: new Date().toISOString(),
+    };
+
+    this.officersCache.push(newOfficer);
+    this.saveToFile();
+
+    // Log administrative onboarding event
+    this.logAudit({
+      officer: `${newOfficer.name} · ${newOfficer.badgeNumber}`,
+      action: 'Officer credential registered',
+      reference: newOfficer.badgeNumber,
+      statusTransition: 'Unregistered → Active Officer',
+      notes: `New officer onboarded: ${newOfficer.name} (${newOfficer.role}) at ${newOfficer.branch}`,
+    });
+
+    // Auto-login newly registered officer
+    const token = `ro_tok_${crypto.randomBytes(32).toString('hex')}`;
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+
+    const { passwordHash: _, ...officer } = newOfficer;
+    activeSessions.set(token, { officer, expiresAt });
+
+    return {
+      token,
+      expiresIn: '24h',
+      officer,
+    };
+  }
+
+  /**
    * Validate session token and return officer details
    */
   async getOfficerFromToken(token: string): Promise<OfficerUser | null> {
     if (!token) return null;
 
-    // Format clean token
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
     const session = activeSessions.get(cleanToken);
 
     if (!session) {
-      // In development prototype mode, if token is "mock-demo-token", return Hana Alemu
+      this.ensureLoaded();
       if (cleanToken === 'demo-token' || cleanToken === 'mock-demo-token') {
-        const { passwordHash: _, ...officer } = REVENUE_OFFICERS[0];
+        const { passwordHash: _, ...officer } = this.officersCache[0] || INITIAL_OFFICERS[0];
         return officer;
       }
       return null;

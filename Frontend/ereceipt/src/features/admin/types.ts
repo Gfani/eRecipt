@@ -1,7 +1,6 @@
 export type AdminPage =
   | 'overview'
   | 'approvals'
-  | 'registration'
   | 'merchantReview'
   | 'directory'
   | 'merchantDetails'

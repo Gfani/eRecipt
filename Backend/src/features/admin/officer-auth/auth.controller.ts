@@ -37,6 +37,44 @@ export class OfficerAuthController {
   }
 
   /**
+   * POST /api/admin/auth/register
+   */
+  async register(req: Request, res: Response): Promise<void> {
+    try {
+      const { fullName, username, badgeNumber, email, branch, role, password } = req.body;
+
+      if (!fullName || !username || !badgeNumber || !email || !password) {
+        res.status(400).json({
+          success: false,
+          error: 'Full name, username, badge number, email, and password are required',
+        });
+        return;
+      }
+
+      const authResult = await officerAuthService.register({
+        fullName,
+        username,
+        badgeNumber,
+        email,
+        branch,
+        role,
+        password,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Revenue Officer registered successfully',
+        data: authResult,
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        error: error.message || 'Registration failed',
+      });
+    }
+  }
+
+  /**
    * GET /api/admin/auth/me
    */
   async getMe(req: Request, res: Response): Promise<void> {
