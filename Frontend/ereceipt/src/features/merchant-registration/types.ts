@@ -14,6 +14,7 @@ export interface MerchantRegistrationFormData {
   uploadedFileName: string;
   uploadedFileSize: string;
   isDocumentReady: boolean;
+  documentFile?: File | null;
 
   // Step 4: Business location
   city: string;
@@ -24,6 +25,26 @@ export interface MerchantRegistrationFormData {
 
   // Step 5: Certification
   certified: boolean;
+}
+
+export interface MerchantUserProfile {
+  fullName: string;
+  phoneNumber: string;
+  sellerLegalName: string;
+  tradeName: string;
+  tin: string;
+  businessLicenseNumber: string;
+  uploadedFileName?: string;
+  uploadedFileSize?: string;
+  documentUrl?: string;
+  city: string;
+  subCity: string;
+  buildingName: string;
+  floor: string;
+  gpsLocation?: string;
+  referenceNumber: string;
+  status: 'Pending' | 'Under Review' | 'Approved' | 'Rejected';
+  registeredAt: string;
 }
 
 export const initialRegistrationFormData: MerchantRegistrationFormData = {
@@ -37,6 +58,7 @@ export const initialRegistrationFormData: MerchantRegistrationFormData = {
   uploadedFileName: '',
   uploadedFileSize: '',
   isDocumentReady: false,
+  documentFile: null,
   city: '',
   subCity: '',
   buildingName: '',

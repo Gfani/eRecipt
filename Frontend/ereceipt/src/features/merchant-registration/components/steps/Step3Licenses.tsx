@@ -20,6 +20,7 @@ export const Step3Licenses: React.FC<Step3Props> = ({ formData, onChange }) => {
       uploadedFileName: file.name,
       uploadedFileSize: `${sizeInMb} MB · Ready for MoR validation`,
       isDocumentReady: true,
+      documentFile: file,
     });
   };
 
@@ -61,11 +62,15 @@ export const Step3Licenses: React.FC<Step3Props> = ({ formData, onChange }) => {
         }}
       >
         <FileCheck2 size={32} className={styles.uploadIcon} />
-        <b className={styles.uploadTitle}>Upload VAT certificate and license</b>
+        <b className={styles.uploadTitle}>Upload VAT certificate and license (Mandatory)</b>
         <span className={styles.uploadSubtitle}>PDF, JPG or PNG, up to 10 MB</span>
       </div>
 
-      {formData.isDocumentReady && formData.uploadedFileName && (
+      {!formData.isDocumentReady ? (
+        <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#B45309', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          ⚠️ Uploading your business license or tax certificate is required to complete registration.
+        </p>
+      ) : (
         <div className={styles.filePreviewCard}>
           <FileText size={20} className={styles.fileIcon} />
           <div className={styles.fileDetails}>

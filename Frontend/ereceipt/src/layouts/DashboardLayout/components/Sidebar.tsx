@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import Logo from '../../../components/ui/Logo/Logo';
+import { getStoredMerchantProfile } from '../../../features/merchant-registration';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -26,6 +27,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeScreen = 'audit',
   onNavigate,
 }) => {
+  const [profile, setProfile] = useState(() => getStoredMerchantProfile());
+
+  useEffect(() => {
+    const handleUpdate = () => setProfile(getStoredMerchantProfile());
+    window.addEventListener('ereceipt:profile_updated', handleUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleUpdate);
+  }, []);
+
+  const merchantInitials = profile.tradeName
+    ? profile.tradeName
+        .split(' ')
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'AM';
+
   const navItems = [
     { key: 'dashboard', label: 'Overview', icon: LayoutDashboard },
     { key: 'pos', label: 'Issue receipt', icon: ShoppingBag },
@@ -53,10 +71,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <div className={styles.merchantCard}>
-          <span className={styles.merchantAvatar}>AM</span>
+          <span className={styles.merchantAvatar}>{merchantInitials}</span>
           <div className={styles.merchantDetails}>
-            <p className={styles.merchantName}>Abeba Market</p>
-            <p className={styles.merchantVerified}>Verified merchant</p>
+            <p className={styles.merchantName}>{profile.tradeName || 'Abeba Market'}</p>
+            <p className={styles.merchantVerified}>
+              {profile.status === 'Approved' ? 'Verified merchant' : 'Pending accreditation'}
+            </p>
           </div>
           <ChevronDown size={15} style={{ color: '#AFC1CE' }} />
         </div>
