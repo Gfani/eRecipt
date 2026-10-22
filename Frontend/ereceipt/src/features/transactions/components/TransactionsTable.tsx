@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MonthlyTransactionSummary } from '../types/transactionTypes';
+import type { MonthlyTransactionSummary } from '../types/TransactionTypes';
 import styles from './TransactionsTable.module.css';
 
 interface TransactionsTableProps {
@@ -22,10 +22,12 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
     })}`;
   };
 
-  // Filter records by search
-  const filteredRecords = records.filter((r) =>
-    r.month.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter records by search and selected year
+  const filteredRecords = records.filter((r) => {
+    const matchesMonth = r.month.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesYear = !selectedYear || r.year === selectedYear;
+    return matchesMonth && matchesYear;
+  });
 
   return (
     <div className={styles.tableCard}>
@@ -156,7 +158,9 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
             {filteredRecords.length === 0 && (
               <tr>
                 <td colSpan={5} className={styles.emptyState}>
-                  No monthly transactions found matching "{searchTerm}".
+                  {searchTerm
+                    ? `No monthly transactions found matching "${searchTerm}".`
+                    : `No monthly transactions found for ${selectedYear}.`}
                 </td>
               </tr>
             )}
