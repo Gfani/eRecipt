@@ -1,4 +1,4 @@
-# eReceipt# eReceipt — Digital Receipt Management System
+# eReceipt — Digital Receipt Management System
 
 **eReceipt** is a digital receipt management system designed to modernize receipt issuance, improve transaction transparency, and simplify merchant registration and tax administration. The platform aims to reduce reliance on paper receipts while making receipts easier to access, verify, and manage.
 
