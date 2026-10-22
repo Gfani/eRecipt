@@ -3,6 +3,8 @@ import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registrationRouter } from './features/merchant-registration/index.js';
+import { officerAuthRouter } from './features/admin/officer-auth/index.js';
+import { merchantManagementRouter } from './features/admin/merchant-management/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +35,12 @@ app.get('/api/health', (_req, res) => {
 
 // Mount Feature: Merchant Registration
 app.use('/api/registration', registrationRouter);
+
+// Mount Feature: Revenue Officer Auth
+app.use('/api/admin/auth', officerAuthRouter);
+
+// Mount Feature: Merchant Approvals & Directory
+app.use('/api/admin/merchants', merchantManagementRouter);
 
 // 404 Catch-all
 app.use((_req, res) => {

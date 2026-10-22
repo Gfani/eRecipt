@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from './components/Badge';
 import { DecisionModal } from './components/DecisionModal';
 import { OfficerSignIn } from './components/OfficerSignIn';
@@ -43,6 +43,27 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
   const [decisionReason, setDecisionReason] = useState('');
   const [selectedMerchantRef, setSelectedMerchantRef] = useState('APP-2026-0148');
   const [selectedReportRef, setSelectedReportRef] = useState('TR-2026-0918');
+
+  // Synchronize applications and directory from backend on mount
+  useEffect(() => {
+    fetch('http://localhost:5000/api/admin/merchants/applications')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setApplications(data.data);
+        }
+      })
+      .catch(() => {});
+
+    fetch('http://localhost:5000/api/admin/merchants/directory')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setMerchants(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const [applications, setApplications] = useState<MerchantApplicationItem[]>([
     {
@@ -155,7 +176,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     },
   ]);
 
-  const merchants: DirectoryMerchantItem[] = [
+  const [merchants, setMerchants] = useState<DirectoryMerchantItem[]>([
     {
       name: 'Lomi Café and Bakery',
       tin: '0019274635',
@@ -201,7 +222,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       status: 'Suspended',
       authorization: 'Suspended',
     },
-  ];
+  ]);
 
   const [auditEvents, setAuditEvents] = useState<AuditEventItem[]>([
     {
@@ -323,6 +344,29 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
 
     if (decision.entity === 'merchant') {
       const previous = selectedApplication.status;
+
+      // Post decision to live backend
+      fetch(`http://localhost:5000/api/admin/merchants/applications/${selectedApplication.ref}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: decision.kind,
+          reason: decisionReason || (decision.kind === 'approve' ? 'Verification checks completed' : 'Administrative action'),
+          officerName: 'Hana Alemu · RO-218',
+        }),
+      })
+        .then((res) => res.json())
+        .then((resData) => {
+          if (resData.success) {
+            // refresh directory from live backend
+            fetch('http://localhost:5000/api/admin/merchants/directory')
+              .then((r) => r.json())
+              .then((d) => d.success && Array.isArray(d.data) && setMerchants(d.data))
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
+
       setApplications((current) =>
         current.map((item) =>
           item.ref === selectedApplication.ref ? { ...item, status: nextStatus } : item
