@@ -4,6 +4,7 @@ export type AdminPage =
   | 'merchantReview'
   | 'directory'
   | 'merchantDetails'
+  | 'pos'
   | 'sales'
   | 'reports'
   | 'reportReview'

@@ -9,6 +9,7 @@ import {
   Database,
   Settings,
   ReceiptText,
+  ShoppingBag,
   ChevronDown,
   LogOut,
 } from 'lucide-react';
@@ -19,17 +20,20 @@ interface AdminSidebarProps {
   currentPage: AdminPage;
   onNavigate: (page: AdminPage) => void;
   onSignOut: () => void;
+  onNavigateToIssueReceipt?: () => void;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   currentPage,
   onNavigate,
   onSignOut,
+  onNavigateToIssueReceipt,
 }) => {
   const navItems: [AdminPage, string, React.ComponentType<{ size?: number }>][] = [
     ['overview', 'Overview', LayoutDashboard],
     ['approvals', 'Merchant Approvals', UserCheck],
     ['directory', 'Merchant Directory', Building2],
+    ['pos', 'Issue Receipt', ShoppingBag],
     ['sales', 'Sales Records', History],
     ['reports', 'Tax Reports', FileText],
     ['taxRecords', 'Tax Records', ClipboardCheck],
@@ -64,7 +68,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             <button
               key={target}
               type="button"
-              onClick={() => onNavigate(target)}
+              onClick={() => {
+                if (target === 'pos' && onNavigateToIssueReceipt) {
+                  onNavigateToIssueReceipt();
+                } else {
+                  onNavigate(target);
+                }
+              }}
               className={`${styles.navButton} ${
                 isActive ? styles.navButtonActive : styles.navButtonInactive
               }`}

@@ -81,7 +81,9 @@ function generateFiscalClearanceData(date: Date) {
   };
 }
 
-export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) => {
+export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
+  onNavigate: _onNavigate,
+}) => {
   const [documentType, setDocumentType] = useState<DocumentType>(
     'Electronic Tax Invoice (VAT Invoice)'
   );
@@ -336,7 +338,7 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
   };
 
   return (
-    <DashboardLayout activeScreen="pos" onNavigate={onNavigate}>
+    <>
       <div className={styles.pageHead}>
         <div>
           <p className={styles.eyebrow}>MoR EIMS real-time clearance</p>
@@ -478,8 +480,17 @@ export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) 
           <span>{toastMessage}</span>
         </div>
       )}
+    </>
+  );
+};
+
+export const ReceiptIssuance: React.FC<ReceiptIssuanceProps> = ({ onNavigate }) => {
+  return (
+    <DashboardLayout activeScreen="pos" onNavigate={onNavigate}>
+      <ReceiptIssuanceContent onNavigate={onNavigate} />
     </DashboardLayout>
   );
 };
 
 export default ReceiptIssuance;
+

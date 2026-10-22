@@ -1,4 +1,4 @@
-export { ReceiptIssuance } from './ReceiptIssuance';
+export { ReceiptIssuance, ReceiptIssuanceContent } from './ReceiptIssuance';
 export { default } from './ReceiptIssuance';
 export * from './types';
 export { TaxLineItemsTable } from './components/TaxLineItemsTable';

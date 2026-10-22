@@ -6,6 +6,7 @@ import { initialMonthlyRecords } from './types';
 import { ClearedInvoiceDocument } from '../tax-invoice-preview/components/ClearedInvoiceDocument';
 import { SettingsVerticalNav, type SettingsTabId } from '../settings/components/SettingsVerticalNav';
 import { BusinessProfileTab } from '../settings/components/tabs/BusinessProfileTab';
+import { ReceiptIssuanceContent } from '../receipt-issuance';
 import styles from './Audit.module.css';
 
 interface AuditProps {
@@ -69,6 +70,14 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
   const handleSidebarNavigate = (screen: string) => {
     if (screen === 'registration') {
       onNavigate?.('registration');
+      return;
+    }
+    if (screen === 'admin') {
+      onNavigate?.('admin');
+      return;
+    }
+    if (screen === 'receipt-issuance') {
+      setActiveScreen('pos');
       return;
     }
     setActiveScreen(screen);
@@ -257,28 +266,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
       )}
 
       {activeScreen === 'pos' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Point of Sale</p>
-              <h1 className={styles.title}>Issue Receipt</h1>
-              <p className={styles.copy}>Generate and issue compliant electronic receipts to customers.</p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '32px' }}>
-            <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
-              Receipt issuance terminal is ready. Click below to inspect cleared invoice output format.
-            </p>
-            <button
-              type="button"
-              onClick={() => setActiveScreen('receipt')}
-              className="btn-primary"
-              style={{ marginTop: '16px' }}
-            >
-              View Cleared Invoice Document
-            </button>
-          </div>
-        </>
+        <ReceiptIssuanceContent onNavigate={handleSidebarNavigate} />
       )}
 
       {activeScreen === 'sales' && (
