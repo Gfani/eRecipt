@@ -10,7 +10,7 @@ import {
 import styles from './OfficerSignIn.module.css';
 
 interface OfficerSignInProps {
-  onSuccess: () => void;
+  onSuccess: (officer?: any) => void;
   onReturnToMerchant?: () => void;
 }
 
@@ -84,7 +84,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         localStorage.setItem('officer_token', data.data.token);
         localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
       }
-      onSuccess();
+      onSuccess(data.data?.officer);
     } catch (err: any) {
       setAuthError(err.message || 'Invalid username or password.');
     } finally {
@@ -143,7 +143,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         localStorage.setItem('officer_token', data.data.token);
         localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
       }
-      onSuccess();
+      onSuccess(data.data?.officer);
     } catch (err: any) {
       setAuthError(err.message || 'Officer registration failed. Please check your information.');
     } finally {

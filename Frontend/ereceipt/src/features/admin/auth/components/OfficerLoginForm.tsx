@@ -1,7 +1,7 @@
 import { OfficerSignIn } from '../../components/OfficerSignIn';
 
 interface OfficerLoginFormProps {
-  onLogin?: () => void;
+  onLogin?: (officer?: any) => void;
   onReturnToMerchant?: () => void;
 }
 

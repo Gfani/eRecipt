@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { merchantManagementService } from './merchant.service.js';
+import { officerAuthService } from '../officer-auth/index.js';
 
 export class MerchantManagementController {
   /**
@@ -62,10 +63,18 @@ export class MerchantManagementController {
         return;
       }
 
+      let activeOfficer = officerName;
+      if (!activeOfficer && req.headers.authorization) {
+        const off = await officerAuthService.getOfficerFromToken(req.headers.authorization);
+        if (off) {
+          activeOfficer = `${off.name} · ${off.badgeNumber}`;
+        }
+      }
+
       const result = await merchantManagementService.submitDecision(ref, {
         kind,
         reason: reason || '',
-        officerName: officerName || 'Hana Alemu · RO-218',
+        officerName: activeOfficer || 'Revenue Compliance Officer',
       });
 
       res.status(200).json({

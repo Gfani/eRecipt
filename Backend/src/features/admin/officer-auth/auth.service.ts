@@ -15,9 +15,45 @@ const DATA_DIR = path.resolve(__dirname, '../../../../data');
 const OFFICERS_FILE = path.join(DATA_DIR, 'admin-officers.json');
 const AUDIT_FILE = path.join(DATA_DIR, 'admin-audit-log.json');
 
+const SESSIONS_FILE = path.join(DATA_DIR, 'admin-sessions.json');
+
 type StoredOfficer = OfficerUser & { passwordHash: string };
 
-const INITIAL_OFFICERS: StoredOfficer[] = [];
+const INITIAL_OFFICERS: StoredOfficer[] = [
+  {
+    id: 'off-demo-101',
+    username: 'officer.demo',
+    passwordHash: 'Revenue123',
+    name: 'Abebe Bikila',
+    badgeNumber: 'RO-101',
+    role: 'REVENUE_OFFICER',
+    email: 'officer.demo@mor.gov.et',
+    branch: 'Addis Ababa Large Taxpayers Branch',
+    createdAt: '2026-10-22T00:00:00.000Z',
+  },
+  {
+    id: 'off-1792695191459',
+    username: 'officer.fani',
+    passwordHash: 'Password123',
+    name: 'Fanuel Kassahun',
+    badgeNumber: 'RO-305',
+    role: 'REVENUE_OFFICER',
+    email: 'fanuel.kassahun@mor.gov.et',
+    branch: 'Addis Ababa Large Taxpayers Branch',
+    createdAt: '2026-10-22T18:53:11.459Z',
+  },
+  {
+    id: 'off-admin-001',
+    username: 'admin',
+    passwordHash: 'Admin123',
+    name: 'Revenue System Administrator',
+    badgeNumber: 'ADM-001',
+    role: 'ADMIN',
+    email: 'admin@mor.gov.et',
+    branch: 'Ministry of Revenues Head Office',
+    createdAt: '2026-10-22T00:00:00.000Z',
+  },
+];
 
 // Active sessions map: token -> OfficerUser & expiresAt
 interface Session {
@@ -46,11 +82,37 @@ export class OfficerAuthService {
         this.officersCache = [...INITIAL_OFFICERS];
         this.saveToFile();
       }
+
+      if (fs.existsSync(SESSIONS_FILE)) {
+        try {
+          const sessionsRaw = fs.readFileSync(SESSIONS_FILE, 'utf-8');
+          const parsed = JSON.parse(sessionsRaw);
+          if (Array.isArray(parsed)) {
+            for (const [tok, sess] of parsed) {
+              if (sess && sess.expiresAt > Date.now()) {
+                activeSessions.set(tok, sess);
+              }
+            }
+          }
+        } catch {}
+      }
     } catch {
       this.officersCache = [...INITIAL_OFFICERS];
     }
 
     this.isLoaded = true;
+  }
+
+  private saveSessionsToFile(): void {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      const sessionEntries = Array.from(activeSessions.entries());
+      fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessionEntries, null, 2), 'utf-8');
+    } catch (err) {
+      console.warn('Failed to persist admin sessions:', err);
+    }
   }
 
   private saveToFile(): void {
@@ -130,6 +192,7 @@ export class OfficerAuthService {
 
     const { passwordHash: _, ...officer } = officerMatch;
     activeSessions.set(token, { officer, expiresAt });
+    this.saveSessionsToFile();
 
     return {
       token,
@@ -199,6 +262,7 @@ export class OfficerAuthService {
 
     const { passwordHash: _, ...officer } = newOfficer;
     activeSessions.set(token, { officer, expiresAt });
+    this.saveSessionsToFile();
 
     return {
       token,
@@ -229,6 +293,7 @@ export class OfficerAuthService {
 
     if (Date.now() > session.expiresAt) {
       activeSessions.delete(cleanToken);
+      this.saveSessionsToFile();
       return null;
     }
 
@@ -240,7 +305,9 @@ export class OfficerAuthService {
    */
   async logout(token: string): Promise<boolean> {
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
-    return activeSessions.delete(cleanToken);
+    const result = activeSessions.delete(cleanToken);
+    this.saveSessionsToFile();
+    return result;
   }
 }
 

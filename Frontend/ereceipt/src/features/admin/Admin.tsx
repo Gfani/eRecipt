@@ -33,7 +33,16 @@ interface AdminProps {
 }
 
 export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
-  const [signedIn, setSignedIn] = useState(true);
+  const [signedIn, setSignedIn] = useState(false);
+  const [currentOfficer, setCurrentOfficer] = useState<any>(() => {
+    try {
+      const stored = localStorage.getItem('officer_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [page, setPage] = useState<AdminPage>('overview');
   const [globalSearch, setGlobalSearch] = useState('');
   const [directorySearch, setDirectorySearch] = useState('');
@@ -44,9 +53,43 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
   const [selectedMerchantRef, setSelectedMerchantRef] = useState('');
   const [selectedReportRef, setSelectedReportRef] = useState('TR-2026-0918');
 
-  // Synchronize applications and directory from backend on mount
+  const handleSignInSuccess = (officer?: any) => {
+    if (officer) {
+      setCurrentOfficer(officer);
+    } else {
+      try {
+        const stored = localStorage.getItem('officer_user');
+        if (stored) setCurrentOfficer(JSON.parse(stored));
+      } catch {}
+    }
+    setSignedIn(true);
+  };
+
+  const handleSignOut = () => {
+    const token = localStorage.getItem('officer_token');
+    if (token) {
+      fetch('http://localhost:5000/api/admin/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }).catch(() => {});
+    }
+    localStorage.removeItem('officer_token');
+    localStorage.removeItem('officer_user');
+    setCurrentOfficer(null);
+    setSignedIn(false);
+  };
+
+  // Synchronize applications and directory from backend once authenticated
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin/merchants/applications')
+    if (!signedIn) return;
+
+    const token = localStorage.getItem('officer_token');
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+    fetch('http://localhost:5000/api/admin/merchants/applications', { headers })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.data)) {
@@ -58,7 +101,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       })
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/admin/merchants/directory')
+    fetch('http://localhost:5000/api/admin/merchants/directory', { headers })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.data)) {
@@ -66,7 +109,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [signedIn]);
 
   const [applications, setApplications] = useState<MerchantApplicationItem[]>([]);
 
@@ -264,9 +307,15 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       } catch {}
 
       // Post decision to live backend
+      const token = localStorage.getItem('officer_token');
+      const authHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
       fetch(`http://localhost:5000/api/admin/merchants/applications/${selectedApplication.ref}/decision`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({
           kind: decision.kind,
           reason: decisionReason || (decision.kind === 'approve' ? 'Verification checks completed' : 'Administrative action'),
@@ -277,7 +326,9 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
         .then((resData) => {
           if (resData.success) {
             // refresh directory from live backend
-            fetch('http://localhost:5000/api/admin/merchants/directory')
+            fetch('http://localhost:5000/api/admin/merchants/directory', {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            })
               .then((r) => r.json())
               .then((d) => d.success && Array.isArray(d.data) && setMerchants(d.data))
               .catch(() => {});
@@ -361,7 +412,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
   if (!signedIn) {
     return (
       <OfficerSignIn
-        onSuccess={() => setSignedIn(true)}
+        onSuccess={handleSignInSuccess}
         onReturnToMerchant={onReturnToMerchant}
       />
     );
@@ -373,7 +424,8 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       <AdminSidebar
         currentPage={page}
         onNavigate={navigate}
-        onSignOut={() => setSignedIn(false)}
+        onSignOut={handleSignOut}
+        officer={currentOfficer}
       />
 
       {/* Main Container */}
@@ -391,6 +443,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
           onProfileClick={() => navigate('settings')}
           currentPage={page}
           onNavigate={navigate}
+          officer={currentOfficer}
         />
 
         <main className={styles.mainContent}>
