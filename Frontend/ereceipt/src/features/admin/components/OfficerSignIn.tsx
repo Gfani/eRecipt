@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ReceiptText,
   Eye,
@@ -25,6 +25,16 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberOfficer, setRememberOfficer] = useState(false);
+  const [isFormReady, setIsFormReady] = useState(false);
+
+  useEffect(() => {
+    setUsername('');
+    setPassword('');
+    const timer = setTimeout(() => {
+      setIsFormReady(true);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [authMode]);
 
   // Registration state
   const [regFullName, setRegFullName] = useState('');
@@ -192,41 +202,63 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                 Sign in to manage merchant verification, tax reconciliations, and audit records.
               </p>
 
-              <form onSubmit={submitSignIn} className={styles.form}>
+              <form onSubmit={submitSignIn} className={styles.form} autoComplete="off">
+                {/* Browser credential autofill trap */}
+                <input
+                  type="text"
+                  name="fake_officer_user"
+                  style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+                <input
+                  type="password"
+                  name="fake_officer_pass"
+                  style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+
                 <div className={styles.fieldGroup}>
-                  <label className={styles.fieldLabel} htmlFor="admin-username">
+                  <label className={styles.fieldLabel} htmlFor="officer-identifier">
                     Username
                   </label>
                   <input
-                    id="admin-username"
+                    id="officer-identifier"
+                    name="officer_acc_code"
                     type="text"
                     value={username}
                     onChange={(e) => {
                       setUsername(e.target.value);
                       setAuthError('');
                     }}
+                    onFocus={() => setIsFormReady(true)}
+                    readOnly={!isFormReady}
                     className={`${styles.input} ${authError ? styles.inputError : ''}`}
                     placeholder="Officer username"
-                    autoComplete="username"
+                    autoComplete="off"
                   />
                 </div>
 
                 <div className={styles.fieldGroup}>
-                  <label className={styles.fieldLabel} htmlFor="admin-password">
+                  <label className={styles.fieldLabel} htmlFor="officer-credential">
                     Password
                   </label>
                   <span className={styles.passwordWrapper}>
                     <input
-                      id="admin-password"
+                      id="officer-credential"
+                      name="officer_sec_token"
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
                         setAuthError('');
                       }}
+                      onFocus={() => setIsFormReady(true)}
+                      readOnly={!isFormReady}
                       type={showPassword ? 'text' : 'password'}
                       className={`${styles.input} ${authError ? styles.inputError : ''}`}
                       placeholder="Enter password"
-                      autoComplete="current-password"
+                      autoComplete="new-password"
                     />
                     <button
                       type="button"
