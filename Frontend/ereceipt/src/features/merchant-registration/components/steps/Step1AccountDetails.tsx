@@ -31,7 +31,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           <span className="field-label">Official business email *</span>
           {formData.emailVerified && (
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#16A34A', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✓ Verified via Resend OTP
+              ✓ Verified
             </span>
           )}
         </div>

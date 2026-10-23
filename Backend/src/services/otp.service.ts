@@ -131,8 +131,6 @@ class OtpService {
         success: false,
         message: `Please wait ${waitRemaining} second(s) before requesting a new code.`,
         email: cleanEmail,
-        simulated: !this.resendClient,
-        code: !this.resendClient ? existing.code : undefined,
         cooldownSeconds: waitRemaining,
       };
     }
@@ -160,37 +158,34 @@ class OtpService {
     let deliverySimulated = true;
     if (this.resendClient) {
       try {
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'eReceipt Tax Portal <onboarding@resend.dev>';
-        const subject =
-          purpose.includes('admin')
-            ? `[Ministry of Revenues] Your Officer Security Verification Code: ${code}`
-            : `[eReceipt] Your Merchant Verification Code: ${code}`;
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'eReceipt <onboarding@resend.dev>';
+        const subject = `eReceipt · Verification Code: ${code}`;
 
         const html = `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #FFFFFF;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-              <span style="font-size: 24px; font-weight: 800; color: #176B4D; letter-spacing: -0.5px;">eReceipt</span>
-              <span style="font-size: 12px; color: #64748B; padding-left: 6px; border-left: 1px solid #CBD5E1;">Digital Receipts. A Stronger Ethiopia.</span>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 28px; border: 1px solid #E2E8F0; border-radius: 12px; background-color: #FFFFFF;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 22px;">
+              <span style="font-size: 24px; font-weight: 800; color: #123D2C; letter-spacing: -0.5px;">eReceipt</span>
+              <span style="font-size: 12px; color: #64748B; padding-left: 8px; border-left: 1px solid #CBD5E1;">Digital Receipts. A Stronger Ethiopia.</span>
             </div>
             
-            <h2 style="font-size: 20px; color: #1E293B; margin-top: 0;">Verification Code</h2>
-            <p style="font-size: 14px; color: #475569; line-height: 1.5;">
+            <h2 style="font-size: 20px; color: #0F172A; margin: 0 0 12px 0;">Your Verification Code</h2>
+            <p style="font-size: 14px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
               Hello ${recipientName || 'there'},<br />
-              Use the 6-digit one-time password (OTP) below to authenticate your <strong>${purpose.replace('_', ' ').toUpperCase()}</strong> request.
+              Use the 6-digit one-time code below to complete your authentication with <strong>eReceipt</strong>.
             </p>
 
-            <div style="margin: 28px 0; text-align: center; background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 20px;">
-              <span style="font-size: 36px; font-weight: 800; letter-spacing: 6px; color: #176B4D; font-family: monospace;">${code}</span>
-              <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748B;">This code will expire in ${this.EXPIRY_MINUTES} minutes.</p>
+            <div style="margin: 24px 0; text-align: center; background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 22px;">
+              <span style="font-size: 38px; font-weight: 800; letter-spacing: 8px; color: #123D2C; font-family: monospace;">${code}</span>
+              <p style="margin: 10px 0 0 0; font-size: 13px; color: #64748B; font-weight: 500;">This code is valid for 10 minutes.</p>
             </div>
 
-            <p style="font-size: 13px; color: #64748B; line-height: 1.5;">
-              If you did not request this verification code, please ignore this email or notify your system administrator immediately.
+            <p style="font-size: 13px; color: #64748B; line-height: 1.5; margin: 0 0 20px 0;">
+              If you did not request this verification code, please ignore this email or contact support.
             </p>
 
             <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 24px 0;" />
-            <p style="font-size: 11px; color: #94A3B8; text-align: center; margin: 0;">
-              Federal Democratic Republic of Ethiopia · Ministry of Revenues Electronic Invoice Management System (MoR EIMS)
+            <p style="font-size: 12px; color: #94A3B8; text-align: center; margin: 0;">
+              eReceipt · Digital Receipts. A Stronger Ethiopia.
             </p>
           </div>
         `;
@@ -203,36 +198,32 @@ class OtpService {
         });
 
         if (response.error) {
-          console.warn('?? [Resend API Error]:', response.error);
+          console.warn('⚠️ [Resend API Error]:', response.error);
           deliverySimulated = true;
         } else {
-          console.log(`? [Resend Email Sent]: Message ID ${response.data?.id} to ${cleanEmail}`);
+          console.log(`✓ [Resend Email Sent]: Message ID ${response.data?.id} to ${cleanEmail}`);
           deliverySimulated = false;
         }
       } catch (sendErr) {
-        console.warn('?? [Resend Delivery Failed, falling back to simulated mode]:', sendErr);
+        console.warn('⚠️ [Resend Delivery Failed, falling back to simulated mode]:', sendErr);
         deliverySimulated = true;
       }
     }
 
     if (deliverySimulated) {
       console.log(`=======================================================`);
-      console.log(`?? [Resend OTP Code Simulated for Local Testing]`);
-      console.log(`?? Recipient : ${cleanEmail}`);
-      console.log(`?? Purpose   : ${purpose}`);
-      console.log(`?? CODE      : ${code}`);
-      console.log(`?? Expires   : in ${this.EXPIRY_MINUTES} minutes`);
+      console.log(`🔑 [Resend OTP Code Generated]`);
+      console.log(`📧 Recipient : ${cleanEmail}`);
+      console.log(`🎯 Purpose   : ${purpose}`);
+      console.log(`🔒 CODE      : ${code}`);
+      console.log(`⏳ Expires   : in ${this.EXPIRY_MINUTES} minutes`);
       console.log(`=======================================================`);
     }
 
     return {
       success: true,
-      message: deliverySimulated
-        ? `Verification code generated for ${cleanEmail}.`
-        : `Verification code sent to ${cleanEmail} via Resend.`,
+      message: `Verification code sent to ${cleanEmail}.`,
       email: cleanEmail,
-      simulated: deliverySimulated,
-      code: deliverySimulated ? code : undefined,
       cooldownSeconds: this.COOLDOWN_SECONDS,
     };
   }

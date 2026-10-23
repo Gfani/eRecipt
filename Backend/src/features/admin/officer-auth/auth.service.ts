@@ -41,7 +41,7 @@ const INITIAL_OFFICERS: StoredOfficer[] = [
     name: 'Fanuel Kassahun',
     badgeNumber: 'RO-305',
     role: 'REVENUE_OFFICER',
-    email: 'fanuel.kassahun@mor.gov.et',
+    email: 'fanuelgoitom79@gmail.com',
     branch: 'Addis Ababa Large Taxpayers Branch',
     createdAt: '2026-10-22T18:53:11.459Z',
   },
@@ -220,16 +220,13 @@ export class OfficerAuthService {
       expiresAt: Date.now() + 10 * 60 * 1000,
     });
 
-    const otpRes = await otpService.sendOtp(officer.email, 'admin_login', officer.name);
+    await otpService.sendOtp(officer.email, 'admin_login', officer.name);
 
     return {
       requires2FA: true,
       tempToken,
       email: officer.email,
       maskedEmail: maskEmail(officer.email),
-      simulatedCode: otpRes.simulated
-        ? (otpRes.code || otpService.getActiveCode(officer.email, 'admin_login') || undefined)
-        : undefined,
     };
   }
 
