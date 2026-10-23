@@ -1,7 +1,6 @@
 .logoButton {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   background: transparent;
   border: none;
   padding: 0;
@@ -11,7 +10,7 @@
 }
 
 .logoButton:hover {
-  opacity: 0.92;
+  opacity: 0.94;
   transform: translateY(-1px);
 }
 
@@ -56,4 +55,57 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* ─── Merchant Dashboard Sidebar Badge (Dark Green Background) ─── */
+.sidebarBadgeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconBox {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.iconImg {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+}
+
+.brandTitle {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+/* ─── Merchant Registration & Public Views (Full Horizontal Logo) ─── */
+.fullLogoImg {
+  display: block;
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
+.sm {
+  height: 36px;
+}
+
+.md {
+  height: 50px;
+}
+
+.lg {
+  height: 62px;
 }

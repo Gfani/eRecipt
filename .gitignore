@@ -1,1 +1,6 @@
 Digital Receipt System/
+.env
+*.env
+**/.env
+node_modules/
+dist/

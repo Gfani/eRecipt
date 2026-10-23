@@ -12,7 +12,11 @@ export const LandingPage: React.FC = () => {
       <header className={styles.navbar}>
         <div className={styles.navContainer}>
           <a href="/" className={styles.brandLogo}>
-            <img src={logoImg} alt="eReceipt" className={styles.logoImg} />
+            <img
+              src={logoImg}
+              alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
+              className={styles.logoImg}
+            />
           </a>
 
           <nav className={styles.navLinks}>
@@ -498,7 +502,11 @@ export const LandingPage: React.FC = () => {
         <div className={styles.footerContainer}>
           <div className={styles.footerBrandCol}>
             <div className={styles.footerLogo}>
-              <img src={logoWhiteImg} alt="eReceipt" className={styles.footerLogoImg} />
+              <img
+                src={logoWhiteImg}
+                alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
+                className={styles.footerLogoImg}
+              />
             </div>
             <p className={styles.footerTagline}>
               Digital receipts. Stronger businesses. <br />
