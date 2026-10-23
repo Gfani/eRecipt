@@ -24,7 +24,7 @@
 }
 
 .title {
-  color: var(--color-navy, #12304A);
+  color: var(--color-text-heading, #17201B);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.015em;
@@ -33,7 +33,7 @@
 
 .copy {
   margin: 4px 0 0 0;
-  color: var(--color-text-muted, #64748B);
+  color: var(--color-text-secondary, #526059);
   font-size: 12px;
 }
 
@@ -103,8 +103,8 @@
 }
 
 .inputField:focus {
-  border-color: var(--color-primary, #0D9488);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
+  border-color: var(--color-border-focus, #176B4D);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(18, 61, 44, 0.15));
 }
 
 .tinInputRow {
@@ -140,7 +140,7 @@
   border-radius: var(--radius-md, 8px);
   border: 1px solid var(--color-border-input, #CBD5E1);
   background: #FFFFFF;
-  color: var(--color-navy, #12304A);
+  color: var(--color-text-heading, #17201B);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -148,7 +148,7 @@
 }
 
 .verifyBtn:hover:not(:disabled) {
-  background: var(--color-bg-subtle, #F8FAFC);
+  background: var(--color-bg-subtle, #FFFDF8);
   border-color: #94A3B8;
 }
 
@@ -162,8 +162,8 @@
   align-items: flex-start;
   gap: 12px;
   border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-border-subtle, #E2E8F0);
-  background-color: var(--color-bg-subtle, #F8FAFC);
+  border: 1px solid var(--color-border-subtle, #DDE3DE);
+  background-color: var(--color-bg-subtle, #FFFDF8);
   padding: 14px;
   cursor: pointer;
 }
@@ -172,7 +172,7 @@
   margin-top: 2px;
   width: 16px;
   height: 16px;
-  accent-color: var(--color-primary, #0D9488);
+  accent-color: var(--color-primary, #123D2C);
   cursor: pointer;
 }
 
@@ -180,12 +180,12 @@
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-navy, #12304A);
+  color: var(--color-text-heading, #17201B);
 }
 
 .checkboxCopy {
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  color: var(--color-text-muted, #64748B);
+  color: var(--color-text-secondary, #526059);
 }
