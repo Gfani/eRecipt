@@ -7,6 +7,7 @@ import styles from './Directory.module.css';
 interface MerchantDetailsProps {
   merchant: DirectoryMerchantItem;
   onBack: () => void;
+  onToggleStatus?: (merchantId: string, nextStatus: 'Active' | 'Suspended') => void;
   renderSales: () => React.ReactNode;
   renderTaxRecords: () => React.ReactNode;
   getToneForStatus: (status: string) => Tone;
@@ -15,6 +16,7 @@ interface MerchantDetailsProps {
 export const MerchantDetails: React.FC<MerchantDetailsProps> = ({
   merchant,
   onBack,
+  onToggleStatus,
   renderSales,
   renderTaxRecords,
   getToneForStatus,
@@ -98,12 +100,36 @@ export const MerchantDetails: React.FC<MerchantDetailsProps> = ({
             </p>
           </div>
 
-          <div className={styles.badgesGroup}>
+          <div className={styles.badgesGroup} style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <Badge tone={getToneForStatus(merchant.status)}>{merchant.status}</Badge>
             <Badge tone="info">{merchant.classification}</Badge>
             <Badge tone={getToneForStatus(merchant.authorization)}>
               Receipt: {merchant.authorization}
             </Badge>
+            {onToggleStatus && (
+              <button
+                type="button"
+                onClick={() =>
+                  onToggleStatus(
+                    merchant.id,
+                    merchant.status === 'Active' ? 'Suspended' : 'Active'
+                  )
+                }
+                style={{
+                  padding: '5px 12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  borderRadius: '4px',
+                  border: merchant.status === 'Active' ? '1px solid #DC2626' : '1px solid #16A34A',
+                  backgroundColor: '#FFFFFF',
+                  color: merchant.status === 'Active' ? '#DC2626' : '#16A34A',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {merchant.status === 'Active' ? 'Suspend Merchant' : 'Activate Merchant'}
+              </button>
+            )}
           </div>
         </div>
 

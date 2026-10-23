@@ -285,6 +285,31 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     navigate('reportReview');
   };
 
+  const handleToggleMerchantStatus = (merchantId: string, nextStatus: 'Active' | 'Suspended') => {
+    const token = localStorage.getItem('officer_token');
+    fetch(`http://localhost:5000/api/admin/merchants/directory/${merchantId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        status: nextStatus,
+        officerName: currentOfficer?.name || 'Revenue Officer',
+        reason: `Administrative ${nextStatus === 'Active' ? 'reactivation' : 'suspension'}`,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setMerchants((prev) =>
+            prev.map((m) => (m.id === merchantId ? { ...m, ...data.data } : m))
+          );
+        }
+      })
+      .catch(() => {});
+  };
+
   const selectedApplication =
     applications.find((item) => item.ref === selectedMerchantRef) ?? applications[0];
 
@@ -535,6 +560,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
             <MerchantDetails
               merchant={selectedDirectoryMerchant}
               onBack={() => navigate('directory')}
+              onToggleStatus={handleToggleMerchantStatus}
               renderSales={() => <SalesRecords />}
               renderTaxRecords={() => (
                 <TaxRecordsLedger
