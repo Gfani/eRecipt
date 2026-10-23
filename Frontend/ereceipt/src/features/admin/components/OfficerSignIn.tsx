@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ReceiptText,
   Eye,
   EyeOff,
   AlertCircle,
@@ -263,11 +262,13 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
             type="button"
             onClick={onReturnToMerchant}
             className={styles.brandButton}
+            title="Return to Merchant Workspace"
           >
-            <span className={styles.brandIcon}>
-              <ReceiptText size={21} />
-            </span>
-            <span className={styles.brandName}>eReceipt</span>
+            <img
+              src="/logo.png"
+              alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
+              style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
+            />
           </button>
 
           {/* Mode Switcher Tabs */}
