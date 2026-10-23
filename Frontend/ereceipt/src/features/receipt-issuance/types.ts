@@ -86,32 +86,7 @@ export const MERCHANT_CODE = 'AM2081';
 export const BRANCH_CODE = 'BOL01';
 export const REGISTER_CODE = 'REG01';
 
-export const INITIAL_ITEMS: CartItem[] = [
-  {
-    id: 1,
-    code: 'GR-104',
-    name: 'Sidamo Coffee 500g',
-    price: 680,
-    qty: 1,
-    uom: 'PCS',
-    discount: 0,
-    vatCategory: 'Standard VAT (15%)',
-    exciseRate: 10,
-    supplyType: 'Goods',
-  },
-  {
-    id: 2,
-    code: 'ST-042',
-    name: 'Leather Notebook',
-    price: 450,
-    qty: 2,
-    uom: 'PCS',
-    discount: 0,
-    vatCategory: 'Standard VAT (15%)',
-    exciseRate: 0,
-    supplyType: 'Goods',
-  },
-];
+export const INITIAL_ITEMS: CartItem[] = [];
 
 export const SAMPLE_PRODUCTS = [
   { id: 101, name: 'Sidamo Coffee 500g', code: 'GR-104', price: 680, uom: 'PCS' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 10, supplyType: 'Goods' as SupplyType },
