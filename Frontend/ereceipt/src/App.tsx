@@ -5,7 +5,7 @@ import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
 import './App.css';
 
-type AppView = 'receipt-issuance' | 'merchant' | 'admin' | 'registration';
+type AppView = 'receipt-issuance' | 'merchant' | 'audit' | 'admin' | 'registration';
 
 function App() {
   const getInitialView = (): AppView => {
