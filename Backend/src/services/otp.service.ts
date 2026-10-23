@@ -157,6 +157,7 @@ class OtpService {
       };
     }
 
+    this.verifiedEmails.delete(key);
     const code = this.generateCode();
     const expiresAt = now + this.EXPIRY_MINUTES * 60 * 1000;
 
