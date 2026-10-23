@@ -8,8 +8,8 @@
   gap: 12px;
   min-height: 64px;
   padding: 8px 16px;
-  background-color: #FFFFFF;
-  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  background-color: #FFFDF8;
+  border-bottom: 1px solid #DDE3DE;
 }
 
 @media (min-width: 768px) {
@@ -33,7 +33,7 @@
   border-radius: var(--radius-md, 8px);
   border: none;
   background: transparent;
-  color: var(--color-navy, #12304A);
+  color: #123D2C;
   cursor: pointer;
 }
 
@@ -75,12 +75,17 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border: 1px solid #DDE3DE;
   background: #FFFFFF;
-  color: var(--color-text-secondary, #475569);
+  color: #526059;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.langToggleBtn:hover {
+  background-color: #F1F4F1;
 }
 
 .bellBtn {
@@ -92,8 +97,13 @@
   border-radius: var(--radius-md, 8px);
   border: none;
   background: transparent;
-  color: var(--color-text-secondary, #475569);
+  color: #526059;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.bellBtn:hover {
+  background-color: #F1F4F1;
 }
 
 .bellDot {
@@ -104,14 +114,14 @@
   height: 8px;
   border-radius: 50%;
   background-color: #DC2626;
-  border: 2px solid #FFFFFF;
+  border: 2px solid #FFFDF8;
 }
 
 .divider {
   display: none;
   width: 1px;
   height: 28px;
-  background-color: var(--color-border-subtle, #E2E8F0);
+  background-color: #DDE3DE;
 }
 
 @media (min-width: 640px) {
@@ -129,6 +139,11 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.userProfile:hover {
+  background-color: #F1F4F1;
 }
 
 @media (min-width: 768px) {
@@ -144,10 +159,10 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: var(--color-bg-alt, #E2E8F0);
+  background-color: #DCE9E0;
   font-size: 12px;
   font-weight: 700;
-  color: var(--color-navy, #12304A);
+  color: #123D2C;
 }
 
 .userInfo {
@@ -157,12 +172,12 @@
 .userName {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-body, #1F2937);
+  color: #17201B;
   margin: 0;
 }
 
 .userRole {
   font-size: 11px;
-  color: var(--color-text-muted, #64748B);
+  color: #7A847E;
   margin: 0;
 }

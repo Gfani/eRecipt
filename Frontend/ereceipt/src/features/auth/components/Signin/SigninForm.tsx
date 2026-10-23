@@ -2,7 +2,17 @@ import React, { useState } from 'react';
 import { Logo } from '../../../../components/ui/Logo/Logo';
 import styles from './SigninForm.module.css';
 
-export const LoginForm: React.FC = () => {
+export interface LoginFormProps {
+  onRegisterClick?: () => void;
+  onHomeClick?: () => void;
+  onSuccess?: () => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onRegisterClick,
+  onHomeClick,
+  onSuccess,
+}) => {
   const [tin, setTin] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -32,8 +42,12 @@ export const LoginForm: React.FC = () => {
     setTimeout(() => {
       console.log('Merchant login submitted:', { tin, password, rememberMe });
       setIsLoading(false);
-      // Example router transition: window.location.href = '/merchant/overview';
-    }, 600);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        window.location.href = '/merchant/overview';
+      }
+    }, 400);
   };
 
   return (
@@ -43,7 +57,7 @@ export const LoginForm: React.FC = () => {
         <div className={styles.formWrapper}>
           {/* Logo Header */}
           <div className={styles.brandRow}>
-            <Logo onClick={() => (window.location.href = '/')} />
+            <Logo onClick={onHomeClick ? onHomeClick : () => (window.location.href = '/')} />
           </div>
 
           {/* Titles & Pre-header */}
@@ -151,7 +165,16 @@ export const LoginForm: React.FC = () => {
           {/* Registration Link */}
           <div className={styles.signupPrompt}>
             <span>New to eReceipt? </span>
-            <a href="/merchant/register" className={styles.signupLink}>
+            <a
+              href="/merchant/register"
+              className={styles.signupLink}
+              onClick={(e) => {
+                if (onRegisterClick) {
+                  e.preventDefault();
+                  onRegisterClick();
+                }
+              }}
+            >
               Create an account
             </a>
           </div>
@@ -236,3 +259,5 @@ export const LoginForm: React.FC = () => {
     </div>
   );
 };
+
+export default LoginForm;

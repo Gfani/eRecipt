@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
         <div className={styles.logoRow}>
-          <Logo inverse />
+          <Logo inverse onClick={() => onNavigate?.('landing')} />
           <button type="button" onClick={onClose} className={styles.closeBtn} aria-label="Close menu">
             <X size={20} />
           </button>
@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {profile.status === 'Approved' ? 'Verified merchant' : 'Pending accreditation'}
             </p>
           </div>
-          <ChevronDown size={15} style={{ color: '#AFC1CE' }} />
+          <ChevronDown size={15} style={{ color: '#AFC5B6' }} />
         </div>
 
         <nav className={styles.navSection}>

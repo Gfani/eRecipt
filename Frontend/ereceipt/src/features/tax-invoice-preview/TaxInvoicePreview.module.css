@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background-color: #F1F5F9;
+  background-color: var(--color-bg-body, #F7F5EF);
   padding: 32px 24px 80px 24px;
 }
 
@@ -15,7 +15,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #0D9488;
+  color: var(--color-accent, #176B4D);
   margin-bottom: 4px;
 }
 
@@ -23,14 +23,14 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--color-text-heading, #17201B);
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   margin: 6px 0 0 0;
   font-size: 14px;
-  color: #64748B;
+  color: var(--color-text-secondary, #526059);
 }
 
 .documentWrapper {
