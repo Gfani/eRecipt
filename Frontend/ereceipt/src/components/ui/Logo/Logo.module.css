@@ -1,58 +1,39 @@
 .logoButton {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
   text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.iconWrapper {
-  position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-primary, #0D9488);
-  color: #FFFFFF;
-  transition: transform 0.15s ease;
+.logoButton:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
 
-.logoButton:hover .iconWrapper {
-  transform: scale(1.04);
+.logoImg {
+  display: block;
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  transition: filter 0.2s ease;
 }
 
-.iconWrapperInverse {
-  background-color: #FFFFFF;
-  color: var(--color-primary, #0D9488);
+.sm {
+  height: 28px;
 }
 
-.badgeCheck {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background-color: var(--color-navy, #12304A);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 1.5px #FFFFFF;
+.md {
+  height: 38px;
 }
 
-.brandName {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  color: var(--color-navy, #12304A);
+.lg {
+  height: 50px;
 }
 
-.brandNameInverse {
-  color: #FFFFFF;
+.logoInverse {
+  filter: brightness(0) invert(1);
 }

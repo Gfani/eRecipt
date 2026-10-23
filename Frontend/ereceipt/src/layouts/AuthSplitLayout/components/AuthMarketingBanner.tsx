@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReceiptText, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import styles from './AuthMarketingBanner.module.css';
 
 interface AuthMarketingBannerProps {
@@ -24,8 +24,8 @@ export const AuthMarketingBanner: React.FC<AuthMarketingBannerProps> = ({
       <div className={styles.decorativeGlow} aria-hidden="true" />
 
       <div className={styles.contentWrapper}>
-        <div className={styles.iconBadge}>
-          <ReceiptText size={24} />
+        <div className={styles.iconBadge} style={{ backgroundColor: '#FFFFFF', padding: '6px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="/logo-icon.png" alt="eReceipt" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
         </div>
 
         <h2 className={styles.headline}>{headline}</h2>

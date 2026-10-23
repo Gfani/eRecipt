@@ -8,7 +8,6 @@ import {
   ClipboardCheck,
   Database,
   Settings,
-  ReceiptText,
   ChevronDown,
   LogOut,
 } from 'lucide-react';
@@ -45,7 +44,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         className={styles.logoRow}
       >
         <span className={styles.logoIcon}>
-          <ReceiptText size={19} />
+          <img src="/logo-icon.png" alt="eReceipt Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
         </span>
         <span className={styles.logoText}>eReceipt</span>
       </button>
