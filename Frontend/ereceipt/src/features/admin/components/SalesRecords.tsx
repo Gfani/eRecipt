@@ -22,14 +22,25 @@ export const SalesRecords: React.FC = () => {
   const [liveReceipts, setLiveReceipts] = useState<LiveReceipt[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/receipts')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.receipts)) {
-          setLiveReceipts(data.receipts);
-        }
-      })
-      .catch(() => {});
+    const fetchReceipts = () => {
+      fetch('http://localhost:5000/api/receipts')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.receipts)) {
+            setLiveReceipts(data.receipts);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchReceipts();
+    const interval = setInterval(fetchReceipts, 3000);
+    window.addEventListener('focus', fetchReceipts);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', fetchReceipts);
+    };
   }, []);
 
   const baseSalesRows: [string, string, string, string, string, string][] = [

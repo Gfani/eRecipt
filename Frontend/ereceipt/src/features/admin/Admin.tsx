@@ -33,7 +33,13 @@ interface AdminProps {
 }
 
 export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
-  const [signedIn, setSignedIn] = useState(false);
+  const [signedIn, setSignedIn] = useState(() => {
+    try {
+      return Boolean(localStorage.getItem('officer_token'));
+    } catch {
+      return false;
+    }
+  });
   const [currentOfficer, setCurrentOfficer] = useState<any>(() => {
     try {
       const stored = localStorage.getItem('officer_user');
@@ -52,6 +58,10 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
   const [decisionReason, setDecisionReason] = useState('');
   const [selectedMerchantRef, setSelectedMerchantRef] = useState('');
   const [selectedReportRef, setSelectedReportRef] = useState('TR-2026-0918');
+
+  const [applications, setApplications] = useState<MerchantApplicationItem[]>([]);
+  const [merchants, setMerchants] = useState<DirectoryMerchantItem[]>([]);
+  const [liveReceipts, setLiveReceipts] = useState<any[]>([]);
 
   const handleSignInSuccess = (officer?: any) => {
     if (officer) {
@@ -82,10 +92,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     setSignedIn(false);
   };
 
-  // Synchronize applications and directory from backend once authenticated
-  useEffect(() => {
-    if (!signedIn) return;
-
+  const loadAdminData = () => {
     const token = localStorage.getItem('officer_token');
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -109,9 +116,32 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
         }
       })
       .catch(() => {});
-  }, [signedIn]);
 
-  const [applications, setApplications] = useState<MerchantApplicationItem[]>([]);
+    fetch('http://localhost:5000/api/receipts')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.receipts)) {
+          setLiveReceipts(data.receipts);
+        }
+      })
+      .catch(() => {});
+  };
+
+  // Synchronize applications, directory, and receipts from backend once authenticated
+  useEffect(() => {
+    if (!signedIn) return;
+    loadAdminData();
+
+    // Live sync polling every 3 seconds so registered merchants and POS receipts appear immediately
+    const interval = setInterval(loadAdminData, 3000);
+    const handleFocus = () => loadAdminData();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [signedIn, page]);
 
   const [reports, setReports] = useState<TaxReportItem[]>([
     {
@@ -170,8 +200,6 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
       status: 'Rejected',
     },
   ]);
-
-  const [merchants, setMerchants] = useState<DirectoryMerchantItem[]>([]);
 
   const [auditEvents, setAuditEvents] = useState<AuditEventItem[]>([
     {
@@ -462,10 +490,12 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
               applications={applications}
               reports={reports}
               auditEvents={auditEvents}
+              receipts={liveReceipts}
               onReviewMerchant={reviewMerchant}
               onReviewReport={reviewReport}
               onNavigateToApprovals={() => navigate('approvals')}
               onNavigateToReports={() => navigate('reports')}
+              onNavigateToSales={() => navigate('sales')}
               getToneForStatus={getToneForStatus}
             />
           )}

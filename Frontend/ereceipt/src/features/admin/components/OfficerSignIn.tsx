@@ -202,6 +202,101 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                 Sign in to manage merchant verification, tax reconciliations, and audit records.
               </p>
 
+              {/* Quick Demo Credentials Box */}
+              <div
+                style={{
+                  backgroundColor: '#F0FDF4',
+                  border: '1px solid #BBF7D0',
+                  borderRadius: '6px',
+                  padding: '12px 14px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <ShieldCheck size={16} /> Quick Demo Officer Sign In
+                </div>
+                <p style={{ margin: 0, fontSize: '11px', color: '#15803D' }}>
+                  Click to fill pre-accredited officer credentials:
+                </p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUsername('officer.fani');
+                      setPassword('Password123');
+                      setIsFormReady(true);
+                      setAuthError('');
+                    }}
+                    style={{
+                      padding: '5px 10px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      backgroundColor: '#176B4D',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Fanuel (officer.fani)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUsername('officer.demo');
+                      setPassword('Revenue123');
+                      setIsFormReady(true);
+                      setAuthError('');
+                    }}
+                    style={{
+                      padding: '5px 10px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      backgroundColor: '#E2E8F0',
+                      color: '#1E293B',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Abebe (officer.demo)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUsername('admin');
+                      setPassword('Admin123');
+                      setIsFormReady(true);
+                      setAuthError('');
+                    }}
+                    style={{
+                      padding: '5px 10px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      backgroundColor: '#F1F5F9',
+                      color: '#334155',
+                      border: '1px solid #CBD5E1',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Admin (admin)
+                  </button>
+                </div>
+              </div>
+
               <form onSubmit={submitSignIn} className={styles.form} autoComplete="off">
                 {/* Browser credential autofill trap */}
                 <input
