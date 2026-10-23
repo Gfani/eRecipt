@@ -9,12 +9,26 @@ export const LandingPage: React.FC = () => {
       {/* ─── 1. NAVBAR ────────────────────────────────────────── */}
       <header className={styles.navbar}>
         <div className={styles.navContainer}>
-          <a href="/" className={styles.brandLogo}>
-            <img
-              src="/logo.png"
-              alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-              style={{ height: '42px', width: 'auto', objectFit: 'contain', display: 'block' }}
-            />
+          <a href="/" className={styles.brandLogo} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{
+              display: 'inline-flex',
+              width: '40px',
+              height: '40px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+              backgroundColor: '#123D2C',
+              flexShrink: 0,
+            }}>
+              <img
+                src="/logo-icon.png"
+                alt="eReceipt Logo"
+                style={{ width: '26px', height: '26px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              />
+            </span>
+            <span style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em', color: '#17201B' }}>
+              eReceipt
+            </span>
           </a>
 
           <nav className={styles.navLinks}>
@@ -499,12 +513,26 @@ export const LandingPage: React.FC = () => {
       <footer className={styles.footer}>
         <div className={styles.footerContainer}>
           <div className={styles.footerBrandCol}>
-            <div className={styles.footerLogo}>
-              <img
-                src="/logo.png"
-                alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-                style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
-              />
+            <div className={styles.footerLogo} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{
+                display: 'inline-flex',
+                width: '36px',
+                height: '36px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+                backgroundColor: '#FFFFFF',
+                flexShrink: 0,
+              }}>
+                <img
+                  src="/logo-icon.png"
+                  alt="eReceipt Logo"
+                  style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                />
+              </span>
+              <span style={{ fontSize: '19px', fontWeight: 700, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
+                eReceipt
+              </span>
             </div>
             <p className={styles.footerTagline}>
               Digital receipts. Stronger businesses. <br />

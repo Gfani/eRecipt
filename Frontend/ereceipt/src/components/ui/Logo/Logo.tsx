@@ -3,7 +3,6 @@ import styles from './Logo.module.css';
 
 interface LogoProps {
   inverse?: boolean;
-  variant?: 'full' | 'icon';
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
   className?: string;
@@ -11,25 +10,27 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({
   inverse = false,
-  variant = 'full',
   size = 'md',
   onClick,
   className = '',
 }) => {
-  const imgSrc = variant === 'icon' ? '/logo-icon.png' : '/logo.png';
-
   return (
     <button
       type="button"
-      className={`${styles.logoButton} ${className}`}
+      className={`${styles.brandButton} ${styles[size]} ${className}`}
       onClick={onClick || (() => window.scrollTo({ top: 0, behavior: 'smooth' }))}
       aria-label="eReceipt home"
     >
-      <img
-        src={imgSrc}
-        alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-        className={`${styles.logoImg} ${styles[size]} ${inverse ? styles.logoInverse : ''}`}
-      />
+      <span className={`${styles.brandIcon} ${inverse ? styles.brandIconInverse : ''}`}>
+        <img
+          src="/logo-icon.png"
+          alt="eReceipt"
+          className={`${styles.logoImg} ${inverse ? styles.logoImgInverse : ''}`}
+        />
+      </span>
+      <span className={`${styles.brandName} ${inverse ? styles.brandNameInverse : ''}`}>
+        eReceipt
+      </span>
     </button>
   );
 };
