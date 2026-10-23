@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { Eye, EyeOff, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { Logo } from '../../../components/ui/Logo/Logo';
-=======
 import React, { useState, useEffect } from 'react';
 import {
-  ReceiptText,
   Eye,
   EyeOff,
   AlertCircle,
@@ -14,7 +8,7 @@ import {
   RotateCw,
   ArrowLeft,
 } from 'lucide-react';
->>>>>>> 2c47f0a7f286ff6d2c951e5c2229993a0fd4245c
+import { Logo } from '../../../components/ui/Logo/Logo';
 import styles from './OfficerSignIn.module.css';
 
 interface OfficerSignInProps {
@@ -264,23 +258,8 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     <div className={styles.container}>
       {/* Left Form Column */}
       <main className={styles.leftColumn}>
-<<<<<<< HEAD
-        <div style={{ marginBottom: '24px' }}>
-          <Logo onClick={onReturnToMerchant} />
-        </div>
-=======
         <div className={styles.brandRow}>
-          <button
-            type="button"
-            onClick={onReturnToMerchant}
-            className={styles.brandButton}
-          >
-            <span className={styles.brandIcon}>
-              <ReceiptText size={21} />
-            </span>
-            <span className={styles.brandName}>eReceipt</span>
-          </button>
->>>>>>> 2c47f0a7f286ff6d2c951e5c2229993a0fd4245c
+          <Logo onClick={onReturnToMerchant} />
 
           {/* Mode Switcher Tabs */}
           {!is2FA && (
