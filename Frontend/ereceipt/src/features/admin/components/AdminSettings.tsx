@@ -2,13 +2,31 @@ import React, { useState } from 'react';
 import styles from './AdminSettings.module.css';
 
 export const AdminSettings: React.FC = () => {
-  const [officerName, setOfficerName] = useState('Hana Alemu');
+  const [officerData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('officer_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [officerName, setOfficerName] = useState(officerData?.name || 'Fanuel Kassahun');
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSave = () => {
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
+
+  const displayBadge = officerData?.badgeNumber || 'RO-305';
+  const displayRole = officerData?.role
+    ? officerData.role === 'ADMIN'
+      ? 'System Administrator'
+      : officerData.role === 'SENIOR_AUDITOR'
+      ? 'Senior Tax Auditor'
+      : 'Revenue Officer'
+    : 'Senior Revenue Officer';
 
   return (
     <div className={styles.grid}>
@@ -30,13 +48,13 @@ export const AdminSettings: React.FC = () => {
 
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabel} htmlFor="officer-id">
-              Officer ID
+              Officer Badge / Employee ID
             </label>
             <input
               id="officer-id"
               className={`${styles.field} ${styles.fieldReadOnly}`}
               readOnly
-              value="RO-218"
+              value={displayBadge}
             />
           </div>
 
@@ -48,7 +66,7 @@ export const AdminSettings: React.FC = () => {
               id="officer-role"
               className={`${styles.field} ${styles.fieldReadOnly}`}
               readOnly
-              value="Senior Revenue Officer"
+              value={displayRole}
             />
           </div>
 

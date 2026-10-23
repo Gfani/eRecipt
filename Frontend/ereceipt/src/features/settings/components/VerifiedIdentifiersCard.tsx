@@ -9,8 +9,8 @@ export interface VerifiedIdentifiersCardProps {
 }
 
 export const VerifiedIdentifiersCard: React.FC<VerifiedIdentifiersCardProps> = ({
-  tin = '001•••••42',
-  merchantReference = 'AM-2081',
+  tin = '—',
+  merchantReference = '—',
   taxAuthority = 'Ministry of Revenues (MoR)',
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);

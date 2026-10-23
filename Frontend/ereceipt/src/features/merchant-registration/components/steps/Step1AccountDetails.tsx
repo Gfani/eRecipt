@@ -27,6 +27,26 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
       </label>
 
       <label className="field-group">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="field-label">Official business email *</span>
+          {formData.emailVerified && (
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#16A34A', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ✓ Verified via Resend OTP
+            </span>
+          )}
+        </div>
+        <input
+          required
+          type="email"
+          className="field-input"
+          autoComplete="off"
+          placeholder="e.g. merchant@company.com"
+          value={formData.email}
+          onChange={(e) => onChange({ email: e.target.value, emailVerified: false })}
+        />
+      </label>
+
+      <label className="field-group">
         <span className="field-label">Phone number</span>
         <input
           required

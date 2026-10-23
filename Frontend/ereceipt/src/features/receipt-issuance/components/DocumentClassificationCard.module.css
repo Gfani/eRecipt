@@ -1,0 +1,131 @@
+.card {
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.035);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.header {
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
+  padding: 20px;
+}
+
+.title {
+  color: var(--color-navy, #12304A);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.copy {
+  margin: 4px 0 0 0;
+  color: var(--color-text-muted, #64748B);
+  font-size: 12px;
+}
+
+.grid {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text-secondary, #334155);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.selectField {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-border-input, #CBD5E1);
+  border-radius: var(--radius-md, 8px);
+  background: #FFFFFF;
+  padding: 10px 14px;
+  color: var(--color-text-body, #1F2937);
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.selectField:focus {
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
+}
+
+.inputField {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-border-input, #CBD5E1);
+  border-radius: var(--radius-md, 8px);
+  background: #FFFFFF;
+  padding: 10px 14px;
+  color: var(--color-text-body, #1F2937);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.inputField:focus {
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
+}
+
+.inputWithIconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-muted, #64748B);
+  pointer-events: none;
+}
+
+.inputWithIcon {
+  padding-left: 44px;
+}
+
+.modeSegment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: var(--color-bg-alt, #F1F5F9);
+  padding: 4px;
+  border-radius: var(--radius-md, 8px);
+  gap: 4px;
+}
+
+.modeBtn {
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748B);
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.modeBtnActive {
+  background-color: #FFFFFF;
+  color: var(--color-primary-active, #0F766E);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}

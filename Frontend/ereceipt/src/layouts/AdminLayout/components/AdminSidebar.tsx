@@ -18,13 +18,31 @@ interface AdminSidebarProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   onSignOut?: () => void;
+  officer?: { name?: string; role?: string; badgeNumber?: string } | null;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   currentPage,
   onNavigate,
   onSignOut,
+  officer,
 }) => {
+  const officerName = officer?.name || 'Revenue Officer';
+  const officerRole = officer?.role
+    ? officer.role === 'ADMIN'
+      ? 'System Administrator'
+      : officer.role === 'SENIOR_AUDITOR'
+      ? 'Senior Tax Auditor'
+      : 'Revenue Officer'
+    : 'Senior Revenue Officer';
+  const officerInitials = officer?.name
+    ? officer.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'RO';
   const navItems: [string, string, React.ComponentType<{ size?: number }>][] = [
     ['overview', 'Overview', LayoutDashboard],
     ['approvals', 'Merchant Approvals', UserCheck],
@@ -70,10 +88,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       <div className={styles.bottomArea}>
         <div className={styles.officerCard}>
-          <span className={styles.officerAvatar}>HA</span>
+          <span className={styles.officerAvatar}>{officerInitials}</span>
           <div className={styles.officerDetails}>
-            <span className={styles.officerName}>Hana Alemu</span>
-            <span className={styles.officerRole}>Senior Revenue Officer</span>
+            <span className={styles.officerName}>{officerName}</span>
+            <span className={styles.officerRole}>{officerRole}</span>
           </div>
           <ChevronDown size={14} style={{ color: '#AFC5B6' }} />
         </div>

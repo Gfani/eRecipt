@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Logo } from '../../../../components/ui/Logo/Logo';
 import styles from './OfficerLoginForm.module.css';
+=======
+import { OfficerSignIn } from '../../components/OfficerSignIn';
+>>>>>>> 2c47f0a7f286ff6d2c951e5c2229993a0fd4245c
 
 interface OfficerLoginFormProps {
-  onLogin?: () => void;
+  onLogin?: (officer?: any) => void;
   onReturnToMerchant?: () => void;
 }
 
@@ -11,23 +15,8 @@ export const OfficerLoginForm: React.FC<OfficerLoginFormProps> = ({
   onLogin,
   onReturnToMerchant,
 }) => {
-  const [username, setUsername] = useState('officer.demo');
-  const [password, setPassword] = useState('Revenue123');
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      onLogin?.();
-    }, 300);
-  };
-
   return (
+<<<<<<< HEAD
     <div className={styles.container}>
       {/* Left Form Column */}
       <div className={styles.leftColumn}>
@@ -201,5 +190,13 @@ export const OfficerLoginForm: React.FC<OfficerLoginFormProps> = ({
         </div>
       </div>
     </div>
+=======
+    <OfficerSignIn
+      onSuccess={onLogin || (() => {})}
+      onReturnToMerchant={onReturnToMerchant}
+    />
+>>>>>>> 2c47f0a7f286ff6d2c951e5c2229993a0fd4245c
   );
 };
+
+export default OfficerLoginForm;

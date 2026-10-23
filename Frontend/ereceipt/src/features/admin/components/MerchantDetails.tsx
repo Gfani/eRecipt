@@ -7,6 +7,7 @@ import styles from './Directory.module.css';
 interface MerchantDetailsProps {
   merchant: DirectoryMerchantItem;
   onBack: () => void;
+  onToggleStatus?: (merchantId: string, nextStatus: 'Active' | 'Suspended') => void;
   renderSales: () => React.ReactNode;
   renderTaxRecords: () => React.ReactNode;
   getToneForStatus: (status: string) => Tone;
@@ -15,11 +16,42 @@ interface MerchantDetailsProps {
 export const MerchantDetails: React.FC<MerchantDetailsProps> = ({
   merchant,
   onBack,
+  onToggleStatus,
   renderSales,
   renderTaxRecords,
   getToneForStatus,
 }) => {
   const [activeTab, setActiveTab] = useState('Overview');
+
+  if (!merchant) {
+    return (
+      <div className={styles.container}>
+        <button
+          type="button"
+          onClick={onBack}
+          className={styles.backBtn}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#176B4D',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          <ArrowLeft size={16} />
+          <span>Back to directory</span>
+        </button>
+        <div className={styles.detailsHeaderCard} style={{ textAlign: 'center', padding: '48px 16px' }}>
+          <p style={{ margin: 0, color: '#667069' }}>No merchant selected from the directory.</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     'Overview',
@@ -68,12 +100,36 @@ export const MerchantDetails: React.FC<MerchantDetailsProps> = ({
             </p>
           </div>
 
-          <div className={styles.badgesGroup}>
+          <div className={styles.badgesGroup} style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <Badge tone={getToneForStatus(merchant.status)}>{merchant.status}</Badge>
             <Badge tone="info">{merchant.classification}</Badge>
             <Badge tone={getToneForStatus(merchant.authorization)}>
               Receipt: {merchant.authorization}
             </Badge>
+            {onToggleStatus && (
+              <button
+                type="button"
+                onClick={() =>
+                  onToggleStatus(
+                    merchant.id,
+                    merchant.status === 'Active' ? 'Suspended' : 'Active'
+                  )
+                }
+                style={{
+                  padding: '5px 12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  borderRadius: '4px',
+                  border: merchant.status === 'Active' ? '1px solid #DC2626' : '1px solid #16A34A',
+                  backgroundColor: '#FFFFFF',
+                  color: merchant.status === 'Active' ? '#DC2626' : '#16A34A',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {merchant.status === 'Active' ? 'Suspend Merchant' : 'Activate Merchant'}
+              </button>
+            )}
           </div>
         </div>
 

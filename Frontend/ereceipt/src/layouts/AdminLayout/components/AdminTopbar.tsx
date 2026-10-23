@@ -10,6 +10,7 @@ interface AdminTopbarProps {
   onProfileClick?: () => void;
   currentPage?: string;
   onNavigate?: (page: string) => void;
+  officer?: { name?: string; role?: string; badgeNumber?: string } | null;
 }
 
 export const AdminTopbar: React.FC<AdminTopbarProps> = ({
@@ -20,7 +21,16 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
   onProfileClick,
   currentPage,
   onNavigate,
+  officer,
 }) => {
+  const officerInitials = officer?.name
+    ? officer.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'RO';
   const navItems = [
     { id: 'overview', label: 'Overview' },
     { id: 'approvals', label: 'Merchant Approvals' },
@@ -69,7 +79,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
           aria-label="Officer profile"
           onClick={onProfileClick}
         >
-          <span className={styles.avatarCircle}>HA</span>
+          <span className={styles.avatarCircle}>{officerInitials}</span>
           <ChevronDown size={14} style={{ color: '#526059' }} />
         </button>
       </div>

@@ -30,28 +30,36 @@ export const ApprovalsTable: React.FC<ApprovalsTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {applications.map((item) => (
-            <tr key={item.ref}>
-              <td className={`${styles.td} ${styles.tdRef}`}>{item.ref}</td>
-              <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
-              <td className={styles.td}>{item.tin}</td>
-              <td className={styles.td}>{item.merchantId}</td>
-              <td className={styles.td}>{item.category}</td>
-              <td className={styles.td}>{item.date}</td>
-              <td className={styles.td}>
-                <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
-              </td>
-              <td className={styles.td} style={{ textAlign: 'right' }}>
-                <button
-                  type="button"
-                  onClick={() => onReviewMerchant(item.ref)}
-                  className={styles.reviewBtn}
-                >
-                  Review
-                </button>
+          {applications.length === 0 ? (
+            <tr>
+              <td colSpan={8} style={{ textAlign: 'center', padding: '36px 16px', color: '#667069' }}>
+                No merchant applications found.
               </td>
             </tr>
-          ))}
+          ) : (
+            applications.map((item) => (
+              <tr key={item.ref}>
+                <td className={`${styles.td} ${styles.tdRef}`}>{item.ref}</td>
+                <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
+                <td className={styles.td}>{item.tin}</td>
+                <td className={styles.td}>{item.merchantId}</td>
+                <td className={styles.td}>{item.category}</td>
+                <td className={styles.td}>{item.date}</td>
+                <td className={styles.td}>
+                  <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
+                </td>
+                <td className={styles.td} style={{ textAlign: 'right' }}>
+                  <button
+                    type="button"
+                    onClick={() => onReviewMerchant(item.ref)}
+                    className={styles.reviewBtn}
+                  >
+                    Review
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

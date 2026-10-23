@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ApprovalsTabFilter } from '../../features/admin/merchant-approvals/components/ApprovalsTabFilter';
 import { ApprovalsTable } from '../../features/admin/merchant-approvals/components/ApprovalsTable';
 import type { MerchantApplicationItem } from '../../features/admin/types';
@@ -9,38 +9,18 @@ export const MerchantApprovalsPage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('All business categories');
   const [statusFilter, setStatusFilter] = useState('All statuses');
 
-  const [applications, setApplications] = useState<MerchantApplicationItem[]>([
-    {
-      ref: 'APP-2026-0148',
-      name: 'Meklit Home Goods PLC',
-      tin: '0012847391',
-      merchantId: 'MER-10482',
-      category: 'Retail',
-      date: '18 Oct 2026',
-      status: 'Pending',
-      address: 'Addis Ababa, Lideta Sub-city',
-    },
-    {
-      ref: 'APP-2026-0147',
-      name: 'Desta Pharmacy',
-      tin: '0017932054',
-      merchantId: 'MER-10481',
-      category: 'Pharmacy',
-      date: '18 Oct 2026',
-      status: 'Under Review',
-      address: 'Adama, Bole Sub-city',
-    },
-    {
-      ref: 'APP-2026-0145',
-      name: 'Blue Nile Stationery',
-      tin: '0014638290',
-      merchantId: 'MER-10479',
-      category: 'Wholesale',
-      date: '17 Oct 2026',
-      status: 'Additional Information Required',
-      address: 'Bahir Dar, Belay Zeleke Sub-city',
-    },
-  ]);
+  const [applications, setApplications] = useState<MerchantApplicationItem[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/admin/merchants/applications')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setApplications(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredApps = applications.filter((app) => {
     const matchesTab = currentTab === 'All Applications' || app.status === currentTab;

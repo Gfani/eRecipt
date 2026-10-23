@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TaxpayerSearchCard } from '../../features/admin/merchant-directory/components/TaxpayerSearchCard';
 import { MerchantDirectoryTable } from '../../features/admin/merchant-directory/components/MerchantDirectoryTable';
 import type { DirectoryMerchantItem } from '../../features/admin/types';
@@ -7,35 +7,18 @@ export const MerchantDirectoryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [directoryQuery, setDirectoryQuery] = useState('');
 
-  const [merchants] = useState<DirectoryMerchantItem[]>([
-    {
-      name: 'Lomi Café and Bakery',
-      tin: '0019274635',
-      id: 'MER-10476',
-      category: 'Hospitality',
-      classification: 'VAT',
-      status: 'Approved',
-      authorization: 'Authorized',
-    },
-    {
-      name: 'Meklit Home Goods PLC',
-      tin: '0012847391',
-      id: 'MER-10482',
-      category: 'Retail',
-      classification: 'Needs Further Review',
-      status: 'Pending',
-      authorization: 'Not authorized',
-    },
-    {
-      name: 'Desta Pharmacy',
-      tin: '0017932054',
-      id: 'MER-10481',
-      category: 'Pharmacy',
-      classification: 'VAT',
-      status: 'Under Review',
-      authorization: 'Not authorized',
-    },
-  ]);
+  const [merchants, setMerchants] = useState<DirectoryMerchantItem[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/admin/merchants/directory')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setMerchants(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredMerchants = merchants.filter(
     (m) =>

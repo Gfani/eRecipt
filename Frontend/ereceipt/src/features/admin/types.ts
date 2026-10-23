@@ -23,6 +23,7 @@ export type Tone = 'success' | 'pending' | 'error' | 'info' | 'neutral';
 
 export interface MerchantApplicationItem {
   ref: string;
+  registrationId?: string;
   name: string;
   tin: string;
   merchantId: string;
@@ -30,6 +31,21 @@ export interface MerchantApplicationItem {
   date: string;
   status: string;
   address: string;
+  fullName?: string;
+  phoneNumber?: string;
+  tradeName?: string;
+  businessLicenseNumber?: string;
+  city?: string;
+  subCity?: string;
+  buildingName?: string;
+  floor?: string;
+  gpsLocation?: string;
+  uploadedFileName?: string;
+  uploadedFileSize?: string;
+  documentUrl?: string;
+  decisionReason?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }
 
 export interface TaxReportItem {
