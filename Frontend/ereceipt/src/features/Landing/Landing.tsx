@@ -3,7 +3,19 @@ import logoImg from '../../assets/logo.png';
 import logoWhiteImg from '../../assets/logo-white.png';
 import styles from './LandingPage.module.css';
 
-export const LandingPage: React.FC = () => {
+export interface LandingPageProps {
+  onSignInClick?: () => void;
+  onGetStartedClick?: () => void;
+  onScanReceiptClick?: () => void;
+  onMerchantPortalClick?: () => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({
+  onSignInClick,
+  onGetStartedClick,
+  onScanReceiptClick,
+  onMerchantPortalClick,
+}) => {
   const [activeLang, setActiveLang] = useState<'EN' | 'አማ'>('EN');
 
   return (
@@ -11,7 +23,14 @@ export const LandingPage: React.FC = () => {
       {/* ─── 1. NAVBAR ────────────────────────────────────────── */}
       <header className={styles.navbar}>
         <div className={styles.navContainer}>
-          <a href="/" className={styles.brandLogo}>
+          <a
+            href="/"
+            className={styles.brandLogo}
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
             <img
               src={logoImg}
               alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
@@ -38,8 +57,30 @@ export const LandingPage: React.FC = () => {
                 <path d="M6 9l6 6 6-6" />
               </svg>
             </button>
-            <a href="/login" className={styles.btnSecondary}>Sign In</a>
-            <a href="/merchant/register" className={styles.btnPrimary}>Get Started</a>
+            <a
+              href="/login"
+              className={styles.btnSecondary}
+              onClick={(e) => {
+                if (onSignInClick) {
+                  e.preventDefault();
+                  onSignInClick();
+                }
+              }}
+            >
+              Sign In
+            </a>
+            <a
+              href="/merchant/register"
+              className={styles.btnPrimary}
+              onClick={(e) => {
+                if (onGetStartedClick) {
+                  e.preventDefault();
+                  onGetStartedClick();
+                }
+              }}
+            >
+              Get Started
+            </a>
           </div>
         </div>
       </header>
@@ -80,7 +121,16 @@ export const LandingPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <a href="/scan" className={styles.portalCtaBtn}>
+                <a
+                  href="/scan"
+                  className={styles.portalCtaBtn}
+                  onClick={(e) => {
+                    if (onScanReceiptClick) {
+                      e.preventDefault();
+                      onScanReceiptClick();
+                    }
+                  }}
+                >
                   <span>Scan Receipt</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -104,7 +154,20 @@ export const LandingPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <a href="/merchant/login" className={`${styles.portalCtaBtn} ${styles.portalCtaBtnSecondary}`}>
+                <a
+                  href="/merchant/login"
+                  className={`${styles.portalCtaBtn} ${styles.portalCtaBtnSecondary}`}
+                  onClick={(e) => {
+                    if (onSignInClick || onMerchantPortalClick) {
+                      e.preventDefault();
+                      if (onMerchantPortalClick) {
+                        onMerchantPortalClick();
+                      } else if (onSignInClick) {
+                        onSignInClick();
+                      }
+                    }
+                  }}
+                >
                   <span>Merchant Portal</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -385,7 +448,16 @@ export const LandingPage: React.FC = () => {
               </li>
             </ul>
 
-            <a href="/merchant/register" className={styles.actionGreenBtn}>
+            <a
+              href="/merchant/register"
+              className={styles.actionGreenBtn}
+              onClick={(e) => {
+                if (onGetStartedClick) {
+                  e.preventDefault();
+                  onGetStartedClick();
+                }
+              }}
+            >
               <span>Get Started as a Merchant</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M12 5l7 7-7 7" />
@@ -526,8 +598,32 @@ export const LandingPage: React.FC = () => {
           <div className={styles.footerNavGroup}>
             <h4>For Merchants</h4>
             <ul>
-              <li><a href="/merchant/register">Register Business</a></li>
-              <li><a href="/merchant/login">Merchant Sign In</a></li>
+              <li>
+                <a
+                  href="/merchant/register"
+                  onClick={(e) => {
+                    if (onGetStartedClick) {
+                      e.preventDefault();
+                      onGetStartedClick();
+                    }
+                  }}
+                >
+                  Register Business
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/merchant/login"
+                  onClick={(e) => {
+                    if (onSignInClick) {
+                      e.preventDefault();
+                      onSignInClick();
+                    }
+                  }}
+                >
+                  Merchant Sign In
+                </a>
+              </li>
               <li><a href="/guide">Verification Guide</a></li>
             </ul>
           </div>
@@ -559,3 +655,5 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
+
+export default LandingPage;
