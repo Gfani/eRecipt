@@ -1,8 +1,9 @@
-import crypto from 'node:crypto';
+import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Resend } from 'resend';
+import { config } from '../config/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,7 +12,8 @@ const OTP_STORE_FILE = path.join(DATA_DIR, 'otp-store.json');
 
 export interface StoredOtp {
   email: string;
-  code: string;
+  codeHash: string;
+  simulatedCode?: string;
   purpose: string;
   recipientName?: string;
   expiresAt: number;
@@ -39,6 +41,7 @@ export interface VerifyOtpResult {
 class OtpService {
   private resendClient: Resend | null = null;
   private otpCache: Map<string, StoredOtp> = new Map();
+  private verifiedEmails: Map<string, number> = new Map();
   private isLoaded = false;
   private readonly COOLDOWN_SECONDS = 45;
   private readonly EXPIRY_MINUTES = 10;
@@ -76,11 +79,18 @@ class OtpService {
       }
       if (fs.existsSync(OTP_STORE_FILE)) {
         const raw = fs.readFileSync(OTP_STORE_FILE, 'utf-8');
-        const parsed: StoredOtp[] = JSON.parse(raw);
+        const parsed: Array<StoredOtp & { code?: string }> = JSON.parse(raw);
         const now = Date.now();
         for (const item of parsed) {
           if (item && item.expiresAt > now) {
-            this.otpCache.set(this.getKey(item.email, item.purpose), item);
+            const codeHash = item.codeHash || (item.code ? this.hashCode(item.code) : '');
+            if (!codeHash) continue;
+            const { code: _legacyCode, ...storedItem } = item;
+            this.otpCache.set(this.getKey(item.email, item.purpose), {
+              ...storedItem,
+              codeHash,
+              simulatedCode: undefined,
+            });
           }
         }
       }
@@ -96,14 +106,19 @@ class OtpService {
         fs.mkdirSync(DATA_DIR, { recursive: true });
       }
       const activeList = Array.from(this.otpCache.values()).filter((item) => item.expiresAt > Date.now());
-      fs.writeFileSync(OTP_STORE_FILE, JSON.stringify(activeList, null, 2), 'utf-8');
+      const persistedList = activeList.map(({ simulatedCode: _simulatedCode, ...item }) => item);
+      fs.writeFileSync(OTP_STORE_FILE, JSON.stringify(persistedList, null, 2), 'utf-8');
     } catch (err) {
       console.warn('Failed to persist OTP store:', err);
     }
   }
 
   private generateCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return randomInt(100000, 1000000).toString();
+  }
+
+  private hashCode(code: string): string {
+    return createHmac('sha256', config.jwtSecret).update(code).digest('hex');
   }
 
   /**
@@ -120,6 +135,11 @@ class OtpService {
       throw new Error('A valid email address is required for OTP delivery.');
     }
 
+    this.initResend();
+    if (!this.resendClient && config.nodeEnv === 'production') {
+      throw new Error('Email OTP delivery is not configured.');
+    }
+
     const key = this.getKey(cleanEmail, purpose);
     const existing = this.otpCache.get(key);
     const now = Date.now();
@@ -132,7 +152,7 @@ class OtpService {
         message: `Please wait ${waitRemaining} second(s) before requesting a new code.`,
         email: cleanEmail,
         simulated: !this.resendClient,
-        code: !this.resendClient ? existing.code : undefined,
+        code: !this.resendClient ? existing.simulatedCode : undefined,
         cooldownSeconds: waitRemaining,
       };
     }
@@ -142,7 +162,8 @@ class OtpService {
 
     const entry: StoredOtp = {
       email: cleanEmail,
-      code,
+      codeHash: this.hashCode(code),
+      simulatedCode: this.resendClient ? undefined : code,
       purpose,
       recipientName: recipientName || existing?.recipientName,
       expiresAt,
@@ -155,8 +176,6 @@ class OtpService {
     this.persistStore();
 
     // Check for Resend client
-    this.initResend(); // Re-read if key was updated in environment
-
     let deliverySimulated = true;
     if (this.resendClient) {
       try {
@@ -203,15 +222,17 @@ class OtpService {
         });
 
         if (response.error) {
-          console.warn('?? [Resend API Error]:', response.error);
-          deliverySimulated = true;
+          this.otpCache.delete(key);
+          this.persistStore();
+          throw new Error(`Resend rejected the OTP email: ${response.error.message}`);
         } else {
           console.log(`? [Resend Email Sent]: Message ID ${response.data?.id} to ${cleanEmail}`);
           deliverySimulated = false;
         }
-      } catch (sendErr) {
-        console.warn('?? [Resend Delivery Failed, falling back to simulated mode]:', sendErr);
-        deliverySimulated = true;
+      } catch (sendError) {
+        this.otpCache.delete(key);
+        this.persistStore();
+        throw new Error('OTP email delivery failed.', { cause: sendError });
       }
     }
 
@@ -277,7 +298,9 @@ class OtpService {
       };
     }
 
-    if (record.code !== cleanCode) {
+    const actualHash = Buffer.from(this.hashCode(cleanCode), 'hex');
+    const expectedHash = Buffer.from(record.codeHash, 'hex');
+    if (actualHash.length !== expectedHash.length || !timingSafeEqual(actualHash, expectedHash)) {
       record.attempts += 1;
       this.persistStore();
       const attemptsLeft = this.MAX_ATTEMPTS - record.attempts;
@@ -290,6 +313,9 @@ class OtpService {
     // Code matches and valid: clear active OTP so it cannot be reused
     this.otpCache.delete(key);
     this.persistStore();
+    if (purpose === 'merchant_registration') {
+      this.verifiedEmails.set(key, Date.now() + this.EXPIRY_MINUTES * 60 * 1000);
+    }
 
     return {
       success: true,
@@ -307,7 +333,14 @@ class OtpService {
     const key = this.getKey(email, purpose);
     const record = this.otpCache.get(key);
     if (!record || Date.now() > record.expiresAt) return null;
-    return record.code;
+    return record.simulatedCode ?? null;
+  }
+
+  public consumeVerifiedEmail(email: string, purpose: string): boolean {
+    const key = this.getKey(email, purpose);
+    const expiresAt = this.verifiedEmails.get(key);
+    this.verifiedEmails.delete(key);
+    return expiresAt !== undefined && expiresAt > Date.now();
   }
 }
 
