@@ -3,7 +3,11 @@ import logoImg from '../../assets/logo.png';
 import logoWhiteImg from '../../assets/logo-white.png';
 import styles from './LandingPage.module.css';
 
-export const LandingPage: React.FC = () => {
+export interface LandingPageProps {
+  onNavigate?: (screen: string) => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
   const [activeLang, setActiveLang] = useState<'EN' | 'አማ'>('EN');
 
   return (
@@ -11,7 +15,16 @@ export const LandingPage: React.FC = () => {
       {/* ─── 1. NAVBAR ────────────────────────────────────────── */}
       <header className={styles.navbar}>
         <div className={styles.navContainer}>
-          <a href="/" className={styles.brandLogo}>
+          <a
+            href="/"
+            className={styles.brandLogo}
+            onClick={(e) => {
+              if (onNavigate) {
+                e.preventDefault();
+                onNavigate('landing');
+              }
+            }}
+          >
             <img
               src={logoImg}
               alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
@@ -38,8 +51,30 @@ export const LandingPage: React.FC = () => {
                 <path d="M6 9l6 6 6-6" />
               </svg>
             </button>
-            <a href="/login" className={styles.btnSecondary}>Sign In</a>
-            <a href="/merchant/register" className={styles.btnPrimary}>Get Started</a>
+            <a
+              href="/login"
+              className={styles.btnSecondary}
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate('signin');
+                }
+              }}
+            >
+              Sign In
+            </a>
+            <a
+              href="/merchant/register"
+              className={styles.btnPrimary}
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate('registration');
+                }
+              }}
+            >
+              Get Started
+            </a>
           </div>
         </div>
       </header>
@@ -80,7 +115,16 @@ export const LandingPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <a href="/scan" className={styles.portalCtaBtn}>
+                <a
+                  href="/scan"
+                  className={styles.portalCtaBtn}
+                  onClick={(e) => {
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate('receipt-issuance');
+                    }
+                  }}
+                >
                   <span>Scan Receipt</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -104,7 +148,16 @@ export const LandingPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <a href="/merchant/login" className={`${styles.portalCtaBtn} ${styles.portalCtaBtnSecondary}`}>
+                <a
+                  href="/merchant/login"
+                  className={`${styles.portalCtaBtn} ${styles.portalCtaBtnSecondary}`}
+                  onClick={(e) => {
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate('signin');
+                    }
+                  }}
+                >
                   <span>Merchant Portal</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
