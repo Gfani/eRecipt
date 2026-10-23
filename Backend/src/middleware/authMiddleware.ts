@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedError, ForbiddenError } from "../common/errors.js";
+import { verifyAuthToken } from "../common/authToken.js";
+import { config } from "../config/index.js";
 
 export type UserRole = "merchant" | "officer" | "admin";
 
@@ -8,6 +10,10 @@ export interface AuthenticatedUser {
   role: UserRole;
   identifier: string; // TIN for merchant, username for officer
   name: string;
+}
+
+function isUserRole(value: string): value is UserRole {
+  return value === "merchant" || value === "officer" || value === "admin";
 }
 
 declare global {
@@ -24,13 +30,22 @@ declare global {
  */
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
-  const devRoleHeader = req.headers["x-user-role"] as UserRole | undefined;
-  const devIdHeader = req.headers["x-user-id"] as string | undefined;
+  const devRoleHeader = req.headers["x-user-role"];
+  const devIdHeader = req.headers["x-user-id"];
 
-  // Flexible authentication for prototype & API clients
-  if (devRoleHeader) {
+  if (!authHeader && (devRoleHeader !== undefined || devIdHeader !== undefined)) {
+    if (config.nodeEnv !== "development") {
+      throw new UnauthorizedError("Development authentication headers are not allowed.");
+    }
+    if (
+      typeof devRoleHeader !== "string" ||
+      !isUserRole(devRoleHeader)
+    ) {
+      throw new UnauthorizedError("Invalid development user role.");
+    }
+
     req.user = {
-      id: devIdHeader || "dev-user-1",
+      id: typeof devIdHeader === "string" ? devIdHeader : "dev-user-1",
       role: devRoleHeader,
       identifier: devRoleHeader === "merchant" ? "0012847391" : "officer.demo",
       name: devRoleHeader === "merchant" ? "Abeba Market" : "Revenue Officer Demo",
@@ -39,8 +54,6 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   }
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    // For demo/development convenience, default to authenticated officer if in dev
-    // but flag unauthorized if strictly checked
     throw new UnauthorizedError("Authentication token or credentials required.");
   }
 
@@ -49,14 +62,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
     throw new UnauthorizedError("Invalid authorization format.");
   }
 
-  // Simulated decoded token payload
-  req.user = {
-    id: "usr-1",
-    role: token.includes("officer") ? "officer" : "merchant",
-    identifier: token.includes("officer") ? "officer.demo" : "0012847391",
-    name: token.includes("officer") ? "Officer Demo" : "Abeba Market",
-  };
-
+  req.user = verifyAuthToken(token);
   next();
 }
 
