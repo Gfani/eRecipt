@@ -169,8 +169,8 @@ class OtpService {
         const html = `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #FFFFFF;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-              <div style="background-color: #176B4D; color: #FFFFFF; font-weight: bold; width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px;">eR</div>
-              <span style="font-size: 18px; font-weight: bold; color: #17201B;">eReceipt · Ministry of Revenues</span>
+              <span style="font-size: 24px; font-weight: 800; color: #176B4D; letter-spacing: -0.5px;">eReceipt</span>
+              <span style="font-size: 12px; color: #64748B; padding-left: 6px; border-left: 1px solid #CBD5E1;">Digital Receipts. A Stronger Ethiopia.</span>
             </div>
             
             <h2 style="font-size: 20px; color: #1E293B; margin-top: 0;">Verification Code</h2>
