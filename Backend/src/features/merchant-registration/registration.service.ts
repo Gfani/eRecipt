@@ -108,6 +108,8 @@ export class MerchantRegistrationService {
       status: 'Pending',
       fullName: input.fullName.trim(),
       phoneNumber: input.phoneNumber.trim(),
+      email: input.email ? input.email.trim() : undefined,
+      emailVerified: Boolean(input.emailVerified),
       passwordHash: hashPassword(input.password),
       sellerLegalName: input.sellerLegalName.trim(),
       tradeName: input.tradeName.trim(),

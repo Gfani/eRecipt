@@ -29,6 +29,11 @@ export interface MerchantApplicationItem {
   phoneNumber?: string;
   tradeName?: string;
   businessLicenseNumber?: string;
+  city?: string;
+  subCity?: string;
+  buildingName?: string;
+  floor?: string;
+  gpsLocation?: string;
   uploadedFileName?: string;
   uploadedFileSize?: string;
   documentUrl?: string;

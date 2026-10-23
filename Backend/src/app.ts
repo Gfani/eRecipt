@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { registrationRouter } from './features/merchant-registration/index.js';
 import { officerAuthRouter } from './features/admin/officer-auth/index.js';
 import { merchantManagementRouter } from './features/admin/merchant-management/index.js';
+import { fiscalOversightRouter } from './features/admin/fiscal-oversight/index.js';
+import { otpRouter } from './routes/otp.routes.js';
 
 // Domain feature routers from main
 import { authRouter } from './modules/auth/auth.routes.js';
@@ -57,6 +59,7 @@ app.get('/api', (_req: Request, res: Response) => {
       registration: '/api/registration',
       officerAuth: '/api/admin/auth',
       adminMerchants: '/api/admin/merchants',
+      adminFiscal: '/api/admin/fiscal',
       auth: '/api/auth',
       merchants: '/api/merchants',
       receipts: '/api/receipts',
@@ -74,8 +77,14 @@ app.use('/api/registration', registrationRouter);
 // Mount Feature: Revenue Officer Auth
 app.use('/api/admin/auth', officerAuthRouter);
 
+// Mount Feature: OTP Verification & Resend
+app.use('/api/otp', otpRouter);
+
 // Mount Feature: Merchant Approvals & Directory
 app.use('/api/admin/merchants', merchantManagementRouter);
+
+// Mount Feature: Admin Fiscal Oversight & Audit
+app.use('/api/admin/fiscal', fiscalOversightRouter);
 
 // Mount Feature: Domain Modules from main
 app.use('/api/auth', authRouter);

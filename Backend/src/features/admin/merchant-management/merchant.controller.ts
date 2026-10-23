@@ -1,6 +1,13 @@
 import type { Request, Response } from 'express';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { merchantManagementService } from './merchant.service.js';
 import { officerAuthService } from '../officer-auth/index.js';
+import { applicationStorage } from '../../merchant-registration/storage.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class MerchantManagementController {
   /**
@@ -44,6 +51,40 @@ export class MerchantManagementController {
         success: false,
         error: error.message || `Application ${req.params.ref} not found`,
       });
+    }
+  }
+
+  /**
+   * GET /api/admin/merchants/applications/:ref/document
+   */
+  async downloadDocument(req: Request, res: Response): Promise<void> {
+    try {
+      const ref = String(req.params.ref);
+      const rawApp = applicationStorage.getByReference(ref);
+      if (!rawApp || (!rawApp.documentPath && !rawApp.uploadedFileName)) {
+        res.status(404).json({ success: false, error: 'No document attached to this application' });
+        return;
+      }
+
+      let filePath = rawApp.documentPath;
+      if (!filePath || !fs.existsSync(filePath)) {
+        if (rawApp.uploadedFileName) {
+          const fallbackPath = path.resolve(__dirname, '../../../../uploads/licenses', rawApp.uploadedFileName);
+          if (fs.existsSync(fallbackPath)) {
+            filePath = fallbackPath;
+          }
+        }
+      }
+
+      if (!filePath || !fs.existsSync(filePath)) {
+        res.status(404).json({ success: false, error: 'File not found on server' });
+        return;
+      }
+
+      const originalName = rawApp.uploadedFileName || path.basename(filePath);
+      res.download(filePath, originalName);
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
     }
   }
 

@@ -82,7 +82,14 @@ export class MerchantManagementStorage {
   private mapToApplicationItem(app: StoredMerchantApplication): MerchantApplicationItem {
     const category = deduceCategory(app.sellerLegalName, app.tradeName);
     const merchantId = `MER-${app.tin.slice(-5) || app.referenceNumber.slice(-5)}`;
-    const address = [app.city, app.subCity, app.buildingName].filter(Boolean).join(', ');
+    const address = [app.city, app.subCity, app.buildingName, app.floor].filter(Boolean).join(', ');
+
+    const diskFilename = app.documentPath ? path.basename(app.documentPath) : undefined;
+    const documentUrl = diskFilename
+      ? `http://localhost:5000/uploads/licenses/${diskFilename}`
+      : app.uploadedFileName
+      ? `http://localhost:5000/uploads/licenses/${app.uploadedFileName}`
+      : undefined;
 
     return {
       ref: app.referenceNumber,
@@ -98,9 +105,14 @@ export class MerchantManagementStorage {
       phoneNumber: app.phoneNumber,
       tradeName: app.tradeName,
       businessLicenseNumber: app.businessLicenseNumber,
+      city: app.city,
+      subCity: app.subCity,
+      buildingName: app.buildingName,
+      floor: app.floor,
+      gpsLocation: app.gpsLocation,
       uploadedFileName: app.uploadedFileName,
       uploadedFileSize: app.uploadedFileSize,
-      documentUrl: app.uploadedFileName ? `/uploads/documents/${app.uploadedFileName}` : undefined,
+      documentUrl,
       decisionReason: app.reviewNotes,
       reviewedBy: app.reviewedBy,
       reviewedAt: app.reviewedAt,

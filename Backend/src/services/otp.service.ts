@@ -1,0 +1,314 @@
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Resend } from 'resend';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.resolve(__dirname, '../../data');
+const OTP_STORE_FILE = path.join(DATA_DIR, 'otp-store.json');
+
+export interface StoredOtp {
+  email: string;
+  code: string;
+  purpose: string;
+  recipientName?: string;
+  expiresAt: number;
+  lastSentAt: number;
+  attempts: number;
+  createdAt: number;
+}
+
+export interface SendOtpResult {
+  success: boolean;
+  message: string;
+  email: string;
+  simulated?: boolean;
+  code?: string; // provided in simulated mode for easy local testing
+  cooldownSeconds?: number;
+}
+
+export interface VerifyOtpResult {
+  success: boolean;
+  message: string;
+  email?: string;
+  purpose?: string;
+}
+
+class OtpService {
+  private resendClient: Resend | null = null;
+  private otpCache: Map<string, StoredOtp> = new Map();
+  private isLoaded = false;
+  private readonly COOLDOWN_SECONDS = 45;
+  private readonly EXPIRY_MINUTES = 10;
+  private readonly MAX_ATTEMPTS = 5;
+
+  constructor() {
+    this.initResend();
+  }
+
+  private initResend(): void {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (apiKey && apiKey.trim() !== '') {
+      try {
+        this.resendClient = new Resend(apiKey.trim());
+        console.log('?? [Resend]: Initialized with API Key.');
+      } catch (err) {
+        console.warn('?? [Resend]: Failed to initialize client, using simulation mode:', err);
+        this.resendClient = null;
+      }
+    } else {
+      console.log('?? [Resend]: No RESEND_API_KEY provided in .env. Running in development simulation mode.');
+      this.resendClient = null;
+    }
+  }
+
+  private getKey(email: string, purpose: string): string {
+    return `${email.trim().toLowerCase()}_${purpose.trim().toLowerCase()}`;
+  }
+
+  private ensureLoaded(): void {
+    if (this.isLoaded) return;
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      if (fs.existsSync(OTP_STORE_FILE)) {
+        const raw = fs.readFileSync(OTP_STORE_FILE, 'utf-8');
+        const parsed: StoredOtp[] = JSON.parse(raw);
+        const now = Date.now();
+        for (const item of parsed) {
+          if (item && item.expiresAt > now) {
+            this.otpCache.set(this.getKey(item.email, item.purpose), item);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load OTP store from disk:', err);
+    }
+    this.isLoaded = true;
+  }
+
+  private persistStore(): void {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      const activeList = Array.from(this.otpCache.values()).filter((item) => item.expiresAt > Date.now());
+      fs.writeFileSync(OTP_STORE_FILE, JSON.stringify(activeList, null, 2), 'utf-8');
+    } catch (err) {
+      console.warn('Failed to persist OTP store:', err);
+    }
+  }
+
+  private generateCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  /**
+   * Generates and dispatches a 6-digit OTP code via Resend
+   */
+  public async sendOtp(
+    email: string,
+    purpose: string = 'auth',
+    recipientName?: string
+  ): Promise<SendOtpResult> {
+    this.ensureLoaded();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      throw new Error('A valid email address is required for OTP delivery.');
+    }
+
+    const key = this.getKey(cleanEmail, purpose);
+    const existing = this.otpCache.get(key);
+    const now = Date.now();
+
+    // Check resend cooldown
+    if (existing && now - existing.lastSentAt < this.COOLDOWN_SECONDS * 1000) {
+      const waitRemaining = Math.ceil((this.COOLDOWN_SECONDS * 1000 - (now - existing.lastSentAt)) / 1000);
+      return {
+        success: false,
+        message: `Please wait ${waitRemaining} second(s) before requesting a new code.`,
+        email: cleanEmail,
+        simulated: !this.resendClient,
+        code: !this.resendClient ? existing.code : undefined,
+        cooldownSeconds: waitRemaining,
+      };
+    }
+
+    const code = this.generateCode();
+    const expiresAt = now + this.EXPIRY_MINUTES * 60 * 1000;
+
+    const entry: StoredOtp = {
+      email: cleanEmail,
+      code,
+      purpose,
+      recipientName: recipientName || existing?.recipientName,
+      expiresAt,
+      lastSentAt: now,
+      attempts: 0,
+      createdAt: now,
+    };
+
+    this.otpCache.set(key, entry);
+    this.persistStore();
+
+    // Check for Resend client
+    this.initResend(); // Re-read if key was updated in environment
+
+    let deliverySimulated = true;
+    if (this.resendClient) {
+      try {
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'eReceipt Tax Portal <onboarding@resend.dev>';
+        const subject =
+          purpose.includes('admin')
+            ? `[Ministry of Revenues] Your Officer Security Verification Code: ${code}`
+            : `[eReceipt] Your Merchant Verification Code: ${code}`;
+
+        const html = `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #FFFFFF;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+              <div style="background-color: #176B4D; color: #FFFFFF; font-weight: bold; width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px;">eR</div>
+              <span style="font-size: 18px; font-weight: bold; color: #17201B;">eReceipt · Ministry of Revenues</span>
+            </div>
+            
+            <h2 style="font-size: 20px; color: #1E293B; margin-top: 0;">Verification Code</h2>
+            <p style="font-size: 14px; color: #475569; line-height: 1.5;">
+              Hello ${recipientName || 'there'},<br />
+              Use the 6-digit one-time password (OTP) below to authenticate your <strong>${purpose.replace('_', ' ').toUpperCase()}</strong> request.
+            </p>
+
+            <div style="margin: 28px 0; text-align: center; background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 20px;">
+              <span style="font-size: 36px; font-weight: 800; letter-spacing: 6px; color: #176B4D; font-family: monospace;">${code}</span>
+              <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748B;">This code will expire in ${this.EXPIRY_MINUTES} minutes.</p>
+            </div>
+
+            <p style="font-size: 13px; color: #64748B; line-height: 1.5;">
+              If you did not request this verification code, please ignore this email or notify your system administrator immediately.
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 24px 0;" />
+            <p style="font-size: 11px; color: #94A3B8; text-align: center; margin: 0;">
+              Federal Democratic Republic of Ethiopia · Ministry of Revenues Electronic Invoice Management System (MoR EIMS)
+            </p>
+          </div>
+        `;
+
+        const response = await this.resendClient.emails.send({
+          from: fromEmail,
+          to: cleanEmail,
+          subject,
+          html,
+        });
+
+        if (response.error) {
+          console.warn('?? [Resend API Error]:', response.error);
+          deliverySimulated = true;
+        } else {
+          console.log(`? [Resend Email Sent]: Message ID ${response.data?.id} to ${cleanEmail}`);
+          deliverySimulated = false;
+        }
+      } catch (sendErr) {
+        console.warn('?? [Resend Delivery Failed, falling back to simulated mode]:', sendErr);
+        deliverySimulated = true;
+      }
+    }
+
+    if (deliverySimulated) {
+      console.log(`=======================================================`);
+      console.log(`?? [Resend OTP Code Simulated for Local Testing]`);
+      console.log(`?? Recipient : ${cleanEmail}`);
+      console.log(`?? Purpose   : ${purpose}`);
+      console.log(`?? CODE      : ${code}`);
+      console.log(`?? Expires   : in ${this.EXPIRY_MINUTES} minutes`);
+      console.log(`=======================================================`);
+    }
+
+    return {
+      success: true,
+      message: deliverySimulated
+        ? `Verification code generated for ${cleanEmail}.`
+        : `Verification code sent to ${cleanEmail} via Resend.`,
+      email: cleanEmail,
+      simulated: deliverySimulated,
+      code: deliverySimulated ? code : undefined,
+      cooldownSeconds: this.COOLDOWN_SECONDS,
+    };
+  }
+
+  /**
+   * Verifies submitted 6-digit OTP code
+   */
+  public verifyOtp(email: string, inputCode: string, purpose: string = 'auth'): VerifyOtpResult {
+    this.ensureLoaded();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanCode = (inputCode || '').trim();
+
+    if (!cleanCode) {
+      return { success: false, message: 'Please enter the 6-digit verification code.' };
+    }
+
+    const key = this.getKey(cleanEmail, purpose);
+    const record = this.otpCache.get(key);
+
+    if (!record) {
+      return {
+        success: false,
+        message: 'No active verification code found for this email. Please request a new code.',
+      };
+    }
+
+    if (Date.now() > record.expiresAt) {
+      this.otpCache.delete(key);
+      this.persistStore();
+      return {
+        success: false,
+        message: 'Verification code has expired. Please click "Resend Code" to receive a new one.',
+      };
+    }
+
+    if (record.attempts >= this.MAX_ATTEMPTS) {
+      this.otpCache.delete(key);
+      this.persistStore();
+      return {
+        success: false,
+        message: 'Too many incorrect attempts. Please request a fresh verification code.',
+      };
+    }
+
+    if (record.code !== cleanCode) {
+      record.attempts += 1;
+      this.persistStore();
+      const attemptsLeft = this.MAX_ATTEMPTS - record.attempts;
+      return {
+        success: false,
+        message: `Invalid code. ${attemptsLeft} attempt(s) remaining.`,
+      };
+    }
+
+    // Code matches and valid: clear active OTP so it cannot be reused
+    this.otpCache.delete(key);
+    this.persistStore();
+
+    return {
+      success: true,
+      message: 'Email successfully verified.',
+      email: cleanEmail,
+      purpose,
+    };
+  }
+
+  /**
+   * Returns active code for testing / helper purposes
+   */
+  public getActiveCode(email: string, purpose: string = 'auth'): string | null {
+    this.ensureLoaded();
+    const key = this.getKey(email, purpose);
+    const record = this.otpCache.get(key);
+    if (!record || Date.now() > record.expiresAt) return null;
+    return record.code;
+  }
+}
+
+export const otpService = new OtpService();

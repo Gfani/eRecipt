@@ -25,13 +25,72 @@ export class OfficerAuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Revenue Officer authenticated successfully',
+        message: authResult.requires2FA
+          ? 'Security code sent to your registered email.'
+          : 'Revenue Officer authenticated successfully',
         data: authResult,
       });
     } catch (error: any) {
       res.status(401).json({
         success: false,
         error: error.message || 'Authentication failed',
+      });
+    }
+  }
+
+  /**
+   * POST /api/admin/auth/verify-2fa
+   */
+  async verify2FA(req: Request, res: Response): Promise<void> {
+    try {
+      const { tempToken, code } = req.body;
+      if (!tempToken || !code) {
+        res.status(400).json({
+          success: false,
+          error: 'Verification session token and 6-digit code are required',
+        });
+        return;
+      }
+
+      const authResult = await officerAuthService.verify2FA({ tempToken, code });
+      res.status(200).json({
+        success: true,
+        message: 'Two-factor authentication successful',
+        data: authResult,
+      });
+    } catch (error: any) {
+      res.status(401).json({
+        success: false,
+        error: error.message || 'Invalid or expired verification code',
+      });
+    }
+  }
+
+  /**
+   * POST /api/admin/auth/resend-2fa
+   */
+  async resend2FA(req: Request, res: Response): Promise<void> {
+    try {
+      const { tempToken } = req.body;
+      if (!tempToken) {
+        res.status(400).json({
+          success: false,
+          error: 'Verification session token is required to resend code',
+        });
+        return;
+      }
+
+      const resendResult = await officerAuthService.resend2FA(tempToken);
+      if (!resendResult.success) {
+        res.status(429).json(resendResult);
+        return;
+      }
+
+      res.status(200).json(resendResult);
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        error: error.message || 'Failed to resend verification code',
       });
     }
   }

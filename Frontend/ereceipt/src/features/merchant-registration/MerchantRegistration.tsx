@@ -7,6 +7,7 @@ import Step3Licenses from './components/steps/Step3Licenses';
 import Step4BusinessLocation from './components/steps/Step4BusinessLocation';
 import Step5Review from './components/steps/Step5Review';
 import WorkflowPipelineStepper from './components/status/WorkflowPipelineStepper';
+import MerchantEmailOtpModal from './components/MerchantEmailOtpModal';
 import { AlertCircle } from 'lucide-react';
 import type {
   MerchantRegistrationFormData,
@@ -37,6 +38,7 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
   const [step, setStep] = useState<RegistrationStep>(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [submittedRef, setSubmittedRef] = useState('');
   const [stepError, setStepError] = useState<string | null>(null);
   const [formData, setFormData] = useState<MerchantRegistrationFormData>(initialRegistrationFormData);
@@ -50,6 +52,7 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
     if (step === 1) {
       if (!formData.fullName.trim()) return 'Please enter your full legal name.';
       if (formData.fullName.trim().length < 3) return 'Full name must be at least 3 characters.';
+      if (!formData.email.trim() || !formData.email.includes('@')) return 'Please enter a valid business email address.';
       if (!formData.phoneNumber.trim()) return 'Please enter your phone number.';
       const cleanPhone = formData.phoneNumber.replace(/[\s\-()]/g, '');
       if (cleanPhone.length < 9) return 'Please enter a valid phone number (at least 9 digits).';
@@ -97,6 +100,12 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
     }
     setStepError(null);
 
+    // If on Step 1 and email is not verified yet, open Resend OTP modal
+    if (step === 1 && !formData.emailVerified) {
+      setIsOtpModalOpen(true);
+      return;
+    }
+
     if (step < 5) {
       setStep((prev) => (prev + 1) as RegistrationStep);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -111,6 +120,8 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
       const formPayload = new FormData();
       formPayload.append('fullName', formData.fullName);
       formPayload.append('phoneNumber', formData.phoneNumber);
+      formPayload.append('email', formData.email.trim());
+      formPayload.append('emailVerified', String(formData.emailVerified));
       formPayload.append('password', formData.password);
       formPayload.append('sellerLegalName', formData.sellerLegalName);
       formPayload.append('tradeName', formData.tradeName);
@@ -148,6 +159,7 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
     const profile: MerchantUserProfile = {
       fullName: formData.fullName,
       phoneNumber: formData.phoneNumber,
+      email: formData.email.trim(),
       sellerLegalName: formData.sellerLegalName,
       tradeName: formData.tradeName,
       tin: formData.tin,
@@ -333,6 +345,20 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
           Sign in
         </button>
       </p>
+
+      {/* Resend Email OTP Verification Modal */}
+      <MerchantEmailOtpModal
+        isOpen={isOtpModalOpen}
+        email={formData.email}
+        recipientName={formData.fullName}
+        onClose={() => setIsOtpModalOpen(false)}
+        onVerified={() => {
+          updateFormData({ emailVerified: true });
+          setIsOtpModalOpen(false);
+          setStep(2);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </AuthSplitLayout>
   );
 };
