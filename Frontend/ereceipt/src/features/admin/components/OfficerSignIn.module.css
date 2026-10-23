@@ -1,13 +1,13 @@
 .container {
   display: grid;
   min-height: 100vh;
-  background-color: #F7F5EF;
+  background-color: #F7F5EF; /* Admin portal soft warm cream background */
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 1024px) {
   .container {
-    grid-template-columns: 1fr 0.85fr;
+    grid-template-columns: 1.15fr 0.85fr;
   }
 }
 
@@ -20,7 +20,7 @@
 
 @media (min-width: 640px) {
   .leftColumn {
-    padding: 32px 40px;
+    padding: 32px 48px;
   }
 }
 
@@ -28,6 +28,15 @@
   .leftColumn {
     padding: 36px 64px;
   }
+}
+
+.brandRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
 }
 
 .brandButton {
@@ -59,11 +68,40 @@
   color: #17201B;
 }
 
+/* Tab Switcher (Sign In vs Register Officer) */
+.tabSwitcher {
+  display: inline-flex;
+  align-items: center;
+  background-color: #E6EFE9;
+  border: 1px solid #D7E4DB;
+  border-radius: 9999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.tabSwitchBtn {
+  border: none;
+  background: none;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #385E4E;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tabSwitchBtnActive {
+  background-color: #123D2C;
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(18, 61, 44, 0.2);
+}
+
 .formBox {
   margin: auto auto;
   width: 100%;
-  max-width: 420px;
-  padding: 40px 0;
+  max-width: 480px;
+  padding: 28px 0;
 }
 
 .preTitle {
@@ -76,25 +114,37 @@
 }
 
 .title {
-  margin-top: 10px;
-  font-size: 28px;
+  margin-top: 8px;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #17201B;
 }
 
 .description {
-  margin-top: 8px;
-  font-size: 14px;
+  margin-top: 6px;
+  font-size: 13.5px;
   line-height: 1.5;
-  color: #667069;
+  color: #556B60;
 }
 
 .form {
-  margin-top: 28px;
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
+}
+
+.gridTwoCols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 600px) {
+  .gridTwoCols {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .fieldGroup {
@@ -103,28 +153,48 @@
 }
 
 .fieldLabel {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #334155;
-  margin-bottom: 6px;
+  color: #273D32;
+  margin-bottom: 5px;
 }
 
-.input {
+.input,
+.selectInput {
   width: 100%;
-  min-height: 44px;
-  border: 1px solid #CBD5E1;
+  min-height: 42px;
+  border: 1px solid #D7E4DB;
   border-radius: 8px;
   background-color: #FFFFFF;
-  padding: 10px 14px;
-  color: #1F2937;
-  font-size: 14px;
+  padding: 8px 12px;
+  color: #17201B;
+  font-size: 13.5px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.input:focus {
+.selectInput {
+  cursor: pointer;
+}
+
+.input:focus,
+.selectInput:focus {
   border-color: #176B4D;
-  box-shadow: 0 0 0 3px rgba(23, 107, 77, 0.12);
+  box-shadow: 0 0 0 3px rgba(23, 107, 77, 0.15);
+}
+
+.input::placeholder {
+  color: #8E9B93;
+  opacity: 0.75;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #17201B !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .inputError {
@@ -141,33 +211,38 @@
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  border: none;
   background: none;
+  border: none;
   color: #667069;
   cursor: pointer;
-  padding: 4px;
+  padding: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.eyeButton:hover {
+  color: #17201B;
 }
 
 .errorMessage {
   display: flex;
   align-items: center;
   gap: 8px;
+  background-color: #FDF2F2;
+  border: 1px solid #F8B4B4;
   border-radius: 8px;
-  border: 1px solid #FECACA;
-  background-color: #FEF2F2;
   padding: 10px 14px;
-  font-size: 12px;
-  color: #B91C1C;
-  line-height: 1.4;
+  color: #9B1C1C;
+  font-size: 12.5px;
 }
 
 .optionsRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: 12.5px;
+  margin-top: 2px;
 }
 
 .checkboxLabel {
@@ -179,24 +254,32 @@
 }
 
 .checkbox {
-  accent-color: #176B4D;
   width: 16px;
   height: 16px;
+  border-radius: 4px;
+  border: 1px solid #CBD5E1;
+  accent-color: #123D2C;
+  cursor: pointer;
 }
 
 .forgotLink {
   border: none;
   background: none;
-  font-weight: 600;
   color: #176B4D;
+  font-weight: 500;
   cursor: pointer;
   padding: 0;
-  font-size: 13px;
 }
 
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+/* Submit Button */
 .submitBtn {
-  min-height: 44px;
+  margin-top: 8px;
   width: 100%;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,22 +290,70 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 
-.submitBtn:hover {
+.submitBtn:hover:not(:disabled) {
   background-color: #0D3022;
 }
 
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .credentialsBox {
-  margin-top: 24px;
+  margin-top: 18px;
   border-radius: 8px;
   border: 1px solid #D7E4DB;
   background-color: #EEF7F1;
-  padding: 12px 16px;
+  padding: 12px 14px;
   font-size: 12px;
   line-height: 1.5;
-  color: #526059;
+  color: #435A4F;
+}
+
+.certificationBox {
+  border-radius: 8px;
+  border: 1px solid #D7E4DB;
+  background-color: #F1F6F3;
+  padding: 10px 12px;
+  margin-top: 2px;
+}
+
+.certLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #2F4D3F;
+  cursor: pointer;
+}
+
+.certLabel input {
+  margin-top: 2px;
+}
+
+.switchPromptBox {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #556B60;
+}
+
+.switchInlineBtn {
+  border: none;
+  background: none;
+  color: #176B4D;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.switchInlineBtn:hover {
+  color: #0D3022;
 }
 
 .returnBtn {
@@ -305,4 +436,24 @@
 .checkIcon {
   color: #8DD5AE;
   flex-shrink: 0;
+}
+
+.bannerNotice {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.bannerNoticeTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8DD5AE;
+  margin: 0;
+}
+
+.bannerNoticeSub {
+  font-size: 12px;
+  color: #A3C2B1;
+  margin: 4px 0 0 0;
 }

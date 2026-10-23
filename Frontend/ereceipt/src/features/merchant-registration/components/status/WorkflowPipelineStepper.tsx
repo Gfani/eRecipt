@@ -10,8 +10,8 @@ interface WorkflowPipelineStepperProps {
 }
 
 export const WorkflowPipelineStepper: React.FC<WorkflowPipelineStepperProps> = ({
-  referenceNumber = 'EIMS-2026-0094',
-  submissionDate = '20 October 2026',
+  referenceNumber = '—',
+  submissionDate = '—',
   onReturnToSignIn,
   onContactSupport,
 }) => {

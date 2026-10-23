@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Wifi, CloudOff, Languages, Bell, ChevronDown } from 'lucide-react';
+import { getStoredMerchantProfile } from '../../../features/merchant-registration';
 import styles from './Topbar.module.css';
 
 interface TopbarProps {
@@ -9,6 +10,22 @@ interface TopbarProps {
 export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu }) => {
   const [apiOnline, setApiOnline] = useState(true);
   const [amharic, setAmharic] = useState(false);
+  const [profile, setProfile] = useState(() => getStoredMerchantProfile());
+
+  useEffect(() => {
+    const handleUpdate = () => setProfile(getStoredMerchantProfile());
+    window.addEventListener('ereceipt:profile_updated', handleUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleUpdate);
+  }, []);
+
+  const userInitials = profile.fullName
+    ? profile.fullName
+        .split(' ')
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'ME';
 
   return (
     <header className={styles.topbar}>
@@ -52,10 +69,10 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu }) => {
         <span className={styles.divider} />
 
         <button type="button" className={styles.userProfile}>
-          <span className={styles.userAvatar}>TG</span>
+          <span className={styles.userAvatar}>{userInitials}</span>
           <div className={styles.userInfo}>
-            <p className={styles.userName}>Tigist Getachew</p>
-            <p className={styles.userRole}>Owner</p>
+            <p className={styles.userName}>{profile.fullName || 'Merchant Account'}</p>
+            <p className={styles.userRole}>Owner · {profile.tradeName || 'Registered Business'}</p>
           </div>
           <ChevronDown size={14} style={{ color: '#64748B' }} />
         </button>

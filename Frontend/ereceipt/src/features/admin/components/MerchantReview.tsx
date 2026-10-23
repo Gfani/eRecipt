@@ -17,6 +17,20 @@ export const MerchantReview: React.FC<MerchantReviewProps> = ({
   onOpenDecision,
   getToneForStatus,
 }) => {
+  if (!application) {
+    return (
+      <div className={styles.reviewContainer}>
+        <button type="button" onClick={onBack} className={styles.backBtn}>
+          <ArrowLeft size={16} />
+          <span>Back to applications</span>
+        </button>
+        <div className={styles.card} style={{ textAlign: 'center', padding: '48px 16px' }}>
+          <p style={{ margin: 0, color: '#667069' }}>No application selected for review.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.reviewContainer}>
       <button type="button" onClick={onBack} className={styles.backBtn}>

@@ -21,6 +21,36 @@ export const MerchantDetails: React.FC<MerchantDetailsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('Overview');
 
+  if (!merchant) {
+    return (
+      <div className={styles.container}>
+        <button
+          type="button"
+          onClick={onBack}
+          className={styles.backBtn}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#176B4D',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          <ArrowLeft size={16} />
+          <span>Back to directory</span>
+        </button>
+        <div className={styles.detailsHeaderCard} style={{ textAlign: 'center', padding: '48px 16px' }}>
+          <p style={{ margin: 0, color: '#667069' }}>No merchant selected from the directory.</p>
+        </div>
+      </div>
+    );
+  }
+
   const tabs = [
     'Overview',
     'Sales History',

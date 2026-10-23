@@ -4,6 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, CheckCircle2 } from 'lucide-react';
 import { VerifiedIdentifiersCard } from '../VerifiedIdentifiersCard';
+import {
+  getStoredMerchantProfile,
+  saveStoredMerchantProfile,
+} from '../../../merchant-registration';
 import styles from './BusinessProfileTab.module.css';
 
 const businessProfileSchema = z.object({
@@ -30,6 +34,7 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
   onSave,
 }) => {
   const [isSuccess, setIsSuccess] = useState(false);
+  const storedProfile = getStoredMerchantProfile();
 
   const {
     register,
@@ -38,20 +43,33 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
   } = useForm<BusinessProfileFormData>({
     resolver: zodResolver(businessProfileSchema),
     defaultValues: {
-      legalName: initialValues?.legalName ?? 'Abyssinia Cloud Tech Solutions PLC',
-      tradeName: initialValues?.tradeName ?? 'Abyssinia Cloud',
-      businessEmail: initialValues?.businessEmail ?? 'billing@abyssiniacloud.et',
-      phone: initialValues?.phone ?? '+251 91 123 4567',
-      businessSector: initialValues?.businessSector ?? 'Information Technology & Software',
-      city: initialValues?.city ?? 'Addis Ababa',
-      subCity: initialValues?.subCity ?? 'Kirkos Sub-City',
-      woreda: initialValues?.woreda ?? 'Woreda 03',
-      houseNumber: initialValues?.houseNumber ?? 'Bldg 4A, Suite 201',
+      legalName: initialValues?.legalName ?? storedProfile.sellerLegalName,
+      tradeName: initialValues?.tradeName ?? storedProfile.tradeName,
+      businessEmail: initialValues?.businessEmail ?? '',
+      phone: initialValues?.phone ?? storedProfile.phoneNumber,
+      businessSector: initialValues?.businessSector ?? '',
+      city: initialValues?.city ?? storedProfile.city,
+      subCity: initialValues?.subCity ?? storedProfile.subCity,
+      woreda: initialValues?.woreda ?? '',
+      houseNumber:
+        initialValues?.houseNumber ??
+        (storedProfile.buildingName
+          ? `${storedProfile.buildingName}${storedProfile.floor ? `, ${storedProfile.floor}` : ''}`
+          : ''),
     },
   });
 
   const onSubmit = (data: BusinessProfileFormData) => {
     setIsSuccess(true);
+    saveStoredMerchantProfile({
+      ...storedProfile,
+      sellerLegalName: data.legalName,
+      tradeName: data.tradeName,
+      phoneNumber: data.phone,
+      city: data.city,
+      subCity: data.subCity,
+      buildingName: data.houseNumber,
+    });
     if (onSave) {
       onSave(data);
     }
@@ -65,8 +83,12 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
       {/* Read-Only Ministry Verified Identifiers Card */}
       <div className={styles.verifiedCardWrapper}>
         <VerifiedIdentifiersCard
-          tin="001•••••42"
-          merchantReference="AM-2081"
+          tin={
+            storedProfile.tin && storedProfile.tin.length === 10
+              ? `${storedProfile.tin.slice(0, 3)}•••••${storedProfile.tin.slice(-2)}`
+              : storedProfile.tin || '—'
+          }
+          merchantReference={storedProfile.referenceNumber || '—'}
           taxAuthority="Ministry of Revenues (MoR)"
         />
       </div>
@@ -134,7 +156,7 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
               id="businessEmail"
               type="email"
               className={`${styles.input} ${errors.businessEmail ? styles.inputError : ''}`}
-              placeholder="billing@company.et"
+              autoComplete="off"
               {...register('businessEmail')}
             />
             {errors.businessEmail ? (
