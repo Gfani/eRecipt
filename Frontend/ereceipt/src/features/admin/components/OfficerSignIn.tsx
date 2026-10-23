@@ -264,14 +264,11 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
             className={styles.brandButton}
             title="Return to Merchant Workspace"
           >
-            <span className={styles.brandIcon}>
-              <img
-                src="/logo-icon.png"
-                alt="eReceipt"
-                style={{ width: '26px', height: '26px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-              />
-            </span>
-            <span className={styles.brandName}>eReceipt</span>
+            <img
+              src="/logo.png"
+              alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
+              style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
+            />
           </button>
 
           {/* Mode Switcher Tabs */}

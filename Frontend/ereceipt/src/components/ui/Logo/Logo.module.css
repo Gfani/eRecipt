@@ -1,7 +1,6 @@
-.brandButton {
+.logoButton {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
   background: transparent;
   border: none;
   padding: 0;
@@ -10,73 +9,31 @@
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.brandButton:hover {
+.logoButton:hover {
   opacity: 0.92;
   transform: translateY(-1px);
 }
 
-.brandIcon {
-  display: flex;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background-color: #123D2C;
-  color: #FFFFFF;
-  flex-shrink: 0;
-}
-
-.brandIconInverse {
-  background-color: #FFFFFF;
-}
-
 .logoImg {
   display: block;
-  width: 26px;
-  height: 26px;
+  height: 38px;
+  width: auto;
   object-fit: contain;
+  transition: filter 0.2s ease;
+}
+
+.sm {
+  height: 28px;
+}
+
+.md {
+  height: 38px;
+}
+
+.lg {
+  height: 50px;
+}
+
+.logoInverse {
   filter: brightness(0) invert(1);
-}
-
-.logoImgInverse {
-  filter: none;
-}
-
-.brandName {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #17201B;
-}
-
-.brandNameInverse {
-  color: #FFFFFF;
-}
-
-/* Size modifiers */
-.sm .brandIcon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-}
-.sm .logoImg {
-  width: 20px;
-  height: 20px;
-}
-.sm .brandName {
-  font-size: 17px;
-}
-
-.lg .brandIcon {
-  width: 46px;
-  height: 46px;
-  border-radius: 10px;
-}
-.lg .logoImg {
-  width: 30px;
-  height: 30px;
-}
-.lg .brandName {
-  font-size: 23px;
 }
