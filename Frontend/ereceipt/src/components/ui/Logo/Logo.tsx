@@ -16,8 +16,6 @@ export const Logo: React.FC<LogoProps> = ({
   onClick,
   className = '',
 }) => {
-  const imgSrc = variant === 'icon' ? '/logo-icon.png' : '/logo.png';
-
   return (
     <button
       type="button"
@@ -25,11 +23,26 @@ export const Logo: React.FC<LogoProps> = ({
       onClick={onClick || (() => window.scrollTo({ top: 0, behavior: 'smooth' }))}
       aria-label="eReceipt home"
     >
-      <img
-        src={imgSrc}
-        alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-        className={`${styles.logoImg} ${styles[size]} ${inverse ? styles.logoInverse : ''}`}
-      />
+      {inverse ? (
+        /* Merchant Dashboard Sidebar: White rounded badge box + bold white eReceipt text */
+        <span className={styles.sidebarBadgeRow}>
+          <span className={styles.iconBox}>
+            <img
+              src="/logo-icon.png"
+              alt="eReceipt Logo"
+              className={styles.iconImg}
+            />
+          </span>
+          <span className={styles.brandTitle}>eReceipt</span>
+        </span>
+      ) : (
+        /* Merchant Registration & Auth pages: Full horizontal logo, sized prominently */
+        <img
+          src={variant === 'icon' ? '/logo-icon.png' : '/logo.png'}
+          alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
+          className={`${styles.fullLogoImg} ${styles[size]}`}
+        />
+      )}
     </button>
   );
 };

@@ -10,30 +10,59 @@
 }
 
 .logoButton:hover {
-  opacity: 0.92;
+  opacity: 0.94;
   transform: translateY(-1px);
 }
 
-.logoImg {
+/* ─── Merchant Dashboard Sidebar Badge (Dark Green Background) ─── */
+.sidebarBadgeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconBox {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.iconImg {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
   display: block;
-  height: 38px;
+}
+
+.brandTitle {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+/* ─── Merchant Registration & Public Views (Full Horizontal Logo) ─── */
+.fullLogoImg {
+  display: block;
+  height: 50px; /* Prominently sized as requested */
   width: auto;
   object-fit: contain;
-  transition: filter 0.2s ease;
 }
 
 .sm {
-  height: 28px;
+  height: 36px;
 }
 
 .md {
-  height: 38px;
-}
-
-.lg {
   height: 50px;
 }
 
-.logoInverse {
-  filter: brightness(0) invert(1);
+.lg {
+  height: 62px;
 }
