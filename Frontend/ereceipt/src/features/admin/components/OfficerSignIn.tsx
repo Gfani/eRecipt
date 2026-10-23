@@ -6,6 +6,8 @@ import {
   AlertCircle,
   ShieldCheck,
   CheckCircle2,
+  RotateCw,
+  ArrowLeft,
 } from 'lucide-react';
 import styles from './OfficerSignIn.module.css';
 
@@ -26,6 +28,25 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [rememberOfficer, setRememberOfficer] = useState(false);
   const [isFormReady, setIsFormReady] = useState(false);
+
+  // 2FA state
+  const [is2FA, setIs2FA] = useState(false);
+  const [tempToken, setTempToken] = useState('');
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [twoFaCode, setTwoFaCode] = useState('');
+  const [simulatedCode, setSimulatedCode] = useState<string | null>(null);
+  const [twoFaCooldown, setTwoFaCooldown] = useState(45);
+  const [isResending2FA, setIsResending2FA] = useState(false);
+  const [twoFaSuccessNotice, setTwoFaSuccessNotice] = useState<string | null>(null);
+
+  // Countdown timer for 2FA resend
+  useEffect(() => {
+    if (!is2FA || twoFaCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setTwoFaCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [is2FA, twoFaCooldown]);
 
   useEffect(() => {
     setUsername('');
@@ -80,6 +101,18 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         throw new Error(data.error || 'Authentication failed. Please verify credentials.');
       }
 
+      // Check if 2FA is required
+      if (data.data?.requires2FA) {
+        setIs2FA(true);
+        setTempToken(data.data.tempToken);
+        setMaskedEmail(data.data.maskedEmail || data.data.email || 'your official email');
+        setSimulatedCode(data.data.simulatedCode || null);
+        setTwoFaCooldown(45);
+        setTwoFaCode('');
+        setAuthError('');
+        return;
+      }
+
       if (data.data?.token) {
         localStorage.setItem('officer_token', data.data.token);
         localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
@@ -89,6 +122,76 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
       setAuthError(err.message || 'Invalid username or password.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle 2FA verification submission
+  const submit2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+
+    if (!twoFaCode || twoFaCode.trim().length !== 6) {
+      setAuthError('Please enter the 6-digit verification code.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/admin/auth/verify-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tempToken,
+          code: twoFaCode.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Invalid or expired 2FA verification code.');
+      }
+
+      if (data.data?.token) {
+        localStorage.setItem('officer_token', data.data.token);
+        localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
+      }
+      onSuccess(data.data?.officer);
+    } catch (err: any) {
+      setAuthError(err.message || 'Verification failed. Please check the code.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle 2FA Resend code
+  const handleResend2FA = async () => {
+    if (twoFaCooldown > 0 || isResending2FA) return;
+    setIsResending2FA(true);
+    setAuthError('');
+    setTwoFaSuccessNotice(null);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/admin/auth/resend-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to resend code.');
+      }
+
+      setTwoFaCooldown(data.data?.cooldownSeconds || 45);
+      if (data.data?.simulatedCode) {
+        setSimulatedCode(data.data.simulatedCode);
+      }
+      setTwoFaSuccessNotice('New security verification code dispatched via Resend.');
+    } catch (err: any) {
+      setAuthError(err.message || 'Failed to resend code.');
+    } finally {
+      setIsResending2FA(false);
     }
   };
 
@@ -168,32 +271,220 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
           </button>
 
           {/* Mode Switcher Tabs */}
-          <div className={styles.tabSwitcher}>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('signin');
-                setAuthError('');
-              }}
-              className={`${styles.tabSwitchBtn} ${authMode === 'signin' ? styles.tabSwitchBtnActive : ''}`}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('register');
-                setAuthError('');
-              }}
-              className={`${styles.tabSwitchBtn} ${authMode === 'register' ? styles.tabSwitchBtnActive : ''}`}
-            >
-              Officer Registration
-            </button>
-          </div>
+          {!is2FA && (
+            <div className={styles.tabSwitcher}>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('signin');
+                  setAuthError('');
+                }}
+                className={`${styles.tabSwitchBtn} ${authMode === 'signin' ? styles.tabSwitchBtnActive : ''}`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('register');
+                  setAuthError('');
+                }}
+                className={`${styles.tabSwitchBtn} ${authMode === 'register' ? styles.tabSwitchBtnActive : ''}`}
+              >
+                Officer Registration
+              </button>
+            </div>
+          )}
         </div>
 
         <div className={styles.formBox}>
-          {authMode === 'signin' ? (
+          {is2FA ? (
+            /* ================= 2FA VERIFICATION FORM ================= */
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setIs2FA(false);
+                  setAuthError('');
+                  setTwoFaSuccessNotice(null);
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'none',
+                  border: 'none',
+                  color: '#475569',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                  marginBottom: '16px',
+                }}
+              >
+                <ArrowLeft size={16} /> Back to Sign In
+              </button>
+
+              <p className={styles.preTitle}>SECURITY VERIFICATION</p>
+              <h1 className={styles.title}>Two-Factor Authentication</h1>
+              <p className={styles.description}>
+                To comply with Ministry security protocols, a 6-digit one-time code has been dispatched via <strong>Resend</strong> to:
+                <br />
+                <span style={{ color: '#0F172A', fontWeight: 600 }}>{maskedEmail}</span>
+              </p>
+
+              {/* Dev Simulation Helper Chip */}
+              {simulatedCode && (
+                <div
+                  onClick={() => {
+                    setTwoFaCode(simulatedCode);
+                    setAuthError('');
+                  }}
+                  style={{
+                    backgroundColor: '#F0FDF4',
+                    border: '1px dashed #22C55E',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    marginBottom: '16px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                  title="Click to fill development test code"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ShieldCheck size={16} color="#16A34A" />
+                    <span style={{ fontSize: '12px', color: '#15803D', fontWeight: 600 }}>
+                      Dev OTP Code: <code style={{ fontSize: '13px', fontWeight: 800 }}>{simulatedCode}</code>
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#15803D',
+                      backgroundColor: '#DCFCE7',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Click to fill
+                  </span>
+                </div>
+              )}
+
+              <form onSubmit={submit2FA} className={styles.form}>
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel} htmlFor="officer-2fa-input">
+                    Enter 6-Digit Security Code
+                  </label>
+                  <input
+                    id="officer-2fa-input"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    autoFocus
+                    value={twoFaCode}
+                    onChange={(e) => {
+                      const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setTwoFaCode(clean);
+                      setAuthError('');
+                    }}
+                    placeholder="••••••"
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      fontSize: '28px',
+                      fontWeight: 800,
+                      letterSpacing: '12px',
+                      textAlign: 'center',
+                      fontFamily: 'monospace',
+                      borderRadius: '8px',
+                      border: authError ? '1.5px solid #EF4444' : '1.5px solid #CBD5E1',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      backgroundColor: '#F8FAFC',
+                    }}
+                  />
+                </div>
+
+                {authError && (
+                  <div role="alert" className={styles.errorMessage}>
+                    <AlertCircle size={17} style={{ flexShrink: 0 }} />
+                    <span>{authError}</span>
+                  </div>
+                )}
+
+                {twoFaSuccessNotice && !authError && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 14px',
+                      backgroundColor: '#F0FDF4',
+                      border: '1px solid #BBF7D0',
+                      borderRadius: '6px',
+                      color: '#15803D',
+                      fontSize: '13px',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                    <span>{twoFaSuccessNotice}</span>
+                  </div>
+                )}
+
+                {/* Resend Cooldown Action */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    margin: '8px 0 16px 0',
+                    fontSize: '13px',
+                  }}
+                >
+                  <span style={{ color: '#64748B' }}>Didn't receive email?</span>
+                  {twoFaCooldown > 0 ? (
+                    <span style={{ color: '#94A3B8', fontWeight: 500 }}>
+                      Resend in {twoFaCooldown}s
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResend2FA}
+                      disabled={isResending2FA}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#176B4D',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: 0,
+                      }}
+                    >
+                      <RotateCw size={14} className={isResending2FA ? 'spin' : ''} />
+                      {isResending2FA ? 'Sending...' : 'Resend code via Resend'}
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || twoFaCode.length !== 6}
+                  className={styles.submitBtn}
+                >
+                  {isLoading ? 'Verifying...' : 'Verify & Enter Admin Console'}
+                </button>
+              </form>
+            </>
+          ) : authMode === 'signin' ? (
             /* ================= SIGN IN FORM ================= */
             <>
               <p className={styles.preTitle}>REVENUE ADMINISTRATION</p>

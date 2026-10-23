@@ -29,6 +29,27 @@ export const Step5Review: React.FC<Step5Props> = ({ formData, onChange, onGoToSt
     <div className={styles.stepContainer}>
       <div className={styles.reviewRow}>
         <div className={styles.reviewInfo}>
+          <p className={styles.reviewLabel}>Account & Contact</p>
+          <p className={styles.reviewValue}>
+            {formData.fullName} · {formData.phoneNumber} · {formData.email || 'No email'}
+            {formData.emailVerified && (
+              <span style={{ marginLeft: '8px', color: '#16A34A', fontWeight: 600, fontSize: '12px' }}>
+                (Email Verified via Resend)
+              </span>
+            )}
+          </p>
+        </div>
+        <button
+          type="button"
+          className={styles.editButton}
+          onClick={() => onGoToStep(1)}
+        >
+          Edit
+        </button>
+      </div>
+
+      <div className={styles.reviewRow}>
+        <div className={styles.reviewInfo}>
           <p className={styles.reviewLabel}>Taxpayer</p>
           <p className={styles.reviewValue}>{taxpayerText}</p>
         </div>

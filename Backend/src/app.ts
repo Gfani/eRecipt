@@ -8,6 +8,7 @@ import { registrationRouter } from './features/merchant-registration/index.js';
 import { officerAuthRouter } from './features/admin/officer-auth/index.js';
 import { merchantManagementRouter } from './features/admin/merchant-management/index.js';
 import { fiscalOversightRouter } from './features/admin/fiscal-oversight/index.js';
+import { otpRouter } from './routes/otp.routes.js';
 
 // Domain feature routers from main
 import { authRouter } from './modules/auth/auth.routes.js';
@@ -75,6 +76,9 @@ app.use('/api/registration', registrationRouter);
 
 // Mount Feature: Revenue Officer Auth
 app.use('/api/admin/auth', officerAuthRouter);
+
+// Mount Feature: OTP Verification & Resend
+app.use('/api/otp', otpRouter);
 
 // Mount Feature: Merchant Approvals & Directory
 app.use('/api/admin/merchants', merchantManagementRouter);

@@ -23,6 +23,22 @@ export interface OfficerAuthResponse {
   officer: OfficerUser;
 }
 
+export interface OfficerLoginResponse {
+  requires2FA?: boolean;
+  tempToken?: string;
+  email?: string;
+  maskedEmail?: string;
+  simulatedCode?: string;
+  token?: string;
+  expiresIn?: string;
+  officer?: OfficerUser;
+}
+
+export interface OfficerVerify2FARequest {
+  tempToken: string;
+  code: string;
+}
+
 export interface OfficerRegisterRequest {
   fullName: string;
   username: string;

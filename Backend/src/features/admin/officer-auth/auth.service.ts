@@ -2,10 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
+import { otpService } from '../../../services/otp.service.js';
 import type {
   OfficerUser,
   OfficerLoginRequest,
   OfficerAuthResponse,
+  OfficerLoginResponse,
+  OfficerVerify2FARequest,
   OfficerRegisterRequest,
 } from './auth.types.js';
 
@@ -62,6 +65,27 @@ interface Session {
 }
 
 const activeSessions = new Map<string, Session>();
+
+// Pending 2FA challenges map: tempToken -> OfficerUser & email
+interface Pending2FASession {
+  officer: OfficerUser;
+  email: string;
+  rememberMe: boolean;
+  expiresAt: number;
+}
+const pending2FASessions = new Map<string, Pending2FASession>();
+
+function maskEmail(email: string): string {
+  const parts = email.split('@');
+  if (parts.length !== 2) return email;
+  const name = parts[0];
+  const domain = parts[1];
+  const maskedName =
+    name.length > 2
+      ? `${name[0]}${'•'.repeat(Math.min(name.length - 2, 6))}${name[name.length - 1]}`
+      : `${name[0]}•`;
+  return `${maskedName}@${domain}`;
+}
 
 export class OfficerAuthService {
   private officersCache: StoredOfficer[] = [];
@@ -168,9 +192,9 @@ export class OfficerAuthService {
   }
 
   /**
-   * Authenticate officer with username and password
+   * Authenticate officer with username and password and challenge with 2FA OTP
    */
-  async login(credentials: OfficerLoginRequest): Promise<OfficerAuthResponse> {
+  async login(credentials: OfficerLoginRequest): Promise<OfficerLoginResponse> {
     this.ensureLoaded();
     const trimmedUsername = credentials.username.trim().toLowerCase();
     const officerMatch = this.officersCache.find(
@@ -185,20 +209,81 @@ export class OfficerAuthService {
       throw new Error('Invalid officer username or password.');
     }
 
+    const { passwordHash: _, ...officer } = officerMatch;
+
+    // Challenge with 2FA: generate temp token and dispatch OTP via Resend
+    const tempToken = `ro_pre_${crypto.randomBytes(24).toString('hex')}`;
+    pending2FASessions.set(tempToken, {
+      officer,
+      email: officer.email,
+      rememberMe: Boolean(credentials.rememberMe),
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
+
+    const otpRes = await otpService.sendOtp(officer.email, 'admin_login', officer.name);
+
+    return {
+      requires2FA: true,
+      tempToken,
+      email: officer.email,
+      maskedEmail: maskEmail(officer.email),
+      simulatedCode: otpRes.simulated
+        ? (otpRes.code || otpService.getActiveCode(officer.email, 'admin_login') || undefined)
+        : undefined,
+    };
+  }
+
+  /**
+   * Verify 2FA OTP code and issue officer access token
+   */
+  async verify2FA(payload: OfficerVerify2FARequest): Promise<OfficerAuthResponse> {
+    const { tempToken, code } = payload;
+    const pending = pending2FASessions.get(tempToken);
+
+    if (!pending || pending.expiresAt < Date.now()) {
+      if (pending) pending2FASessions.delete(tempToken);
+      throw new Error('Authentication session has expired. Please sign in with your credentials again.');
+    }
+
+    const verification = otpService.verifyOtp(pending.email, code, 'admin_login');
+    if (!verification.success) {
+      throw new Error(verification.message);
+    }
+
     // Generate secure random token
     const token = `ro_tok_${crypto.randomBytes(32).toString('hex')}`;
-    const durationMs = credentials.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    const durationMs = pending.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
     const expiresAt = Date.now() + durationMs;
 
-    const { passwordHash: _, ...officer } = officerMatch;
-    activeSessions.set(token, { officer, expiresAt });
+    activeSessions.set(token, { officer: pending.officer, expiresAt });
     this.saveSessionsToFile();
+    pending2FASessions.delete(tempToken);
+
+    this.logAudit({
+      officer: `${pending.officer.name} · ${pending.officer.badgeNumber}`,
+      action: 'Officer 2FA Verified & Signed In',
+      reference: pending.officer.badgeNumber,
+      statusTransition: '2FA Challenge → Authenticated',
+      notes: `Successful 2FA verification via Resend OTP for ${pending.email}`,
+    });
 
     return {
       token,
-      expiresIn: credentials.rememberMe ? '7d' : '24h',
-      officer,
+      expiresIn: pending.rememberMe ? '7d' : '24h',
+      officer: pending.officer,
     };
+  }
+
+  /**
+   * Resend 2FA OTP code to officer email
+   */
+  async resend2FA(tempToken: string) {
+    const pending = pending2FASessions.get(tempToken);
+    if (!pending || pending.expiresAt < Date.now()) {
+      throw new Error('Authentication session has expired. Please sign in again.');
+    }
+
+    return await otpService.sendOtp(pending.email, 'admin_login', pending.officer.name);
   }
 
   /**

@@ -2,6 +2,8 @@ export interface MerchantRegistrationFormData {
   // Step 1: Account details
   fullName: string;
   phoneNumber: string;
+  email: string;
+  emailVerified: boolean;
   password: string;
 
   // Step 2: Tax identity
@@ -30,6 +32,7 @@ export interface MerchantRegistrationFormData {
 export interface MerchantUserProfile {
   fullName: string;
   phoneNumber: string;
+  email?: string;
   sellerLegalName: string;
   tradeName: string;
   tin: string;
@@ -50,6 +53,8 @@ export interface MerchantUserProfile {
 export const initialRegistrationFormData: MerchantRegistrationFormData = {
   fullName: '',
   phoneNumber: '',
+  email: '',
+  emailVerified: false,
   password: '',
   sellerLegalName: '',
   tradeName: '',

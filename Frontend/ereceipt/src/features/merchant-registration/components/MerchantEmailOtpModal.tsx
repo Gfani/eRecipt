@@ -1,0 +1,407 @@
+import React, { useState, useEffect } from 'react';
+import { Mail, CheckCircle2, AlertCircle, RotateCw, X, ShieldCheck } from 'lucide-react';
+
+interface MerchantEmailOtpModalProps {
+  email: string;
+  recipientName: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onVerified: () => void;
+}
+
+export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
+  email,
+  recipientName,
+  isOpen,
+  onClose,
+  onVerified,
+}) => {
+  const [code, setCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(45);
+  const [simulatedCode, setSimulatedCode] = useState<string | null>(null);
+  const [successNotice, setSuccessNotice] = useState<string | null>(null);
+
+  // Send OTP on initial modal open
+  useEffect(() => {
+    if (!isOpen) return;
+    setCode('');
+    setError(null);
+    setSuccessNotice(null);
+    sendOtpCode();
+  }, [isOpen, email]);
+
+  // Countdown timer for resend
+  useEffect(() => {
+    if (!isOpen || resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isOpen, resendCooldown]);
+
+  const sendOtpCode = async () => {
+    try {
+      setIsResending(true);
+      setError(null);
+
+      const res = await fetch('http://localhost:5000/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          purpose: 'merchant_registration',
+          recipientName: recipientName.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || data.error || 'Failed to dispatch verification code.');
+      }
+
+      setResendCooldown(data.cooldownSeconds || 45);
+      if (data.code) {
+        setSimulatedCode(data.code);
+      }
+      setSuccessNotice(`Verification code sent to ${email} via Resend.`);
+    } catch (err: any) {
+      setError(err.message || 'Could not send verification email. Please check the address.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    await sendOtpCode();
+  };
+
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!code || code.trim().length !== 6) {
+      setError('Please enter the complete 6-digit verification code.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          code: code.trim(),
+          purpose: 'merchant_registration',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || data.error || 'Invalid or expired verification code.');
+      }
+
+      onVerified();
+    } catch (err: any) {
+      setError(err.message || 'Verification failed. Please check the code.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(4px)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        animation: 'fadeIn 0.2s ease-out',
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: '14px',
+          width: '100%',
+          maxWidth: '460px',
+          padding: '28px 24px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          position: 'relative',
+        }}
+      >
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: 'absolute',
+            top: '18px',
+            right: '18px',
+            background: 'none',
+            border: 'none',
+            color: '#94A3B8',
+            cursor: 'pointer',
+            padding: '4px',
+            borderRadius: '6px',
+          }}
+        >
+          <X size={20} />
+        </button>
+
+        {/* Header Icon */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '10px',
+              backgroundColor: '#ECFDF5',
+              border: '1px solid #A7F3D0',
+              color: '#059669',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Mail size={22} />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+              Verify Business Email
+            </h3>
+            <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#64748B' }}>
+              Resend 6-Digit Email Verification
+            </p>
+          </div>
+        </div>
+
+        <p style={{ fontSize: '14px', color: '#334155', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+          We sent a 6-digit confirmation code to:
+          <br />
+          <strong style={{ color: '#0F172A', fontWeight: 600 }}>{email}</strong>
+        </p>
+
+        {/* Development Auto-Fill Helper Chip */}
+        {simulatedCode && (
+          <div
+            onClick={() => {
+              setCode(simulatedCode);
+              setError(null);
+            }}
+            style={{
+              backgroundColor: '#F0FDF4',
+              border: '1px dashed #22C55E',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              marginBottom: '16px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              transition: 'background-color 0.15s ease',
+            }}
+            title="Click to auto-fill development code"
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldCheck size={16} color="#16A34A" />
+              <span style={{ fontSize: '12px', color: '#15803D', fontWeight: 600 }}>
+                Test OTP Code: <code style={{ fontSize: '13px', fontWeight: 800 }}>{simulatedCode}</code>
+              </span>
+            </div>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: '#15803D',
+                backgroundColor: '#DCFCE7',
+                padding: '2px 8px',
+                borderRadius: '4px',
+              }}
+            >
+              Click to fill
+            </span>
+          </div>
+        )}
+
+        <form onSubmit={handleVerify}>
+          {/* OTP Input Field */}
+          <div style={{ marginBottom: '16px' }}>
+            <label
+              htmlFor="merchant-otp-input"
+              style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}
+            >
+              Enter 6-digit code
+            </label>
+            <input
+              id="merchant-otp-input"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              autoFocus
+              value={code}
+              onChange={(e) => {
+                const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
+                setCode(clean);
+                setError(null);
+              }}
+              placeholder="••••••"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '26px',
+                fontWeight: 800,
+                letterSpacing: '10px',
+                textAlign: 'center',
+                fontFamily: 'monospace',
+                borderRadius: '8px',
+                border: error ? '1.5px solid #EF4444' : '1.5px solid #CBD5E1',
+                outline: 'none',
+                boxSizing: 'border-box',
+                backgroundColor: '#F8FAFC',
+              }}
+            />
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 12px',
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #FECACA',
+                borderRadius: '6px',
+                color: '#DC2626',
+                fontSize: '13px',
+                marginBottom: '16px',
+              }}
+            >
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Success Notice */}
+          {successNotice && !error && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                backgroundColor: '#F0FDF4',
+                border: '1px solid #BBF7D0',
+                borderRadius: '6px',
+                color: '#15803D',
+                fontSize: '12px',
+                marginBottom: '16px',
+              }}
+            >
+              <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
+              <span>{successNotice}</span>
+            </div>
+          )}
+
+          {/* Resend Action with Countdown */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '20px',
+              fontSize: '13px',
+            }}
+          >
+            <span style={{ color: '#64748B' }}>Didn't receive code?</span>
+            {resendCooldown > 0 ? (
+              <span style={{ color: '#94A3B8', fontWeight: 500 }}>
+                Resend in {resendCooldown}s
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={isResending}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#176B4D',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: 0,
+                }}
+              >
+                <RotateCw size={13} className={isResending ? 'spin' : ''} />
+                {isResending ? 'Sending...' : 'Resend code via Resend'}
+              </button>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid #CBD5E1',
+                backgroundColor: '#FFFFFF',
+                color: '#475569',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Change Email
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || code.length !== 6}
+              style={{
+                flex: 1.5,
+                padding: '12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: code.length === 6 && !isSubmitting ? '#176B4D' : '#94A3B8',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: code.length === 6 && !isSubmitting ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default MerchantEmailOtpModal;

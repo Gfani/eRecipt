@@ -9,6 +9,8 @@ export interface MerchantRegistrationInput {
   // Step 1: Account details
   fullName: string;
   phoneNumber: string;
+  email?: string;
+  emailVerified?: boolean;
   password: string;
 
   // Step 2: Tax identity
@@ -42,6 +44,8 @@ export interface StoredMerchantApplication {
   // Account
   fullName: string;
   phoneNumber: string;
+  email?: string;
+  emailVerified?: boolean;
   passwordHash: string;
 
   // Tax Identity
