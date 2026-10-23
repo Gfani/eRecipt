@@ -11,6 +11,7 @@ import {
   ChevronDown,
   LogOut,
 } from 'lucide-react';
+import { Logo } from '../../../components/ui/Logo/Logo';
 import styles from './AdminSidebar.module.css';
 
 interface AdminSidebarProps {
@@ -55,16 +56,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   return (
     <aside className={styles.sidebar}>
-      <button
-        type="button"
-        onClick={() => onNavigate('overview')}
-        className={styles.logoRow}
-      >
-        <span className={styles.logoIcon}>
-          <img src="/logo-icon.png" alt="eReceipt Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
-        </span>
-        <span className={styles.logoText}>eReceipt</span>
-      </button>
+      <div className={styles.logoRow}>
+        <Logo inverse onClick={() => onNavigate('overview')} />
+      </div>
 
       <p className={styles.sectionHeading}>Revenue administration</p>
 

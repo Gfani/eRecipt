@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import logoImg from '../../assets/logo.png';
+import logoWhiteImg from '../../assets/logo-white.png';
 import styles from './LandingPage.module.css';
 
 export const LandingPage: React.FC = () => {
@@ -11,9 +13,9 @@ export const LandingPage: React.FC = () => {
         <div className={styles.navContainer}>
           <a href="/" className={styles.brandLogo}>
             <img
-              src="/logo.png"
+              src={logoImg}
               alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-              style={{ height: '42px', width: 'auto', objectFit: 'contain', display: 'block' }}
+              className={styles.logoImg}
             />
           </a>
 
@@ -501,9 +503,9 @@ export const LandingPage: React.FC = () => {
           <div className={styles.footerBrandCol}>
             <div className={styles.footerLogo}>
               <img
-                src="/logo.png"
+                src={logoWhiteImg}
                 alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-                style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
+                className={styles.footerLogoImg}
               />
             </div>
             <p className={styles.footerTagline}>

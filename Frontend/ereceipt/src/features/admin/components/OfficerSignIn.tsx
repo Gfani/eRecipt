@@ -8,6 +8,7 @@ import {
   RotateCw,
   ArrowLeft,
 } from 'lucide-react';
+import { Logo } from '../../../components/ui/Logo/Logo';
 import styles from './OfficerSignIn.module.css';
 
 interface OfficerSignInProps {
@@ -258,18 +259,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
       {/* Left Form Column */}
       <main className={styles.leftColumn}>
         <div className={styles.brandRow}>
-          <button
-            type="button"
-            onClick={onReturnToMerchant}
-            className={styles.brandButton}
-            title="Return to Merchant Workspace"
-          >
-            <img
-              src="/logo.png"
-              alt="eReceipt - Digital Receipts. A Stronger Ethiopia."
-              style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
-            />
-          </button>
+          <Logo onClick={onReturnToMerchant} />
 
           {/* Mode Switcher Tabs */}
           {!is2FA && (
