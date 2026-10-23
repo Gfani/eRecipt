@@ -10,6 +10,9 @@ merchantManagementRouter.get('/applications', (req, res) =>
 merchantManagementRouter.get('/applications/:ref', (req, res) =>
   merchantManagementController.getApplication(req, res)
 );
+merchantManagementRouter.get('/applications/:ref/document', (req, res) =>
+  merchantManagementController.downloadDocument(req, res)
+);
 merchantManagementRouter.post('/applications/:ref/decision', (req, res) =>
   merchantManagementController.submitDecision(req, res)
 );
