@@ -2,38 +2,79 @@ import React, { useState } from 'react';
 import { Logo } from '../../../../components/ui/Logo/Logo';
 import styles from './SigninForm.module.css';
 
-export const LoginForm: React.FC = () => {
+export interface LoginFormProps {
+  onSuccess?: (authData: { token: string; user: any }) => void;
+  onNavigateToRegister?: () => void;
+  onNavigateToHome?: () => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSuccess,
+  onNavigateToRegister,
+  onNavigateToHome,
+}) => {
   const [tin, setTin] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tinError, setTinError] = useState('');
+  const [authError, setAuthError] = useState('');
 
   const handleTinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // only allow digits
     if (value.length <= 10) {
       setTin(value);
       if (tinError) setTinError('');
+      if (authError) setAuthError('');
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError('');
 
     if (tin.length !== 10) {
       setTinError('Please enter a valid 10-digit TIN');
       return;
     }
 
+    if (!password) {
+      setAuthError('Please enter your password.');
+      return;
+    }
+
     setIsLoading(true);
 
-    // Call authentication API
-    setTimeout(() => {
-      console.log('Merchant login submitted:', { tin, password, rememberMe });
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/merchant/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tin: tin.trim(),
+          password,
+          rememberMe,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || data.error || 'Invalid TIN or password.');
+      }
+
+      if (data.data?.token) {
+        localStorage.setItem('merchant_token', data.data.token);
+        localStorage.setItem('merchant_user', JSON.stringify(data.data.user));
+      }
+
+      if (onSuccess) {
+        onSuccess(data.data);
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Authentication failed. Please verify your TIN and password.');
+    } finally {
       setIsLoading(false);
-      // Example router transition: window.location.href = '/merchant/overview';
-    }, 600);
+    }
   };
 
   return (
@@ -43,7 +84,7 @@ export const LoginForm: React.FC = () => {
         <div className={styles.formWrapper}>
           {/* Logo Header */}
           <div className={styles.brandRow}>
-            <Logo onClick={() => (window.location.href = '/')} />
+            <Logo onClick={onNavigateToHome || (() => { window.location.href = '/'; })} />
           </div>
 
           {/* Titles & Pre-header */}
@@ -54,6 +95,24 @@ export const LoginForm: React.FC = () => {
               Sign in to record sales and manage digital receipts.
             </p>
           </div>
+
+          {authError && (
+            <div
+              style={{
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #FCA5A5',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                color: '#B91C1C',
+                fontSize: '13px',
+                fontWeight: 500,
+                marginBottom: '16px',
+                lineHeight: 1.4,
+              }}
+            >
+              {authError}
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className={styles.form}>
@@ -151,9 +210,23 @@ export const LoginForm: React.FC = () => {
           {/* Registration Link */}
           <div className={styles.signupPrompt}>
             <span>New to eReceipt? </span>
-            <a href="/merchant/register" className={styles.signupLink}>
+            <button
+              type="button"
+              onClick={onNavigateToRegister || (() => { window.location.href = '/?view=registration'; })}
+              className={styles.signupLink}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                color: '#16A34A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                font: 'inherit',
+                textDecoration: 'underline',
+              }}
+            >
               Create an account
-            </a>
+            </button>
           </div>
 
           {/* Privacy Disclaimer Footer */}

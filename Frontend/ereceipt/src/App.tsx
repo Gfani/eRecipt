@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { MerchantRegistration } from './features/merchant-registration';
+import { LoginForm } from './features/auth';
 import { Audit } from './features/audit';
 import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
 import './App.css';
 
-type AppView = 'receipt-issuance' | 'merchant' | 'audit' | 'admin' | 'registration';
+type AppView = 'receipt-issuance' | 'merchant' | 'audit' | 'admin' | 'registration' | 'signin';
 
 function App() {
   const getInitialView = (): AppView => {
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get('view');
     if (viewParam === 'registration') return 'registration';
+    if (viewParam === 'signin' || viewParam === 'login') return 'signin';
     if (viewParam === 'admin') return 'admin';
     if (viewParam === 'receipt-issuance' || viewParam === 'pos') return 'receipt-issuance';
     if (viewParam === 'merchant' || viewParam === 'audit' || viewParam === 'settings' || viewParam === 'invoice')
@@ -33,6 +35,8 @@ function App() {
   const handleNavigate = (screen: string) => {
     if (screen === 'registration') {
       setCurrentView('registration');
+    } else if (screen === 'signin' || screen === 'login') {
+      setCurrentView('signin');
     } else if (screen === 'admin') {
       setCurrentView('admin');
     } else if (screen === 'pos' || screen === 'receipt-issuance') {
@@ -65,6 +69,13 @@ function App() {
         </button>
         <button
           type="button"
+          className={`switcher-btn ${currentView === 'signin' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('signin')}
+        >
+          Merchant Sign In
+        </button>
+        <button
+          type="button"
           className={`switcher-btn ${currentView === 'receipt-issuance' ? 'switcher-btn-active' : ''}`}
           onClick={() => setCurrentView('receipt-issuance')}
         >
@@ -90,8 +101,17 @@ function App() {
         <ReceiptIssuance onNavigate={handleNavigate} />
       ) : currentView === 'registration' ? (
         <MerchantRegistration
-          onSignInClick={() => handleNavigate('audit')}
+          onSignInClick={() => handleNavigate('signin')}
           onHomeClick={() => handleNavigate('receipt-issuance')}
+        />
+      ) : currentView === 'signin' ? (
+        <LoginForm
+          onSuccess={() => {
+            setCurrentView('merchant');
+            setMerchantScreen('audit');
+          }}
+          onNavigateToRegister={() => setCurrentView('registration')}
+          onNavigateToHome={() => setCurrentView('receipt-issuance')}
         />
       ) : currentView === 'admin' ? (
         <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'audit')} />
