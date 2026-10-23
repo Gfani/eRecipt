@@ -33,6 +33,25 @@
   gap: 10px;
   text-decoration: none;
   color: #0d2f23;
+  transition: opacity 0.15s ease;
+}
+
+.brandLogo:hover {
+  opacity: 0.9;
+}
+
+.logoImg {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.footerLogoImg {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .logoBadge {

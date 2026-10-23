@@ -8,7 +8,6 @@ import {
   ClipboardCheck,
   Database,
   Settings,
-  ReceiptText,
   ChevronDown,
   LogOut,
 } from 'lucide-react';

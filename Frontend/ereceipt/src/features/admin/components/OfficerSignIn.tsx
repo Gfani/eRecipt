@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ReceiptText, Eye, EyeOff, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Logo } from '../../../components/ui/Logo/Logo';
 import styles from './OfficerSignIn.module.css';
 
 interface OfficerSignInProps {
@@ -35,16 +36,9 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     <div className={styles.container}>
       {/* Left Sign In Form */}
       <main className={styles.leftColumn}>
-        <button
-          type="button"
-          onClick={onReturnToMerchant}
-          className={styles.brandButton}
-        >
-          <span className={styles.brandIcon}>
-            <ReceiptText size={21} />
-          </span>
-          <span className={styles.brandName}>eReceipt</span>
-        </button>
+        <div style={{ marginBottom: '24px' }}>
+          <Logo onClick={onReturnToMerchant} />
+        </div>
 
         <div className={styles.formBox}>
           <p className={styles.preTitle}>Revenue administration</p>
