@@ -5,4 +5,7 @@ export interface MonthlyTransactionSummary {
   totalIncome: number;// 1482500.00
   totalTax: number;   // 193370.00
   expenses: number;   // 826400.00
+  receiptCount?: number;
+  clearanceBatch?: string;
+  clearedRate?: number;
 }

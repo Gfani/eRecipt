@@ -17,7 +17,14 @@ function App() {
     if (viewParam === 'registration') return 'registration';
     if (viewParam === 'admin') return 'admin';
     if (viewParam === 'receipt-issuance' || viewParam === 'pos') return 'receipt-issuance';
-    if (viewParam === 'merchant' || viewParam === 'audit' || viewParam === 'settings' || viewParam === 'invoice')
+    if (
+      viewParam === 'merchant' ||
+      viewParam === 'audit' ||
+      viewParam === 'settings' ||
+      viewParam === 'invoice' ||
+      viewParam === 'sales' ||
+      viewParam === 'transactions'
+    )
       return 'merchant';
     if (viewParam === 'landing' || viewParam === 'home') return 'landing';
     return 'landing'; // Starts from Landing page by default
@@ -26,6 +33,8 @@ function App() {
   const getInitialMerchantScreen = (): string => {
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get('view');
+    const screenParam = params.get('screen');
+    if (screenParam) return screenParam;
     if (viewParam === 'invoice') return 'receipt';
     if (viewParam === 'settings') return 'settings';
     if (viewParam === 'audit') return 'audit';

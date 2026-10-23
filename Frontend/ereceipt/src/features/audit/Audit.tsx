@@ -8,6 +8,7 @@ import { SettingsVerticalNav, type SettingsTabId } from '../settings/components/
 import { BusinessProfileTab } from '../settings/components/tabs/BusinessProfileTab';
 import { ReceiptIssuanceContent } from '../receipt-issuance';
 import { Overview } from '../overview';
+import { TransactionsView } from '../transactions';
 import styles from './Audit.module.css';
 
 interface AuditProps {
@@ -238,28 +239,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
       )}
 
       {activeScreen === 'sales' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Sales Ledger</p>
-              <h1 className={styles.title}>Transactions</h1>
-              <p className={styles.copy}>Search and filter recorded sales transactions.</p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #DDE3DE', borderRadius: '12px', padding: '32px' }}>
-            <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
-              All cleared receipts are recorded cryptographically and audited monthly.
-            </p>
-            <button
-              type="button"
-              onClick={() => setActiveScreen('audit')}
-              className="btn-primary"
-              style={{ marginTop: '16px' }}
-            >
-              Calculate Monthly Tax
-            </button>
-          </div>
-        </>
+        <TransactionsView onNavigate={handleSidebarNavigate} />
       )}
     </DashboardLayout>
   );
