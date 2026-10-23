@@ -3,16 +3,22 @@ import { Logo } from '../../../../components/ui/Logo/Logo';
 import styles from './SigninForm.module.css';
 
 export interface LoginFormProps {
-  onSuccess?: (authData: { token: string; user: any }) => void;
+  onSuccess?: (authData?: { token: string; user: any }) => void;
   onNavigateToRegister?: () => void;
+  onRegisterClick?: () => void;
   onNavigateToHome?: () => void;
+  onHomeClick?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSuccess,
   onNavigateToRegister,
+  onRegisterClick,
   onNavigateToHome,
+  onHomeClick,
 }) => {
+  const handleRegister = onNavigateToRegister || onRegisterClick;
+  const handleHome = onNavigateToHome || onHomeClick;
   const [tin, setTin] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -69,6 +75,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       if (onSuccess) {
         onSuccess(data.data);
+      } else {
+        window.location.href = '/merchant/overview';
       }
     } catch (err: any) {
       setAuthError(err.message || 'Authentication failed. Please verify your TIN and password.');
@@ -84,7 +92,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <div className={styles.formWrapper}>
           {/* Logo Header */}
           <div className={styles.brandRow}>
-            <Logo onClick={onNavigateToHome || (() => { window.location.href = '/'; })} />
+            <Logo onClick={handleHome ? handleHome : () => { window.location.href = '/'; }} />
           </div>
 
           {/* Titles & Pre-header */}
@@ -212,7 +220,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <span>New to eReceipt? </span>
             <button
               type="button"
-              onClick={onNavigateToRegister || (() => { window.location.href = '/?view=registration'; })}
+              onClick={handleRegister ? handleRegister : () => { window.location.href = '/?view=registration'; }}
               className={styles.signupLink}
               style={{
                 background: 'none',
@@ -309,3 +317,5 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     </div>
   );
 };
+
+export default LoginForm;

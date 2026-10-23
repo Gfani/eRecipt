@@ -7,20 +7,20 @@ import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
 import './App.css';
 
-type AppView = 'landing' | 'receipt-issuance' | 'merchant' | 'audit' | 'admin' | 'registration' | 'signin';
+type AppView = 'landing' | 'signin' | 'registration' | 'merchant' | 'receipt-issuance' | 'admin';
 
 function App() {
   const getInitialView = (): AppView => {
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get('view');
-    if (viewParam === 'landing' || viewParam === 'home') return 'landing';
-    if (viewParam === 'registration') return 'registration';
     if (viewParam === 'signin' || viewParam === 'login') return 'signin';
+    if (viewParam === 'registration') return 'registration';
     if (viewParam === 'admin') return 'admin';
     if (viewParam === 'receipt-issuance' || viewParam === 'pos') return 'receipt-issuance';
     if (viewParam === 'merchant' || viewParam === 'audit' || viewParam === 'settings' || viewParam === 'invoice')
       return 'merchant';
-    return 'merchant';
+    if (viewParam === 'landing' || viewParam === 'home') return 'landing';
+    return 'landing'; // Starts from Landing page by default
   };
 
   const getInitialMerchantScreen = (): string => {
@@ -37,10 +37,10 @@ function App() {
   const handleNavigate = (screen: string) => {
     if (screen === 'landing' || screen === 'home') {
       setCurrentView('landing');
-    } else if (screen === 'registration') {
-      setCurrentView('registration');
     } else if (screen === 'signin' || screen === 'login') {
       setCurrentView('signin');
+    } else if (screen === 'registration') {
+      setCurrentView('registration');
     } else if (screen === 'admin') {
       setCurrentView('admin');
     } else if (screen === 'pos' || screen === 'receipt-issuance') {
@@ -70,20 +70,27 @@ function App() {
         </button>
         <button
           type="button"
+          className={`switcher-btn ${currentView === 'signin' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('signin')}
+        >
+          Merchant Sign In
+        </button>
+        <button
+          type="button"
+          className={`switcher-btn ${currentView === 'registration' ? 'switcher-btn-active' : ''}`}
+          onClick={() => setCurrentView('registration')}
+        >
+          Merchant Registration
+        </button>
+        <button
+          type="button"
           className={`switcher-btn ${currentView === 'merchant' ? 'switcher-btn-active' : ''}`}
           onClick={() => {
             setCurrentView('merchant');
             setMerchantScreen('audit');
           }}
         >
-          Merchant Portal (Audit, Invoices, Settings)
-        </button>
-        <button
-          type="button"
-          className={`switcher-btn ${currentView === 'signin' ? 'switcher-btn-active' : ''}`}
-          onClick={() => setCurrentView('signin')}
-        >
-          Merchant Sign In
+          Merchant Portal
         </button>
         <button
           type="button"
@@ -97,25 +104,20 @@ function App() {
           className={`switcher-btn ${currentView === 'admin' ? 'switcher-btn-active' : ''}`}
           onClick={() => setCurrentView('admin')}
         >
-          Revenue Admin Portal
-        </button>
-        <button
-          type="button"
-          className={`switcher-btn ${currentView === 'registration' ? 'switcher-btn-active' : ''}`}
-          onClick={() => setCurrentView('registration')}
-        >
-          Merchant Registration
+          Revenue Admin
         </button>
       </aside>
 
       {currentView === 'landing' ? (
-        <LandingPage onNavigate={handleNavigate} />
-      ) : currentView === 'receipt-issuance' ? (
-        <ReceiptIssuance onNavigate={handleNavigate} />
-      ) : currentView === 'registration' ? (
-        <MerchantRegistration
-          onSignInClick={() => handleNavigate('signin')}
-          onHomeClick={() => handleNavigate('landing')}
+        <LandingPage
+          onNavigate={handleNavigate}
+          onSignInClick={() => setCurrentView('signin')}
+          onGetStartedClick={() => setCurrentView('registration')}
+          onScanReceiptClick={() => setCurrentView('receipt-issuance')}
+          onMerchantPortalClick={() => {
+            setCurrentView('merchant');
+            setMerchantScreen('audit');
+          }}
         />
       ) : currentView === 'signin' ? (
         <LoginForm
@@ -123,8 +125,17 @@ function App() {
             setCurrentView('merchant');
             setMerchantScreen('audit');
           }}
+          onRegisterClick={() => setCurrentView('registration')}
           onNavigateToRegister={() => setCurrentView('registration')}
+          onHomeClick={() => setCurrentView('landing')}
           onNavigateToHome={() => setCurrentView('landing')}
+        />
+      ) : currentView === 'receipt-issuance' ? (
+        <ReceiptIssuance onNavigate={handleNavigate} />
+      ) : currentView === 'registration' ? (
+        <MerchantRegistration
+          onSignInClick={() => handleNavigate('signin')}
+          onHomeClick={() => handleNavigate('landing')}
         />
       ) : currentView === 'admin' ? (
         <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'audit')} />
