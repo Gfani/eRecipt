@@ -3,22 +3,22 @@ import type { MerchantUserProfile } from './types';
 const STORAGE_KEY = 'ereceipt:merchant_profile';
 
 export const DEFAULT_MERCHANT_PROFILE: MerchantUserProfile = {
-  fullName: '',
-  phoneNumber: '',
-  sellerLegalName: '',
-  tradeName: '',
-  tin: '',
-  businessLicenseNumber: '',
+  fullName: 'Tigist Getachew',
+  phoneNumber: '+251 91 123 4567',
+  sellerLegalName: 'Abeba Market PLC',
+  tradeName: 'Abeba Market',
+  tin: '0012345678',
+  businessLicenseNumber: 'BL-ADDIS-2026-9812',
   uploadedFileName: '',
   uploadedFileSize: '',
-  city: '',
-  subCity: '',
-  buildingName: '',
-  floor: '',
-  gpsLocation: '',
-  referenceNumber: '',
-  status: 'Pending',
-  registeredAt: '',
+  city: 'Addis Ababa',
+  subCity: 'Bole',
+  buildingName: 'Abeba Commercial Center',
+  floor: '1st Floor',
+  gpsLocation: '9.0123, 38.7636',
+  referenceNumber: 'REF-ET-2026-0891',
+  status: 'Approved',
+  registeredAt: '2026-01-15',
 };
 
 export function getStoredMerchantProfile(): MerchantUserProfile {
@@ -26,12 +26,7 @@ export function getStoredMerchantProfile(): MerchantUserProfile {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_MERCHANT_PROFILE;
     const parsed = JSON.parse(raw);
-    // If user's stored profile contains old mock demo data, reset to clean default
-    if (parsed.fullName === 'Tigist Getachew' || parsed.sellerLegalName === 'Abeba Market PLC') {
-      window.localStorage.removeItem(STORAGE_KEY);
-      return DEFAULT_MERCHANT_PROFILE;
-    }
-    return parsed;
+    return { ...DEFAULT_MERCHANT_PROFILE, ...parsed };
   } catch {
     return DEFAULT_MERCHANT_PROFILE;
   }

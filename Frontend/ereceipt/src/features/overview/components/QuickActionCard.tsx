@@ -4,7 +4,8 @@ import styles from './QuickActionCard.module.css';
 export interface QuickActionCardProps {
   title: string;
   description: string;
-  to: string;
+  to?: string;
+  onClick?: () => void;
   accentColor: 'teal' | 'blue' | 'amber' | 'purple';
   icon: React.ReactNode;
 }
@@ -13,21 +14,29 @@ export const QuickActionCard: React.FC<QuickActionCardProps> = ({
   title,
   description,
   to,
+  onClick,
   accentColor,
   icon,
 }) => {
-  const handleNavigate = () => {
-    window.location.href = to;
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (to) {
+      window.location.href = to;
+    }
   };
 
   return (
     <div
-      onClick={handleNavigate}
+      onClick={handleClick}
       className={`${styles.card} ${styles[accentColor]}`}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') handleNavigate();
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
       }}
     >
       <div className={styles.topRow}>
@@ -56,3 +65,5 @@ export const QuickActionCard: React.FC<QuickActionCardProps> = ({
     </div>
   );
 };
+
+export default QuickActionCard;

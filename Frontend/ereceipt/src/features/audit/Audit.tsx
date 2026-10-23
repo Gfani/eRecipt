@@ -7,6 +7,7 @@ import { ClearedInvoiceDocument } from '../tax-invoice-preview/components/Cleare
 import { SettingsVerticalNav, type SettingsTabId } from '../settings/components/SettingsVerticalNav';
 import { BusinessProfileTab } from '../settings/components/tabs/BusinessProfileTab';
 import { ReceiptIssuanceContent } from '../receipt-issuance';
+import { Overview } from '../overview';
 import styles from './Audit.module.css';
 
 interface AuditProps {
@@ -26,7 +27,7 @@ function downloadCsv(filename: string, rows: string[][]) {
   URL.revokeObjectURL(url);
 }
 
-export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigate }) => {
+export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNavigate }) => {
   const [activeScreen, setActiveScreen] = useState<string>(initialScreen);
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('profile');
 
@@ -229,40 +230,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
       )}
 
       {activeScreen === 'dashboard' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Merchant Overview</p>
-              <h1 className={styles.title}>Overview</h1>
-              <p className={styles.copy}>Summary of current fiscal activities and MoR API connectivity.</p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #DDE3DE', borderRadius: '12px', padding: '32px' }}>
-            <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
-              Abeba Market Dashboard
-            </h2>
-            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#526059' }}>
-              Your electronic tax register is online and connected to Ministry of Revenue real-time clearance.
-            </p>
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setActiveScreen('receipt')}
-                className="btn-primary"
-              >
-                Preview Latest Tax Invoice
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveScreen('audit')}
-                className="btn-primary"
-                style={{ backgroundColor: '#123D2C', borderColor: '#123D2C' }}
-              >
-                Go to Monthly Audit
-              </button>
-            </div>
-          </div>
-        </>
+        <Overview onNavigate={handleSidebarNavigate} />
       )}
 
       {activeScreen === 'pos' && (

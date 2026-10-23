@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Wifi, CloudOff, Languages, Bell, ChevronDown } from 'lucide-react';
+import { Menu, Wifi, CloudOff, Bell, ChevronDown } from 'lucide-react';
 import { getStoredMerchantProfile } from '../../../features/merchant-registration';
 import styles from './Topbar.module.css';
 
@@ -57,13 +57,12 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu }) => {
           onClick={() => setAmharic(!amharic)}
           className={styles.langToggleBtn}
         >
-          <Languages size={15} />
+          <span className={styles.translateIcon}>文A</span>
           <span>{amharic ? 'English' : 'አማርኛ'}</span>
         </button>
 
         <button type="button" className={styles.bellBtn} aria-label="Notifications">
-          <Bell size={19} />
-          <span className={styles.bellDot} />
+          <Bell size={18} />
         </button>
 
         <span className={styles.divider} />
@@ -71,8 +70,8 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu }) => {
         <button type="button" className={styles.userProfile}>
           <span className={styles.userAvatar}>{userInitials}</span>
           <div className={styles.userInfo}>
-            <p className={styles.userName}>{profile.fullName || 'Merchant Account'}</p>
-            <p className={styles.userRole}>Owner · {profile.tradeName || 'Registered Business'}</p>
+            <p className={styles.userName}>{profile.fullName || 'Tigist Getachew'}</p>
+            <p className={styles.userRole}>Owner</p>
           </div>
           <ChevronDown size={14} style={{ color: '#64748B' }} />
         </button>

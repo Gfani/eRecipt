@@ -28,7 +28,10 @@ function App() {
     const viewParam = params.get('view');
     if (viewParam === 'invoice') return 'receipt';
     if (viewParam === 'settings') return 'settings';
-    return 'audit';
+    if (viewParam === 'audit') return 'audit';
+    if (viewParam === 'pos' || viewParam === 'receipt-issuance') return 'pos';
+    if (viewParam === 'sales' || viewParam === 'transactions') return 'sales';
+    return 'dashboard';
   };
 
   const [currentView, setCurrentView] = useState<AppView>(getInitialView);
@@ -87,10 +90,10 @@ function App() {
           className={`switcher-btn ${currentView === 'merchant' ? 'switcher-btn-active' : ''}`}
           onClick={() => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
         >
-          Merchant Portal
+          Merchant Overview
         </button>
         <button
           type="button"
@@ -115,7 +118,7 @@ function App() {
           onScanReceiptClick={() => setCurrentView('receipt-issuance')}
           onMerchantPortalClick={() => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
         />
       ) : currentView === 'signin' ? (
@@ -124,7 +127,7 @@ function App() {
           onHomeClick={() => setCurrentView('landing')}
           onSuccess={() => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
         />
       ) : currentView === 'receipt-issuance' ? (
