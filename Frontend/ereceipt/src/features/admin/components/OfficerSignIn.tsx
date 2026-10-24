@@ -105,6 +105,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
 
   // Common state
   const [authError, setAuthError] = useState('');
+  const [regSuccessNotice, setRegSuccessNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle Sign In submission
@@ -274,11 +275,15 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         password: regPassword,
       });
 
+      setRegSuccessNotice('✓ Officer registered successfully! Connecting to workspace...');
+
       if (data.data?.token) {
         localStorage.setItem('officer_token', data.data.token);
         localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
       }
-      onSuccess(data.data?.officer);
+      setTimeout(() => {
+        onSuccess(data.data?.officer);
+      }, 400);
     } catch (err: any) {
       setAuthError(err.message || 'Officer registration failed. Please check your information.');
     } finally {
@@ -872,6 +877,26 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                   <div role="alert" className={styles.errorMessage}>
                     <AlertCircle size={17} style={{ flexShrink: 0 }} />
                     <span>{authError}</span>
+                  </div>
+                )}
+
+                {regSuccessNotice && !authError && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 14px',
+                      backgroundColor: '#F0FDF4',
+                      border: '1px solid #BBF7D0',
+                      borderRadius: '6px',
+                      color: '#15803D',
+                      fontSize: '13px',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                    <span>{regSuccessNotice}</span>
                   </div>
                 )}
 
