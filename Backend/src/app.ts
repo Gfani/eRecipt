@@ -33,13 +33,22 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+import { NetworkService } from './services/networkService.js';
+
 // Health check endpoints (both /health and /api/health)
 app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
+  const lanIp = NetworkService.getPreferredLanIp();
   res.status(200).json({
     status: 'online',
     service: 'eReceipt API Backend',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
+    network: {
+      lanIp,
+      preferredHost: `http://${lanIp}:5000`,
+      frontendMobileUrl: `http://${lanIp}:5173`,
+      allIps: NetworkService.getAllNetworkIps(),
+    },
   });
 });
 

@@ -1,13 +1,16 @@
 import 'dotenv/config';
 import app from './app.js';
 import { config } from './config/index.js';
+import { NetworkService } from './services/networkService.js';
 
 const port = config.port || 5000;
 
 const server = app.listen(port, () => {
+  const lanIp = NetworkService.getPreferredLanIp();
   console.log('====================================================');
   console.log(`🚀 eReceipt Backend Server is RUNNING`);
   console.log(`📡 URL: http://localhost:${port}`);
+  console.log(`📱 Mobile LAN URL: http://${lanIp}:${port}`);
   console.log(`📋 Health Check: http://localhost:${port}/api/health`);
   console.log(`📝 Registration API: http://localhost:${port}/api/registration`);
   console.log(`🔐 Officer Auth: http://localhost:${port}/api/admin/auth`);

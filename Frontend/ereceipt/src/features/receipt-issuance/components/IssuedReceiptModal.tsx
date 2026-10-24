@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   CheckCircle2,
@@ -11,6 +11,10 @@ import {
   Check,
   Languages,
   Plus,
+  Image as ImageIcon,
+  Download,
+  ExternalLink,
+  FileText,
 } from 'lucide-react';
 import type { IssuedReceipt } from '../types';
 import {
@@ -22,6 +26,8 @@ import {
 } from '../types';
 import { getStoredMerchantProfile } from '../../merchant-registration';
 import { QRCodeSVG } from 'qrcode.react';
+import { downloadReceiptAsPng, getReceiptImageUrl } from '../../../utils/receiptImageRenderer';
+import { getScannableHostUrl } from '../api';
 import styles from './IssuedReceiptModal.module.css';
 
 interface IssuedReceiptModalProps {
@@ -37,7 +43,26 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
 }) => {
   const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [copied, setCopied] = useState(false);
-  const [qrMode, setQrMode] = useState<'info' | 'url'>('info');
+  const [activeTab, setActiveTab] = useState<'document' | 'image'>('document');
+  const [imageTheme, setImageTheme] = useState<'modern' | 'thermal'>('modern');
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+  const [qrMode, setQrMode] = useState<'image' | 'direct-image' | 'info'>('image');
+  const [scannableHost, setScannableHost] = useState<string>(
+    typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    getScannableHostUrl().then((host) => {
+      if (isMounted && host) {
+        setScannableHost(host);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const profile = getStoredMerchantProfile();
   const sellerName =
     (receipt as any).merchantLegalName ||
@@ -64,7 +89,26 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
       ? amountInWords(receipt.total)
       : amountInAmharic(receipt.total);
 
-  const verificationUrl = `${window.location.origin}/?view=verify&irn=${receipt.irn}`;
+  const verificationUrl = `${scannableHost}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
+  const receiptImageViewerUrl = `${scannableHost}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`;
+  const backendHost = scannableHost.includes(':5173') ? scannableHost.replace(':5173', ':5000') : scannableHost;
+  const receiptDirectImageUrl = `${backendHost}/api/receipts/${encodeURIComponent(receipt.irn)}/image`;
+  const renderedReceiptImageUrl = getReceiptImageUrl(receipt.irn, {
+    theme: imageTheme,
+    lang: language,
+  });
+
+  const handleDownloadPng = async () => {
+    try {
+      setIsDownloadingImage(true);
+      await downloadReceiptAsPng(receipt.irn, { theme: imageTheme, lang: language });
+    } catch (err) {
+      console.error('Failed to download receipt as PNG:', err);
+      window.open(receiptDirectImageUrl, '_blank');
+    } finally {
+      setIsDownloadingImage(false);
+    }
+  };
 
   const customerReceiptQrText = [
     `=== eReceipt MoR Digital Fiscal Receipt ===`,
@@ -92,12 +136,17 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
     `Payment: ${receipt.paymentMethod}${receipt.paymentReference ? ` (${receipt.paymentReference})` : ''}`,
     `Status: CLEARED (MoR EIMS Verified)`,
     `Digital Signature: ${receipt.digitalSignature}`,
-    `Verify: ${verificationUrl}`,
+    `View Image: ${receiptImageViewerUrl}`,
   ]
     .filter(Boolean)
     .join('\n');
 
-  const qrValue = qrMode === 'info' ? customerReceiptQrText : verificationUrl;
+  const qrValue =
+    qrMode === 'image'
+      ? receiptImageViewerUrl
+      : qrMode === 'direct-image'
+      ? receiptDirectImageUrl
+      : customerReceiptQrText;
 
   const handleCopyLink = async () => {
     try {
@@ -197,6 +246,25 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             </span>
           </div>
 
+          <div className={styles.modalTabs}>
+            <button
+              type="button"
+              className={`${styles.modalTabBtn} ${activeTab === 'document' ? styles.modalTabBtnActive : ''}`}
+              onClick={() => setActiveTab('document')}
+            >
+              <FileText size={14} />
+              <span>Fiscal Document</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.modalTabBtn} ${activeTab === 'image' ? styles.modalTabBtnActive : ''}`}
+              onClick={() => setActiveTab('image')}
+            >
+              <ImageIcon size={14} />
+              <span>Receipt Image</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={onClose}
@@ -208,7 +276,58 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
         </div>
 
         <div className={styles.scrollArea}>
-          <div className={styles.receiptDoc}>
+          {activeTab === 'image' ? (
+            <div className={styles.imagePreviewWrapper}>
+              <div className={styles.imagePreviewToolbar}>
+                <div className={styles.imageThemeSelector}>
+                  <button
+                    type="button"
+                    className={`${styles.imageThemeBtn} ${imageTheme === 'modern' ? styles.imageThemeBtnActive : ''}`}
+                    onClick={() => setImageTheme('modern')}
+                  >
+                    Standard Invoice
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.imageThemeBtn} ${imageTheme === 'thermal' ? styles.imageThemeBtnActive : ''}`}
+                    onClick={() => setImageTheme('thermal')}
+                  >
+                    Thermal Slip (80mm)
+                  </button>
+                </div>
+
+                <div className={styles.imagePreviewActions}>
+                  <button
+                    type="button"
+                    onClick={handleDownloadPng}
+                    disabled={isDownloadingImage}
+                    className={styles.downloadPngBtn}
+                  >
+                    <Download size={14} />
+                    <span>{isDownloadingImage ? 'Generating PNG...' : 'Download PNG'}</span>
+                  </button>
+                  <a
+                    href={renderedReceiptImageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.openVectorBtn}
+                  >
+                    <ExternalLink size={14} />
+                    <span>Open Vector SVG</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className={styles.imageCanvas}>
+                <img
+                  src={renderedReceiptImageUrl}
+                  alt={`Official Electronic Receipt ${receipt.receiptNumber}`}
+                  className={styles.previewReceiptImg}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className={styles.receiptDoc}>
             {/* MoR Banner */}
             <div className={styles.morBanner}>
               <div className={styles.morLeft}>
@@ -427,19 +546,27 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <div className={styles.qrModeSelector}>
                     <button
                       type="button"
-                      className={`${styles.qrModeBtn} ${qrMode === 'info' ? styles.qrModeBtnActive : ''}`}
-                      onClick={() => setQrMode('info')}
-                      title="QR code encodes customer's full receipt information"
+                      className={`${styles.qrModeBtn} ${qrMode === 'image' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('image')}
+                      title="QR code opens customer's visual receipt image"
                     >
-                      Customer receipt info
+                      Receipt Image
                     </button>
                     <button
                       type="button"
-                      className={`${styles.qrModeBtn} ${qrMode === 'url' ? styles.qrModeBtnActive : ''}`}
-                      onClick={() => setQrMode('url')}
-                      title="QR code encodes online verification link"
+                      className={`${styles.qrModeBtn} ${qrMode === 'direct-image' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('direct-image')}
+                      title="QR code loads direct SVG vector receipt image"
                     >
-                      Web verify link
+                      Direct Image URL
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'info' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('info')}
+                      title="QR code encodes customer text summary"
+                    >
+                      Text Details
                     </button>
                   </div>
 
@@ -447,9 +574,11 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                     <ShieldCheck size={18} /> Official MoR-verified QR code
                   </p>
                   <p className={styles.qrCopy}>
-                    {qrMode === 'info'
-                      ? "Scan using any smartphone camera to immediately read customer receipt details, item breakdown, and fiscal clearance status."
-                      : "Scan to open the public Ministry of Revenues electronic invoice verification page directly in your mobile browser."}
+                    {qrMode === 'image'
+                      ? "Scan using any smartphone camera to immediately load and display the authentic visual receipt image on your phone."
+                      : qrMode === 'direct-image'
+                      ? "Scan to directly download or render the official vector SVG receipt image from the Ministry of Revenues server."
+                      : "Scan to read customer receipt details and fiscal clearance metadata in plain text format."}
                   </p>
                   <p className={styles.sigCode}>
                     Digital signature: {receipt.digitalSignature}
@@ -458,18 +587,29 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className={styles.modalFooter}>
-          <div className={styles.footerLeft}>
-            <button
-              type="button"
-              onClick={() => setLanguage((l) => (l === 'en' ? 'am' : 'en'))}
-              className={styles.actionBtn}
-            >
-              <Languages size={15} />
-              <span>{language === 'en' ? 'Show in አማርኛ' : 'Show in English'}</span>
-            </button>
+      <div className={styles.modalFooter}>
+        <div className={styles.footerLeft}>
+          <button
+            type="button"
+            onClick={handleDownloadPng}
+            disabled={isDownloadingImage}
+            className={styles.actionBtn}
+          >
+            <Download size={15} />
+            <span>{isDownloadingImage ? 'Generating PNG...' : 'Save image (.png)'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setLanguage((l) => (l === 'en' ? 'am' : 'en'))}
+            className={styles.actionBtn}
+          >
+            <Languages size={15} />
+            <span>{language === 'en' ? 'Show in አማርኛ' : 'Show in English'}</span>
+          </button>
 
             <button
               type="button"

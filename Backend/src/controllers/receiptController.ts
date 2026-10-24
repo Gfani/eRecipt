@@ -4,6 +4,7 @@ import { calculateTaxes } from '../services/taxCalculationService.js';
 import type { ReceiptDraft } from '../models/types.js';
 import { applicationStorage } from '../features/merchant-registration/storage.js';
 import { ForbiddenError } from '../common/errors.js';
+import { ReceiptImageService } from '../services/receiptImageService.js';
 
 export class ReceiptController {
   /**
@@ -191,6 +192,55 @@ export class ReceiptController {
     } catch (err) {
       console.error('Error verifying receipt:', err);
       res.status(500).json({ error: 'Internal server error while verifying receipt.' });
+    }
+  }
+
+  /**
+   * GET /api/receipts/:irn/image
+   * Serves receipt rendered directly as a vector SVG image
+   */
+  public static async getImage(req: Request, res: Response): Promise<void> {
+    try {
+      const rawParam = Array.isArray(req.params.irn) ? req.params.irn[0] : req.params.irn;
+      const cleanIrn = decodeURIComponent(rawParam || '').trim();
+
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Content-Disposition', `inline; filename="receipt-${cleanIrn || 'eims'}.svg"`);
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+
+      if (!cleanIrn) {
+        res.status(400).send(ReceiptImageService.generateNotFoundSvg('INVALID_IDENTIFIER'));
+        return;
+      }
+
+      // 1. Lookup by IRN, 2. Lookup by ID, 3. Lookup by receiptNumber in database
+      let receipt = ReceiptService.getReceiptByIrn(cleanIrn) || ReceiptService.getReceiptById(cleanIrn);
+      if (!receipt) {
+        const list = ReceiptService.getReceipts({ search: cleanIrn, limit: 1 });
+        if (list.receipts.length > 0) {
+          receipt = list.receipts[0];
+        }
+      }
+
+      if (!receipt) {
+        const notFoundSvg = ReceiptImageService.generateNotFoundSvg(cleanIrn);
+        res.status(404).send(notFoundSvg);
+        return;
+      }
+
+      const theme = req.query.theme === 'thermal' ? 'thermal' : 'official';
+      const lang = req.query.lang === 'am' ? 'am' : 'en';
+
+      const svg = ReceiptImageService.generateReceiptSvg(receipt, {
+        theme,
+        language: lang,
+      });
+
+      res.status(200).send(svg);
+    } catch (err) {
+      console.error('Error generating receipt image:', err);
+      res.status(500).setHeader('Content-Type', 'image/svg+xml').send(ReceiptImageService.generateNotFoundSvg('ERROR'));
     }
   }
 }

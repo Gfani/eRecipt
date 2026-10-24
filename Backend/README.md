@@ -35,14 +35,20 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
   Lists issued receipts with optional query filters: `?search=...`, `?documentType=...`, `?limit=...`, `?offset=...`.
 - **`GET /api/receipts/:id`**
   Fetches receipt by internal ID, IRN, or receipt number.
-- **`GET /api/receipts/verify/:irn`**
-  Public verification endpoint matching MoR QR verification scanning.
+### 3. Visual Receipt Image Generation
+- **`GET /api/receipts/:irn/image`** (also `GET /api/receipts/image/:irn`)
+  Generates and returns an authentic, standalone vector graphic receipt image (`image/svg+xml`) rendered in real time from the cleared fiscal database.
+  - **Query Parameters**:
+    - `theme`: `modern` (default standard invoice layout) or `thermal` (80mm POS register receipt layout)
+    - `lang`: `en` (English) or `am` (Amharic / አማርኛ)
+  - **Headers**: `Content-Type: image/svg+xml`, `Content-Disposition: inline; filename="receipt-...svg"`
+  - **Features**: Features MoR seal, official EIMS clearance status pill, itemized grid, tax breakdown, and cryptographic fiscal digital signature stamp.
 
-### 3. Taxpayer TIN Verification
+### 4. Taxpayer TIN Verification
 - **`POST /api/tin/verify`** (or `GET /api/tin/:tin`)
   Verifies 10-digit Ethiopian TIN against the MoR registry.
 
-### 4. Products Catalog
+### 5. Products Catalog
 - **`GET /api/products`**
   Returns standard products with default pricing, UOM, VAT categories, and excise tax rates.
 
