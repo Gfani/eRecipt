@@ -62,7 +62,7 @@ The system has two primary interfaces:
 - Assign a unique identifier to each receipt.
 - Generate QR codes for receipt verification.
 - Store and retrieve receipt records.
-- Display receipt details, including merchant information, items, quantities, totals, and applicable taxes.
+- Display receipt details, including merchant information, items, quantities, totals, applicable taxes, and customer identification (mandatory 10-digit TIN for B2B; optional TIN and Fayda FIN for B2C).
 - Track receipt status and retain appropriate records of voided receipts.
 
 ### 4. Receipt Verification
