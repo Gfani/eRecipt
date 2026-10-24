@@ -26,7 +26,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       />
 
       <div className={styles.mainWrapper}>
-        <Topbar onToggleMobileMenu={() => setMobileNavOpen(!mobileNavOpen)} />
+        <Topbar
+          onToggleMobileMenu={() => setMobileNavOpen(!mobileNavOpen)}
+          onNavigate={onNavigate}
+        />
         <main className={styles.contentArea}>{children}</main>
       </div>
     </div>

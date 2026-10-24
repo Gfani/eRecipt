@@ -700,6 +700,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   Merchant Sign In
                 </a>
               </li>
+              <li>
+                <a
+                  href="/admin"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('admin');
+                  }}
+                >
+                  Ministry of Revenues Admin
+                </a>
+              </li>
               <li><a href="/guide">Verification Guide</a></li>
             </ul>
           </div>

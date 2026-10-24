@@ -76,12 +76,20 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   };
 
   const handleSidebarNavigate = (screen: string) => {
-    if (screen === 'registration') {
+    if (screen === 'registration' || screen === 'register') {
       onNavigate?.('registration');
       return;
     }
     if (screen === 'admin') {
       onNavigate?.('admin');
+      return;
+    }
+    if (screen === 'signin' || screen === 'login' || screen === 'signout' || screen === 'logout') {
+      onNavigate?.('signin');
+      return;
+    }
+    if (screen === 'landing' || screen === 'home') {
+      onNavigate?.('landing');
       return;
     }
     if (screen === 'receipt-issuance') {

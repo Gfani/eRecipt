@@ -6,7 +6,7 @@ import {
   ReceiptText,
   Database,
   Settings,
-  UserPlus,
+  LogOut,
   X,
   ChevronDown,
 } from 'lucide-react';
@@ -119,12 +119,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="button"
             className={styles.navItem}
             onClick={() => {
-              onNavigate?.('registration');
+              localStorage.removeItem('ereceipt_token');
+              localStorage.removeItem('merchant_token');
+              localStorage.removeItem('ereceipt_merchant');
+              localStorage.removeItem('merchant_user');
+              onNavigate?.('signin');
               onClose();
             }}
           >
-            <UserPlus size={18} />
-            <span>Merchant registration</span>
+            <LogOut size={18} />
+            <span>Sign out</span>
           </button>
         </div>
       </aside>
