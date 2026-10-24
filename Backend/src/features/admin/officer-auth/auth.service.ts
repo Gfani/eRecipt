@@ -376,6 +376,7 @@ export class OfficerAuthService {
    */
   async getOfficerFromToken(token: string): Promise<OfficerUser | null> {
     if (!token) return null;
+    this.ensureLoaded();
 
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
     const session = activeSessions.get(cleanToken);
@@ -397,6 +398,9 @@ export class OfficerAuthService {
    * Logout by invalidating session token
    */
   async logout(token: string): Promise<boolean> {
+    if (!token) return false;
+    this.ensureLoaded();
+
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
     const result = activeSessions.delete(cleanToken);
     this.saveSessionsToFile();
