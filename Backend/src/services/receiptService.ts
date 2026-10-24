@@ -49,16 +49,17 @@ export class ReceiptService {
       draft.designatedWithholdingAgent
     );
 
-    // High value B2C customer identity check (>= 10,000 ETB)
-    if (isB2C && taxResults.total >= 10000) {
-      const hasName = Boolean(draft.customerName?.trim());
-      const hasTinOrFin =
-        draft.customerTin?.length === 10 || Boolean(draft.customerNationalId?.trim());
-      if (!hasName || !hasTinOrFin) {
-        errors.push(
-          'High-value sales (>= 10,000 ETB) require customer name and 10-digit TIN or Fayda National ID (FIN).'
-        );
+    // Customer identification statutory rules:
+    // 1. For B2B transactions: 10-digit TIN is mandatory for registered business buyers
+    if (isB2B) {
+      if (!draft.customerTin?.trim() || draft.customerTin.trim().length !== 10) {
+        errors.push('B2B transactions require a valid 10-digit customer TIN.');
       }
+    }
+
+    // 2. For B2C transactions: TIN and Fayda FIN are both optional for walk-in consumers
+    if (isB2C && draft.customerTin?.trim() && draft.customerTin.trim().length !== 10) {
+      errors.push('If provided, customer TIN must be exactly 10 digits.');
     }
 
     if (errors.length > 0) {
