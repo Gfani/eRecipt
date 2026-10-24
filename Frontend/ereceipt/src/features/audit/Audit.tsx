@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import AuditFilterBar from './components/AuditFilterBar';
 import MonthlyRecordsTable from './components/MonthlyRecordsTable';
 import { initialMonthlyRecords } from './types';
-import { ClearedInvoiceDocument } from '../tax-invoice-preview/components/ClearedInvoiceDocument';
+import { TaxInvoicePreview } from '../tax-invoice-preview';
+import { OverviewDashboard } from '../dashboard';
+import { TransactionsLedger } from '../transactions';
 import { SettingsVerticalNav, type SettingsTabId } from '../settings/components/SettingsVerticalNav';
 import { BusinessProfileTab } from '../settings/components/tabs/BusinessProfileTab';
 import { ReceiptIssuanceContent } from '../receipt-issuance';
@@ -26,9 +28,15 @@ function downloadCsv(filename: string, rows: string[][]) {
   URL.revokeObjectURL(url);
 }
 
-export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigate }) => {
+export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNavigate }) => {
   const [activeScreen, setActiveScreen] = useState<string>(initialScreen);
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('profile');
+
+  useEffect(() => {
+    if (initialScreen) {
+      setActiveScreen(initialScreen);
+    }
+  }, [initialScreen]);
 
   // Audit state
   const [auditStartDate, setAuditStartDate] = useState('2026-01-01');
@@ -128,21 +136,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
       )}
 
       {activeScreen === 'receipt' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Ministry of Revenue · EIMS Compliance</p>
-              <h1 className={styles.title}>Tax Invoice Document Preview</h1>
-              <p className={styles.copy}>
-                Official fiscal electronic tax invoice with Ministry of Revenue verified digital signature and QR clearance code.
-              </p>
-            </div>
-          </div>
-
-          <div style={{ maxWidth: '900px', margin: '20px auto 0 auto' }}>
-            <ClearedInvoiceDocument onPrint={() => window.print()} />
-          </div>
-        </>
+        <TaxInvoicePreview onNavigate={handleSidebarNavigate} />
       )}
 
       {activeScreen === 'settings' && (
@@ -229,40 +223,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
       )}
 
       {activeScreen === 'dashboard' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Merchant Overview</p>
-              <h1 className={styles.title}>Overview</h1>
-              <p className={styles.copy}>Summary of current fiscal activities and MoR API connectivity.</p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #DDE3DE', borderRadius: '12px', padding: '32px' }}>
-            <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
-              Abeba Market Dashboard
-            </h2>
-            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#526059' }}>
-              Your electronic tax register is online and connected to Ministry of Revenue real-time clearance.
-            </p>
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setActiveScreen('receipt')}
-                className="btn-primary"
-              >
-                Preview Latest Tax Invoice
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveScreen('audit')}
-                className="btn-primary"
-                style={{ backgroundColor: '#123D2C', borderColor: '#123D2C' }}
-              >
-                Go to Monthly Audit
-              </button>
-            </div>
-          </div>
-        </>
+        <OverviewDashboard onNavigate={handleSidebarNavigate} />
       )}
 
       {activeScreen === 'pos' && (
@@ -270,28 +231,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
       )}
 
       {activeScreen === 'sales' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Sales Ledger</p>
-              <h1 className={styles.title}>Transactions</h1>
-              <p className={styles.copy}>Search and filter recorded sales transactions.</p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #DDE3DE', borderRadius: '12px', padding: '32px' }}>
-            <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
-              All cleared receipts are recorded cryptographically and audited monthly.
-            </p>
-            <button
-              type="button"
-              onClick={() => setActiveScreen('audit')}
-              className="btn-primary"
-              style={{ marginTop: '16px' }}
-            >
-              Calculate Monthly Tax
-            </button>
-          </div>
-        </>
+        <TransactionsLedger />
       )}
     </DashboardLayout>
   );

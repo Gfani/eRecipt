@@ -17,7 +17,16 @@ function App() {
     if (viewParam === 'registration') return 'registration';
     if (viewParam === 'admin') return 'admin';
     if (viewParam === 'receipt-issuance' || viewParam === 'pos') return 'receipt-issuance';
-    if (viewParam === 'merchant' || viewParam === 'audit' || viewParam === 'settings' || viewParam === 'invoice')
+    if (
+      viewParam === 'merchant' ||
+      viewParam === 'audit' ||
+      viewParam === 'settings' ||
+      viewParam === 'invoice' ||
+      viewParam === 'dashboard' ||
+      viewParam === 'sales' ||
+      viewParam === 'transactions' ||
+      viewParam === 'overview'
+    )
       return 'merchant';
     if (viewParam === 'landing' || viewParam === 'home') return 'landing';
     return 'landing';
@@ -26,9 +35,11 @@ function App() {
   const getInitialMerchantScreen = (): string => {
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get('view');
-    if (viewParam === 'invoice') return 'receipt';
+    if (viewParam === 'invoice' || viewParam === 'receipt') return 'receipt';
     if (viewParam === 'settings') return 'settings';
-    return 'audit';
+    if (viewParam === 'sales' || viewParam === 'transactions') return 'sales';
+    if (viewParam === 'audit') return 'audit';
+    return 'dashboard';
   };
 
   const [currentView, setCurrentView] = useState<AppView>(getInitialView);
@@ -94,7 +105,7 @@ function App() {
           className={`switcher-btn ${currentView === 'merchant' ? 'switcher-btn-active' : ''}`}
           onClick={() => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
         >
           Merchant Portal
@@ -116,18 +127,18 @@ function App() {
           onScanReceiptClick={() => setCurrentView('receipt-issuance')}
           onMerchantPortalClick={() => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
         />
       ) : currentView === 'signin' || currentView === 'login' ? (
         <LoginForm
           onSuccess={() => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
           onLoginSuccess={(_merchant) => {
             setCurrentView('merchant');
-            setMerchantScreen('audit');
+            setMerchantScreen('dashboard');
           }}
           onRegisterClick={() => setCurrentView('registration')}
           onNavigateToRegister={() => setCurrentView('registration')}
