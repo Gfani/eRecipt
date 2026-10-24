@@ -83,6 +83,17 @@ export class AuthService {
         businessName: app.sellerLegalName,
         tradeName: app.tradeName,
         status: app.status,
+        phoneNumber: app.phoneNumber || "",
+        email: app.email || "",
+        fullName: app.fullName || "",
+        businessLicenseNumber: app.businessLicenseNumber || "",
+        city: app.city || "",
+        subCity: app.subCity || "",
+        buildingName: app.buildingName || "",
+        floor: app.floor || "",
+        gpsLocation: app.gpsLocation || "",
+        referenceNumber: app.referenceNumber || "",
+        submissionDate: app.submissionDate || "",
       },
     };
   }

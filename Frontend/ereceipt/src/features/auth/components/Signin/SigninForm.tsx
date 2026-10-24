@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Logo } from '../../../../components/ui/Logo/Logo';
-import { saveStoredMerchantProfile } from '../../../merchant-registration/profileStorage';
+import {
+  saveStoredMerchantProfile,
+  getStoredMerchantProfile,
+} from '../../../merchant-registration/profileStorage';
 import { syncMerchantReceipts } from '../../../../services/merchantDataStore';
 import styles from './SigninForm.module.css';
 
@@ -95,24 +98,40 @@ export const LoginForm: React.FC<SigninFormProps> = ({
           sessionStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
         }
 
-        // Set authoritative active profile for this merchant to ensure isolation
+        // Set authoritative active profile for this merchant to ensure isolation and retain registered phone number
+        const currentStored = getStoredMerchantProfile();
+        const resolvedPhone =
+          merchant.phoneNumber ||
+          currentStored.phoneNumber ||
+          localStorage.getItem(`ereceipt_phone_${merchant.tin}`) ||
+          '';
+        const resolvedEmail =
+          merchant.email ||
+          currentStored.email ||
+          '';
+
+        if (resolvedPhone && merchant.tin) {
+          localStorage.setItem(`ereceipt_phone_${merchant.tin}`, resolvedPhone);
+        }
+
         saveStoredMerchantProfile({
-          fullName: merchant.fullName || merchant.businessName || '',
-          phoneNumber: merchant.phoneNumber || '',
-          sellerLegalName: merchant.businessName || merchant.sellerLegalName || '',
-          tradeName: merchant.tradeName || merchant.businessName || '',
+          fullName: merchant.fullName || currentStored.fullName || merchant.businessName || '',
+          phoneNumber: resolvedPhone,
+          email: resolvedEmail,
+          sellerLegalName: merchant.businessName || merchant.sellerLegalName || currentStored.sellerLegalName || '',
+          tradeName: merchant.tradeName || merchant.businessName || currentStored.tradeName || '',
           tin: merchant.tin,
-          businessLicenseNumber: merchant.businessLicenseNumber || '',
-          uploadedFileName: '',
-          uploadedFileSize: '',
-          city: merchant.city || '',
-          subCity: merchant.subCity || '',
-          buildingName: merchant.buildingName || '',
-          floor: merchant.floor || '',
-          gpsLocation: merchant.gpsLocation || '',
-          referenceNumber: merchant.referenceNumber || '',
-          status: merchant.status || 'Approved',
-          registeredAt: merchant.registeredAt || new Date().toISOString(),
+          businessLicenseNumber: merchant.businessLicenseNumber || currentStored.businessLicenseNumber || '',
+          uploadedFileName: currentStored.uploadedFileName || '',
+          uploadedFileSize: currentStored.uploadedFileSize || '',
+          city: merchant.city || currentStored.city || '',
+          subCity: merchant.subCity || currentStored.subCity || '',
+          buildingName: merchant.buildingName || currentStored.buildingName || '',
+          floor: merchant.floor || currentStored.floor || '',
+          gpsLocation: merchant.gpsLocation || currentStored.gpsLocation || '',
+          referenceNumber: merchant.referenceNumber || currentStored.referenceNumber || '',
+          status: merchant.status || currentStored.status || 'Approved',
+          registeredAt: merchant.registeredAt || currentStored.registeredAt || new Date().toISOString(),
         });
 
         // Sync real receipts from backend for this merchant (and ONLY this merchant)

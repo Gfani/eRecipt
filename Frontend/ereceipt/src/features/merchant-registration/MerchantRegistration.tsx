@@ -186,6 +186,31 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
     };
     saveStoredMerchantProfile(profile);
 
+    // Explicitly persist phone number and session so the phone number entered is never lost
+    if (formData.tin && formData.phoneNumber) {
+      window.localStorage.setItem(`ereceipt_phone_${formData.tin}`, formData.phoneNumber);
+    }
+    const registeredSession = {
+      id: assignedRef,
+      role: 'merchant',
+      tin: formData.tin,
+      businessName: formData.sellerLegalName,
+      tradeName: formData.tradeName,
+      fullName: formData.fullName,
+      phoneNumber: formData.phoneNumber,
+      email: formData.email.trim(),
+      businessLicenseNumber: formData.businessLicenseNumber,
+      city: formData.city,
+      subCity: formData.subCity,
+      buildingName: formData.buildingName,
+      floor: formData.floor,
+      gpsLocation: formData.gpsLocation,
+      referenceNumber: assignedRef,
+      status: 'Pending',
+    };
+    window.localStorage.setItem('ereceipt_merchant', JSON.stringify(registeredSession));
+    window.localStorage.setItem('merchant_user', JSON.stringify(registeredSession));
+
     setSubmittedRef(assignedRef);
     setIsSubmitted(true);
     setIsSubmitting(false);
