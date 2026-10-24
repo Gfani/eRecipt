@@ -111,6 +111,65 @@ Verification should retrieve information from the system rather than relying sol
 
 Access to administrative operations must be restricted to authorized users.
 
+## Docker Deployment
+
+The entire eReceipt platform is fully containerized with **Docker** and **Docker Compose**, orchestrating PostgreSQL, the Express API backend, and the Nginx-powered React SPA frontend.
+
+### Architecture Overview
+
+```
+                      ┌──────────────────────────────────────────────┐
+                      │              Docker Host                     │
+                      │                                              │
+                      │   ┌──────────────────────────────────────┐   │
+   Browser :80 / :5173│──▶│  Frontend Container (Nginx + React)  │   │
+                      │   └──────────────────┬───────────────────┘   │
+                      │                      │ /api/ reverse proxy   │
+                      │                      ▼                       │
+                      │   ┌──────────────────────────────────────┐   │
+   API Client :5000   │──▶│      Backend Container (Express)     │   │
+                      │   └──────────────────┬───────────────────┘   │
+                      │                      │ SQL connection        │
+                      │                      ▼                       │
+                      │   ┌──────────────────────────────────────┐   │
+   PostgreSQL :5432   │──▶│      PostgreSQL 16 Database          │   │
+                      │   │  (Auto-initialized Schema & Seed)    │   │
+                      │   └──────────────────────────────────────┘   │
+                      └──────────────────────────────────────────────┘
+```
+
+### Quick Start with Docker Compose
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/gelila0913/eReceipt.git
+   cd eReceipt
+   ```
+
+2. **Configure environment variables (optional):**
+   ```bash
+   cp .env.docker.example .env
+   ```
+
+3. **Build and start all services:**
+   ```bash
+   docker compose up --build -d
+   ```
+
+4. **Access the application:**
+   - **Frontend (Web Application):** [http://localhost](http://localhost) or [http://localhost:5173](http://localhost:5173)
+   - **Backend API:** [http://localhost:5000/api](http://localhost:5000/api)
+   - **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
+   - **PostgreSQL Database:** `localhost:5432` (`db: ereceipt`, `user: postgres`, `pass: postgres`)
+
+5. **Stop containers:**
+   ```bash
+   docker compose down
+   ```
+   *(To wipe database volumes and re-seed from scratch, use `docker compose down -v`)*
+
+---
+
 ## Technology Stack
 
 The following technologies should be updated to reflect the tools actually selected and configured in the repository.
