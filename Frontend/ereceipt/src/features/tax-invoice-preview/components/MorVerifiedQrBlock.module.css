@@ -64,14 +64,14 @@
 .irnHeading {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-text-heading, #12304a);
   margin: 0;
 }
 
 .irnValue {
   font-family: var(--font-family-mono, monospace);
   font-weight: 700;
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0d9488);
 }
 
 .metadataGrid {
@@ -131,7 +131,7 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0d9488);
   text-decoration: none;
   font-weight: 500;
   margin-top: 2px;

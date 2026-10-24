@@ -56,7 +56,7 @@ registrationRouter.get(
   (req, res) => registrationController.getStatus(req, res)
 );
 
-// 5. Get all applications (for Revenue Admin portal review)
+// 5. Get all applications (strictly restricted to Revenue Officers & Admins)
 registrationRouter.get(
   '/applications',
   requireOfficerSession,

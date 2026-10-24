@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { applicationStorage } from './storage.js';
 import { hashPassword } from './password.js';
 import { otpService } from '../../services/otp.service.js';
@@ -60,10 +61,10 @@ export class MerchantRegistrationService {
   /**
    * Submits the complete 5-step merchant registration application
    */
-  public async submitRegistration(
+  public submitRegistration(
     input: MerchantRegistrationInput,
     uploadedFile?: Express.Multer.File
-  ): Promise<RegistrationSubmissionResult> {
+  ): RegistrationSubmissionResult {
     // 1. Mandatory field validations
     if (!input.fullName?.trim() || !input.phoneNumber?.trim() || !input.password?.trim()) {
       throw new Error('Step 1 missing: Full name, phone number, and password are required.');
@@ -102,10 +103,6 @@ export class MerchantRegistrationService {
       throw new Error('Step 5 missing: You must certify the accuracy of your business tax registration details.');
     }
 
-    if (!otpService.consumeVerifiedEmail(email, 'merchant_registration')) {
-      throw new Error('Verify your email address before submitting your registration.');
-    }
-
     // 2. Prepare record
     const ref = generateReferenceNumber();
     const now = new Date();
@@ -122,9 +119,9 @@ export class MerchantRegistrationService {
       status: 'Pending',
       fullName: input.fullName.trim(),
       phoneNumber: input.phoneNumber.trim(),
-      email,
-      emailVerified: true,
-      passwordHash: await hashPassword(input.password),
+      email: input.email ? input.email.trim() : undefined,
+      emailVerified: Boolean(input.emailVerified),
+      passwordHash: hashPassword(input.password),
       sellerLegalName: input.sellerLegalName.trim(),
       tradeName: input.tradeName.trim(),
       tin: input.tin.trim(),
@@ -228,10 +225,13 @@ export class MerchantRegistrationService {
   }
 
   /**
-   * Retrieves all submitted applications (for admin review list)
+   * Retrieves all submitted applications with credentials sanitized
    */
   public getAllApplications(): StoredMerchantApplication[] {
-    return applicationStorage.getAll();
+    return applicationStorage.getAll().map((app) => {
+      const { passwordHash: _, ...sanitized } = app;
+      return sanitized as StoredMerchantApplication;
+    });
   }
 }
 

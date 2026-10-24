@@ -39,7 +39,7 @@
 .docTitle {
   font-size: 24px;
   font-weight: 700;
-  color: var(--color-navy, #123D2C);
+  color: var(--color-navy, #12304a);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -120,14 +120,14 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0d9488);
   margin: 0;
 }
 
 .partyName {
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-text-heading, #12304a);
   margin: 0;
 }
 
@@ -164,8 +164,8 @@
 }
 
 .table th {
-  background-color: var(--color-bg-alt, #ECEEE9);
-  color: var(--color-navy, #123D2C);
+  background-color: var(--color-bg-alt, #f1f5f9);
+  color: var(--color-navy, #12304a);
   font-weight: 600;
   padding: 12px 14px;
   border-bottom: 2px solid var(--color-border-subtle, #e2e8f0);
@@ -201,11 +201,11 @@
 .totalsInWords {
   background-color: var(--color-bg-subtle, #f8fafc);
   border: 1px solid var(--color-border-subtle, #e2e8f0);
-  border-left: 4px solid var(--color-accent, #176B4D);
+  border-left: 4px solid var(--color-primary, #0d9488);
   border-radius: var(--radius-sm, 6px);
   padding: 12px 16px;
   font-size: 13px;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-text-heading, #12304a);
 }
 
 .wordsLabel {
@@ -260,14 +260,14 @@
   align-items: center;
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-navy, #123D2C);
+  color: var(--color-navy, #12304a);
   padding-top: 10px;
   margin-top: 4px;
-  border-top: 2px solid var(--color-border-subtle, #DDE3DE);
+  border-top: 2px solid var(--color-border-subtle, #e2e8f0);
 }
 
 .grandTotalAmount {
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0d9488);
   font-family: var(--font-family-mono, monospace);
   font-size: 17px;
 }

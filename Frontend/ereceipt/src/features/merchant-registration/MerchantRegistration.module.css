@@ -14,14 +14,14 @@
 
 .progressTrack {
   height: 6px;
-  background-color: var(--color-border-subtle, #DDE3DE);
+  background-color: var(--color-border-subtle, #E2E8F0);
   border-radius: var(--radius-full, 999px);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background-color: var(--color-accent, #176B4D);
+  background-color: var(--color-primary, #0D9488);
   border-radius: var(--radius-full, 999px);
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -35,7 +35,7 @@
   font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.035em;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
   line-height: 1.2;
 }
 
@@ -43,7 +43,7 @@
   margin-top: 8px;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--color-text-secondary, #526059);
+  color: var(--color-text-muted, #64748B);
 }
 
 .formContent {
@@ -74,7 +74,7 @@
   background: transparent;
   border: none;
   font-weight: 600;
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0D9488);
   cursor: pointer;
   padding: 0 4px;
   text-decoration: none;
@@ -82,6 +82,6 @@
 }
 
 .signInLink:hover {
-  color: var(--color-primary, #123D2C);
+  color: var(--color-primary-hover, #0A7F75);
   text-decoration: underline;
 }

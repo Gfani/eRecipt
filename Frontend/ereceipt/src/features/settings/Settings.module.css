@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background-color: var(--color-bg-body, #F7F5EF);
+  background-color: #F8FAFC;
   padding: 32px 24px 80px 24px;
   max-width: 1280px;
   margin: 0 auto;
@@ -8,7 +8,7 @@
 
 .header {
   margin-bottom: 28px;
-  border-bottom: 1px solid var(--color-border-subtle, #DDE3DE);
+  border-bottom: 1px solid #E2E8F0;
   padding-bottom: 20px;
 }
 
@@ -18,7 +18,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-accent, #176B4D);
+  color: #0D9488;
   margin-bottom: 4px;
 }
 
@@ -26,14 +26,14 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  color: var(--color-text-heading, #17201B);
+  color: #0F172A;
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   margin: 6px 0 0 0;
   font-size: 14px;
-  color: var(--color-text-secondary, #526059);
+  color: #64748B;
 }
 
 .contentGrid {
@@ -60,7 +60,7 @@
 
 .placeholderCard {
   background-color: #FFFFFF;
-  border: 1px solid var(--color-border-subtle, #DDE3DE);
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -70,12 +70,12 @@
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 700;
-  color: var(--color-text-heading, #17201B);
+  color: #0F172A;
 }
 
 .placeholderCard p {
   margin: 0;
   font-size: 14px;
-  color: var(--color-text-secondary, #526059);
+  color: #64748B;
   line-height: 1.6;
 }

@@ -30,7 +30,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-text-heading, #12304a);
 }
 
 .sectionSubtitle {
@@ -80,8 +80,8 @@
 }
 
 .input:focus {
-  border-color: var(--color-border-focus, #176B4D);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(18, 61, 44, 0.15));
+  border-color: var(--color-primary, #0d9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.2));
 }
 
 .inputError {
@@ -112,7 +112,7 @@
   justify-content: flex-end;
   gap: 12px;
   padding-top: 16px;
-  border-top: 1px solid var(--color-border-subtle, #DDE3DE);
+  border-top: 1px solid var(--color-border-subtle, #e2e8f0);
 }
 
 .saveButton {
@@ -123,8 +123,8 @@
   min-height: 44px;
   padding: 10px 24px;
   border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-primary, #123D2C);
-  background-color: var(--color-primary, #123D2C);
+  border: 1px solid var(--color-primary, #0d9488);
+  background-color: var(--color-primary, #0d9488);
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;

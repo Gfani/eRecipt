@@ -12,10 +12,8 @@ export interface AuthenticatedUser {
   role: UserRole;
   identifier: string; // TIN for merchant, username for officer
   name: string;
-}
-
-function isUserRole(value: string): value is UserRole {
-  return value === "merchant" || value === "officer" || value === "admin";
+  tin?: string;
+  tradeName?: string;
 }
 
 declare global {
@@ -28,43 +26,31 @@ declare global {
 
 /**
  * Authentication check middleware.
- * Supports Bearer token / header-based authentication for dev & demo flexibility.
+ * Strictly verifies cryptographic Bearer JWT tokens.
  */
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
-  const devRoleHeader = req.headers["x-user-role"];
-  const devIdHeader = req.headers["x-user-id"];
-
-  if (!authHeader && (devRoleHeader !== undefined || devIdHeader !== undefined)) {
-    if (config.nodeEnv !== "development") {
-      throw new UnauthorizedError("Development authentication headers are not allowed.");
-    }
-    if (
-      typeof devRoleHeader !== "string" ||
-      !isUserRole(devRoleHeader)
-    ) {
-      throw new UnauthorizedError("Invalid development user role.");
-    }
-
-    req.user = {
-      id: typeof devIdHeader === "string" ? devIdHeader : "dev-user-1",
-      role: devRoleHeader,
-      identifier: devRoleHeader === "merchant" ? "0012847391" : "officer.demo",
-      name: devRoleHeader === "merchant" ? "Abeba Market" : "Revenue Officer Demo",
-    };
-    return next();
-  }
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new UnauthorizedError("Authentication token or credentials required.");
+    throw new UnauthorizedError("Authentication token is required. Format: Bearer <token>");
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1]?.trim();
   if (!token) {
     throw new UnauthorizedError("Invalid authorization format.");
   }
 
-  req.user = verifyAuthToken(token);
+  const payload = verifyJwt(token);
+
+  req.user = {
+    id: payload.sub,
+    role: payload.role as UserRole,
+    identifier: payload.identifier || payload.tin || payload.username || payload.sub,
+    name: payload.name,
+    tin: payload.tin,
+    tradeName: payload.tradeName,
+  };
+
   next();
 }
 
