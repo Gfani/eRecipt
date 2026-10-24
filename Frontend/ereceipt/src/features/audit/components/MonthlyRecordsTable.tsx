@@ -55,7 +55,7 @@ export const MonthlyRecordsTable: React.FC<MonthlyRecordsTableProps> = ({
                   <div className={styles.emptyState}>
                     <CalendarDays size={32} className={styles.emptyIcon} />
                     <p className={styles.emptyTitle}>No monthly records in this date range</p>
-                    <p className={styles.emptyCopy}>Choose a different start and end date.</p>
+                    <p className={styles.emptyCopy}>Transactions cleared by your merchant will automatically appear here.</p>
                   </div>
                 </td>
               </tr>

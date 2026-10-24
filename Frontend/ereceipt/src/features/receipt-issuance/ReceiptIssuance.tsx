@@ -26,6 +26,8 @@ import {
   lineVat,
 } from './types';
 import { verifyTinApi, issueReceiptApi, checkBackendHealth } from './api';
+import { getStoredMerchantProfile } from '../merchant-registration';
+import { saveMerchantReceipt } from '../../services/merchantDataStore';
 import styles from './ReceiptIssuance.module.css';
 
 interface ReceiptIssuanceProps {
@@ -274,7 +276,16 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
 
     setIsSubmitting(true);
 
+    const profile = getStoredMerchantProfile();
+    const merchantTin = profile.tin || '0987654321';
+
     const draftPayload = {
+      merchantTin,
+      merchantName: profile.tradeName || profile.sellerLegalName || 'Registered Merchant',
+      merchantLegalName: profile.sellerLegalName || profile.tradeName,
+      merchantTradeName: profile.tradeName || profile.sellerLegalName,
+      merchantAddress: [profile.buildingName, profile.subCity, profile.city].filter(Boolean).join(', ') || 'Addis Ababa, Ethiopia',
+      cashierName: profile.fullName || 'Cashier / Operator',
       documentType,
       transactionMode,
       customerName: buyer.name || 'Walk-in customer',
@@ -301,6 +312,18 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
       const clearedReceipt = await issueReceiptApi(draftPayload);
       setIsSubmitting(false);
       setIssuedReceipt(clearedReceipt);
+
+      // Persist in merchant scoped store
+      saveMerchantReceipt(merchantTin, {
+        ...clearedReceipt,
+        merchantTin,
+        merchantName: draftPayload.merchantName,
+        merchantLegalName: draftPayload.merchantLegalName,
+        merchantTradeName: draftPayload.merchantTradeName,
+        merchantAddress: draftPayload.merchantAddress,
+        cashierName: draftPayload.cashierName,
+      } as any);
+
       showToast('MoR EIMS Clearance confirmed (HTTP 200). Receipt issued.');
     } catch {
       // Fallback local clearance ensures uninterrupted POS uptime
@@ -311,6 +334,18 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
       };
       setIsSubmitting(false);
       setIssuedReceipt(finalReceipt);
+
+      // Persist in merchant scoped store
+      saveMerchantReceipt(merchantTin, {
+        ...finalReceipt,
+        merchantTin,
+        merchantName: draftPayload.merchantName,
+        merchantLegalName: draftPayload.merchantLegalName,
+        merchantTradeName: draftPayload.merchantTradeName,
+        merchantAddress: draftPayload.merchantAddress,
+        cashierName: draftPayload.cashierName,
+      } as any);
+
       showToast('MoR EIMS Clearance confirmed (HTTP 200). Receipt issued.');
     }
   };

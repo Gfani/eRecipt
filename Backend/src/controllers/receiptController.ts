@@ -93,7 +93,7 @@ export class ReceiptController {
       const result = ReceiptService.getReceipts({
         search: typeof search === 'string' ? search : undefined,
         documentType: typeof documentType === 'string' ? documentType : undefined,
-        merchantTin: req.user?.role === 'merchant' ? req.user.identifier : undefined,
+        merchantTin: req.user?.role === 'merchant' ? req.user.identifier : (req.query.merchantTin as string | undefined),
         limit: limit ? parseInt(limit as string, 10) : 50,
         offset: offset ? parseInt(offset as string, 10) : 0,
       });

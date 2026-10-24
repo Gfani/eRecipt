@@ -1,147 +1,48 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Download, Eye, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Download, Eye, X, FileText, PlusCircle } from 'lucide-react';
+import { getStoredMerchantProfile } from '../merchant-registration';
+import {
+  getMerchantMonthlyLedger,
+  type MonthlyLedgerRecord,
+} from '../../services/merchantDataStore';
 import styles from './TransactionsLedger.module.css';
 
-interface MonthlyTransactionRecord {
-  id: string;
-  month: string;
-  year: number;
-  totalIncome: number;
-  totalTax: number;
-  expenses: number;
-  invoicesCount: number;
-  vatStandard: number;
-  withholdingTax: number;
+interface TransactionsLedgerProps {
+  onNavigate?: (screen: string) => void;
 }
 
-const SEED_RECORDS: MonthlyTransactionRecord[] = [
-  {
-    id: 'rec-2026-10',
-    month: 'October',
-    year: 2026,
-    totalIncome: 1482500.0,
-    totalTax: 193370.0,
-    expenses: 826400.0,
-    invoicesCount: 428,
-    vatStandard: 168400.0,
-    withholdingTax: 24970.0,
-  },
-  {
-    id: 'rec-2026-09',
-    month: 'September',
-    year: 2026,
-    totalIncome: 1368400.0,
-    totalTax: 178487.0,
-    expenses: 754300.0,
-    invoicesCount: 395,
-    vatStandard: 155400.0,
-    withholdingTax: 23087.0,
-  },
-  {
-    id: 'rec-2026-08',
-    month: 'August',
-    year: 2026,
-    totalIncome: 1297800.0,
-    totalTax: 169278.0,
-    expenses: 708900.0,
-    invoicesCount: 382,
-    vatStandard: 147300.0,
-    withholdingTax: 21978.0,
-  },
-  {
-    id: 'rec-2026-07',
-    month: 'July',
-    year: 2026,
-    totalIncome: 1245600.0,
-    totalTax: 162469.0,
-    expenses: 691200.0,
-    invoicesCount: 366,
-    vatStandard: 141400.0,
-    withholdingTax: 21069.0,
-  },
-  {
-    id: 'rec-2026-06',
-    month: 'June',
-    year: 2026,
-    totalIncome: 1189900.0,
-    totalTax: 155204.0,
-    expenses: 663500.0,
-    invoicesCount: 341,
-    vatStandard: 135100.0,
-    withholdingTax: 20104.0,
-  },
-  {
-    id: 'rec-2026-05',
-    month: 'May',
-    year: 2026,
-    totalIncome: 1120400.0,
-    totalTax: 146140.0,
-    expenses: 630200.0,
-    invoicesCount: 320,
-    vatStandard: 127200.0,
-    withholdingTax: 18940.0,
-  },
-  {
-    id: 'rec-2026-04',
-    month: 'April',
-    year: 2026,
-    totalIncome: 1085000.0,
-    totalTax: 141520.0,
-    expenses: 610000.0,
-    invoicesCount: 310,
-    vatStandard: 123200.0,
-    withholdingTax: 18320.0,
-  },
-  {
-    id: 'rec-2026-03',
-    month: 'March',
-    year: 2026,
-    totalIncome: 1040200.0,
-    totalTax: 135680.0,
-    expenses: 590100.0,
-    invoicesCount: 298,
-    vatStandard: 118100.0,
-    withholdingTax: 17580.0,
-  },
-  {
-    id: 'rec-2026-02',
-    month: 'February',
-    year: 2026,
-    totalIncome: 995000.0,
-    totalTax: 129780.0,
-    expenses: 570400.0,
-    invoicesCount: 284,
-    vatStandard: 113000.0,
-    withholdingTax: 16780.0,
-  },
-  {
-    id: 'rec-2026-01',
-    month: 'January',
-    year: 2026,
-    totalIncome: 960300.0,
-    totalTax: 125250.0,
-    expenses: 550000.0,
-    invoicesCount: 275,
-    vatStandard: 109100.0,
-    withholdingTax: 16150.0,
-  },
-];
+export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({ onNavigate }) => {
+  const profile = getStoredMerchantProfile();
+  const merchantTin = profile.tin || '0987654321';
+  const businessName = profile.tradeName || profile.sellerLegalName || 'Registered Merchant';
 
-export const TransactionsLedger: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRecord, setSelectedRecord] = useState<MonthlyTransactionRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<MonthlyLedgerRecord | null>(null);
+
+  const [ledgerRecords, setLedgerRecords] = useState<MonthlyLedgerRecord[]>(() =>
+    getMerchantMonthlyLedger(merchantTin, selectedYear)
+  );
+
+  useEffect(() => {
+    const refresh = () => {
+      setLedgerRecords(getMerchantMonthlyLedger(merchantTin, selectedYear));
+    };
+    refresh();
+    window.addEventListener('ereceipt:receipts_updated', refresh);
+    return () => window.removeEventListener('ereceipt:receipts_updated', refresh);
+  }, [merchantTin, selectedYear]);
 
   const PAGE_SIZE = 5;
 
   const filteredRecords = useMemo(() => {
-    return SEED_RECORDS.filter((rec) => {
+    return ledgerRecords.filter((rec) => {
       const matchYear = rec.year === selectedYear;
       const matchSearch = rec.month.toLowerCase().includes(searchTerm.trim().toLowerCase());
       return matchYear && matchSearch;
     });
-  }, [searchTerm, selectedYear]);
+  }, [ledgerRecords, searchTerm, selectedYear]);
 
   const totalPages = Math.ceil(filteredRecords.length / PAGE_SIZE) || 1;
   const paginatedRecords = useMemo(() => {
@@ -171,7 +72,7 @@ export const TransactionsLedger: React.FC = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `monthly-transactions-${selectedYear}.csv`);
+    link.setAttribute('download', `transactions-${merchantTin}-${selectedYear}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -184,14 +85,16 @@ export const TransactionsLedger: React.FC = () => {
         <div>
           <h1 className={styles.title}>Transactions</h1>
           <p className={styles.subtitle}>
-            Review monthly income, tax, expenses from cleared fiscal records.
+            Review monthly income, tax, and expenses from cleared fiscal records for {businessName}.
           </p>
         </div>
 
-        <button type="button" className={styles.exportBtn} onClick={handleExportReport}>
-          <Download size={15} />
-          <span>Export monthly report</span>
-        </button>
+        {filteredRecords.length > 0 && (
+          <button type="button" className={styles.exportBtn} onClick={handleExportReport}>
+            <Download size={15} />
+            <span>Export monthly report</span>
+          </button>
+        )}
       </div>
 
       {/* Main Table Card */}
@@ -228,79 +131,93 @@ export const TransactionsLedger: React.FC = () => {
           </div>
         </div>
 
-        {/* Table */}
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Total income</th>
-                <th>Total tax</th>
-                <th>Expenses</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedRecords.length > 0 ? (
-                paginatedRecords.map((item) => (
-                  <tr key={item.id}>
+        {/* Table or Empty State */}
+        {filteredRecords.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+            <FileText size={44} style={{ color: '#0b8060', margin: '0 auto 12px auto', display: 'block' }} />
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 600, color: '#17201B' }}>
+              No transactions recorded for {selectedYear}
+            </h3>
+            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#526059', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto' }}>
+              No cleared receipts have been issued yet under TIN {merchantTin}.
+              Issue a receipt via POS to see real sales transactions recorded here.
+            </p>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => onNavigate?.('pos')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+            >
+              <PlusCircle size={16} />
+              <span>Issue a Receipt</span>
+            </button>
+          </div>
+        ) : (
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Total Income</th>
+                  <th>Total Tax</th>
+                  <th>Expenses</th>
+                  <th style={{ textAlign: 'center' }}>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedRecords.map((record) => (
+                  <tr key={record.id}>
                     <td>
-                      <div className={styles.monthCell}>
-                        <span className={styles.monthName}>{item.month}</span>
-                        <span className={styles.yearLabel}>{item.year}</span>
-                      </div>
+                      <span className={styles.monthName}>{record.month}</span>
+                      <span className={styles.monthYear}>{record.year}</span>
                     </td>
-                    <td className={styles.amountCell}>{formatCurrency(item.totalIncome)}</td>
-                    <td className={styles.amountCell}>{formatCurrency(item.totalTax)}</td>
-                    <td className={styles.amountCell}>{formatCurrency(item.expenses)}</td>
-                    <td>
+                    <td className={styles.amountIncome}>{formatCurrency(record.totalIncome)}</td>
+                    <td className={styles.amountTax}>{formatCurrency(record.totalTax)}</td>
+                    <td className={styles.amountExpenses}>{formatCurrency(record.expenses)}</td>
+                    <td style={{ textAlign: 'center' }}>
                       <button
                         type="button"
-                        className={styles.viewBtn}
-                        onClick={() => setSelectedRecord(item)}
+                        className={styles.viewDetailsBtn}
+                        onClick={() => setSelectedRecord(record)}
                       >
                         <Eye size={14} />
                         <span>View details</span>
                       </button>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '32px', color: '#64748B' }}>
-                    No transaction records found matching your filter.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className={styles.paginationBar}>
-          <span className={styles.pageCount}>
-            Page {currentPage} of {totalPages} · {filteredRecords.length} months
-          </span>
-
-          <div className={styles.pageActions}>
-            <button
-              type="button"
-              className={styles.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            >
-              Previous
-            </button>
-            <button
-              type="button"
-              className={styles.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            >
-              Next
-            </button>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        )}
+
+        {/* Pagination Bar */}
+        {filteredRecords.length > 0 && (
+          <div className={styles.paginationBar}>
+            <span className={styles.pageCount}>
+              Page {currentPage} of {totalPages} · {filteredRecords.length} month{filteredRecords.length > 1 ? 's' : ''}
+            </span>
+
+            <div className={styles.pageActions}>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Details Modal */}
@@ -343,10 +260,50 @@ export const TransactionsLedger: React.FC = () => {
               </div>
             </div>
 
+            {/* Issued receipts list in this month */}
+            {selectedRecord.receipts && selectedRecord.receipts.length > 0 && (
+              <div style={{ marginTop: '16px', maxHeight: '200px', overflowY: 'auto' }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 700, color: '#17201B', textTransform: 'uppercase' }}>
+                  Cleared Receipts for this period
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {selectedRecord.receipts.map((r) => (
+                    <div
+                      key={r.id}
+                      style={{
+                        padding: '10px 12px',
+                        backgroundColor: '#F8FAF9',
+                        borderRadius: '6px',
+                        border: '1px solid #E2E8E4',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '12px',
+                      }}
+                    >
+                      <div>
+                        <strong>{r.receiptNumber}</strong> · {r.customerName}
+                        <div style={{ color: '#526059', fontSize: '11px', marginTop: '2px' }}>
+                          {r.items.map((i) => `${i.qty}x ${i.name}`).join(', ')}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <strong style={{ color: '#0b8060' }}>{formatCurrency(r.total)}</strong>
+                        <div style={{ color: '#8B9E94', fontSize: '10px' }}>
+                          VAT: {formatCurrency(r.tax)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button
               type="button"
               className={styles.closeModalBtn}
               onClick={() => setSelectedRecord(null)}
+              style={{ marginTop: '20px' }}
             >
               Close
             </button>

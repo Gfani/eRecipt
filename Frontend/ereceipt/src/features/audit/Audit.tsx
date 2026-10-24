@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import AuditFilterBar from './components/AuditFilterBar';
 import MonthlyRecordsTable from './components/MonthlyRecordsTable';
-import { initialMonthlyRecords } from './types';
+import { getStoredMerchantProfile } from '../merchant-registration';
+import { getMerchantAuditRecords } from '../../services/merchantDataStore';
 import { TaxInvoicePreview } from '../tax-invoice-preview';
 import { OverviewDashboard } from '../dashboard';
 import { TransactionsLedger } from '../transactions';
@@ -32,6 +33,11 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   const [activeScreen, setActiveScreen] = useState<string>(initialScreen);
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('profile');
 
+  // Authenticated merchant isolation
+  const merchantProfile = getStoredMerchantProfile();
+  const merchantTin = merchantProfile.tin || '0987654321';
+  const businessName = merchantProfile.sellerLegalName || merchantProfile.tradeName || 'Fani Market';
+
   useEffect(() => {
     if (initialScreen) {
       setActiveScreen(initialScreen);
@@ -44,11 +50,26 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   const [calculatedTax, setCalculatedTax] = useState<number | null>(null);
   const [taxApproved, setTaxApproved] = useState(false);
 
-  const visibleAuditMonths = initialMonthlyRecords.filter(
-    (record) =>
-      record.key >= auditStartDate.slice(0, 7) &&
-      record.key <= auditEndDate.slice(0, 7)
+  const [visibleAuditMonths, setVisibleAuditMonths] = useState(() =>
+    getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate)
   );
+
+  useEffect(() => {
+    const refreshRecords = () => {
+      setVisibleAuditMonths(getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate));
+    };
+
+    refreshRecords();
+
+    const handleReceiptsUpdated = () => {
+      refreshRecords();
+    };
+
+    window.addEventListener('ereceipt:receipts_updated', handleReceiptsUpdated);
+    return () => {
+      window.removeEventListener('ereceipt:receipts_updated', handleReceiptsUpdated);
+    };
+  }, [merchantTin, auditStartDate, auditEndDate]);
 
   const handleCalculateTax = () => {
     const total = visibleAuditMonths.reduce((sum, item) => sum + item.tax, 0);
@@ -108,8 +129,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
               <p className={styles.eyebrow}>Monthly tax review</p>
               <h1 className={styles.title}>Audit</h1>
               <p className={styles.copy}>
-                Select a date range to review monthly income, expenses, and tax, then calculate
-                the total tax for that period.
+                Review verified monthly income, expenses, and tax records for {businessName} (TIN: {merchantTin}).
               </p>
             </div>
           </div>

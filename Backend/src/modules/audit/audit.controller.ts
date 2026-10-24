@@ -6,10 +6,11 @@ export class AuditController {
   async getMonthlyRecords(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { startDate = "2026-01-01", endDate = "2026-10-31" } = req.query;
+      const merchantTin = req.user?.role === 'merchant' ? req.user.identifier : (req.query.merchantTin as string | undefined);
       const records = await auditService.getMonthlyRecords({
         startDate: startDate as string,
         endDate: endDate as string,
-      });
+      }, merchantTin);
       sendSuccess(res, records, "Monthly records retrieved");
     } catch (error) {
       next(error);
@@ -18,8 +19,9 @@ export class AuditController {
 
   async calculateTax(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { startDate, endDate } = req.body;
-      const result = await auditService.calculateTaxPeriod({ startDate, endDate });
+      const { startDate, endDate, merchantTin: bodyTin } = req.body;
+      const merchantTin = req.user?.role === 'merchant' ? req.user.identifier : bodyTin;
+      const result = await auditService.calculateTaxPeriod({ startDate, endDate }, merchantTin);
       sendSuccess(res, result, "Tax calculation completed successfully");
     } catch (error) {
       next(error);
