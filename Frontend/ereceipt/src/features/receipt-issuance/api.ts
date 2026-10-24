@@ -6,11 +6,16 @@ export interface BackendHealthResponse {
   status: string;
   service: string;
   version: string;
-  mode: string;
-  merchantCode: string;
-  branchCode: string;
-  registerCode: string;
+  mode?: string;
+  merchantCode?: string;
+  branchCode?: string;
+  registerCode?: string;
   timestamp: string;
+  network?: {
+    lanIp: string;
+    preferredHost: string;
+    frontendMobileUrl: string;
+  };
 }
 
 export interface TinVerifyResult {
@@ -42,6 +47,25 @@ export async function checkBackendHealth(): Promise<BackendHealthResponse | null
   } catch {
     return null;
   }
+}
+
+/**
+ * Retrieves the preferred scannable host URL for mobile devices (using detected LAN IP)
+ */
+export async function getScannableHostUrl(): Promise<string> {
+  // If the page is already accessed via an IP address (not localhost), use that
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return window.location.origin;
+  }
+  try {
+    const health = await checkBackendHealth();
+    if (health?.network?.frontendMobileUrl) {
+      return health.network.frontendMobileUrl;
+    }
+  } catch {
+    // fallback to current origin
+  }
+  return typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173';
 }
 
 /**

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   CheckCircle2,
@@ -27,6 +27,7 @@ import {
 import { getStoredMerchantProfile } from '../../merchant-registration';
 import { QRCodeSVG } from 'qrcode.react';
 import { downloadReceiptAsPng, getReceiptImageUrl } from '../../../utils/receiptImageRenderer';
+import { getScannableHostUrl } from '../api';
 import styles from './IssuedReceiptModal.module.css';
 
 interface IssuedReceiptModalProps {
@@ -46,6 +47,22 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   const [imageTheme, setImageTheme] = useState<'modern' | 'thermal'>('modern');
   const [isDownloadingImage, setIsDownloadingImage] = useState(false);
   const [qrMode, setQrMode] = useState<'image' | 'direct-image' | 'info'>('image');
+  const [scannableHost, setScannableHost] = useState<string>(
+    typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    getScannableHostUrl().then((host) => {
+      if (isMounted && host) {
+        setScannableHost(host);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const profile = getStoredMerchantProfile();
   const sellerName =
     (receipt as any).merchantLegalName ||
@@ -72,9 +89,10 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
       ? amountInWords(receipt.total)
       : amountInAmharic(receipt.total);
 
-  const verificationUrl = `${window.location.origin}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
-  const receiptImageViewerUrl = `${window.location.origin}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`;
-  const receiptDirectImageUrl = `${window.location.origin}/api/receipts/${encodeURIComponent(receipt.irn)}/image`;
+  const verificationUrl = `${scannableHost}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
+  const receiptImageViewerUrl = `${scannableHost}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`;
+  const backendHost = scannableHost.includes(':5173') ? scannableHost.replace(':5173', ':5000') : scannableHost;
+  const receiptDirectImageUrl = `${backendHost}/api/receipts/${encodeURIComponent(receipt.irn)}/image`;
   const renderedReceiptImageUrl = getReceiptImageUrl(receipt.irn, {
     theme: imageTheme,
     lang: language,
