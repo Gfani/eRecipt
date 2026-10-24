@@ -6,6 +6,7 @@ import { Audit } from './features/audit';
 import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
 import { ReceiptVerification } from './features/verification';
+import { ReceiptImageView } from './features/receipt-image';
 import './App.css';
 
 type AppView =
@@ -17,13 +18,17 @@ type AppView =
   | 'audit'
   | 'admin'
   | 'registration'
-  | 'verify';
+  | 'verify'
+  | 'receipt-image';
 
 function parseUrlState(): { view: AppView; merchantScreen: string } {
   const params = new URLSearchParams(window.location.search);
   const viewParam = params.get('view');
   const screenParam = params.get('screen');
 
+  if (viewParam === 'receipt-image' || viewParam === 'image' || window.location.pathname.startsWith('/receipt-image')) {
+    return { view: 'receipt-image', merchantScreen: 'dashboard' };
+  }
   if (viewParam === 'verify' || window.location.pathname.startsWith('/verify') || params.get('irn')) {
     return { view: 'verify', merchantScreen: 'dashboard' };
   }
@@ -99,6 +104,9 @@ function App() {
     } else if (screen === 'verify' || screen === 'verification') {
       targetView = 'verify';
       urlQuery = '?view=verify';
+    } else if (screen === 'receipt-image' || screen === 'image') {
+      targetView = 'receipt-image';
+      urlQuery = '?view=receipt-image';
     } else if (screen === 'pos' || screen === 'receipt-issuance') {
       targetView = 'receipt-issuance';
       urlQuery = '?view=pos';
@@ -126,7 +134,9 @@ function App() {
 
   return (
     <div className="app-container">
-      {currentView === 'landing' ? (
+      {currentView === 'receipt-image' ? (
+        <ReceiptImageView onBack={() => handleNavigate('landing')} />
+      ) : currentView === 'landing' ? (
         <LandingPage
           onNavigate={handleNavigate}
           onSignInClick={() => handleNavigate('signin')}
