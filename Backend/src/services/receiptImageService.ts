@@ -66,6 +66,28 @@ export class ReceiptImageService {
 
     const totalsY = 320 + items.length * itemRowHeight;
 
+    const t = {
+      country: lang === 'am' ? 'የኢትዮጵያ ፌዴራላዊ ዴሞክራሲያዊ ሪፐብሊክ' : 'FEDERAL DEMOCRATIC REPUBLIC OF ETHIOPIA',
+      ministry: lang === 'am' ? 'የገቢዎች ሚኒስቴር (MoR)' : 'MINISTRY OF REVENUES (MoR)',
+      system: lang === 'am' ? 'የኤሌክትሮኒክ ደረሰኝ አስተዳደር ሥርዓት (EIMS)' : 'ELECTRONIC INVOICE MANAGEMENT SYSTEM (EIMS)',
+      cleared: lang === 'am' ? 'የተረጋገጠ የታክስ ደረሰኝ (HTTP 200)' : 'FISCAL CLEARED (HTTP 200)',
+      receiptNo: lang === 'am' ? 'የደረሰኝ ቁጥር:' : 'RECEIPT NO:',
+      irn: lang === 'am' ? 'የሰነድ IRN:' : 'INVOICE IRN:',
+      issuedAt: lang === 'am' ? 'የወጣበት ቀን:' : 'ISSUED AT:',
+      customer: lang === 'am' ? 'ደንበኛ / ገዢ:' : 'CUSTOMER:',
+      itemDesc: lang === 'am' ? 'የዕቃው ዝርዝር' : 'ITEM DESCRIPTION',
+      qty: lang === 'am' ? 'ብዛት' : 'QTY',
+      price: lang === 'am' ? 'ዋጋ' : 'PRICE',
+      total: lang === 'am' ? 'ጠቅላላ (ETB)' : 'TOTAL (ETB)',
+      subtotal: lang === 'am' ? 'የተጣራ ድምር:' : 'Net Subtotal:',
+      vat: lang === 'am' ? 'ተ.እ.ታ (15%):' : 'VAT (15%):',
+      excise: lang === 'am' ? 'ኤክሳይስ ታክስ:' : 'Excise Tax:',
+      grandTotal: lang === 'am' ? 'ጠቅላላ ድምር:' : 'GRAND TOTAL:',
+      payment: lang === 'am' ? 'የክፍያ ዘዴ:' : 'Payment:',
+      sigStamp: lang === 'am' ? '🔐 የገቢዎች ሚኒስቴር ዲጂታል ማረጋገጫ ማኅተም' : '🔐 MoR Cryptographic Fiscal Digital Signature Stamp',
+      footer: lang === 'am' ? 'ሕጋዊ የኤሌክትሮኒክ ደረሰኝ · በገቢዎች ሚኒስቴር በቅጽበት የተረጋገጠ' : 'Official Electronic Invoice · Validated in real-time by Ethiopian MoR',
+    };
+
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${totalHeight}" width="${width}" height="${totalHeight}">
   <defs>
@@ -89,20 +111,20 @@ export class ReceiptImageService {
   <rect x="12" y="68" width="${width - 24}" height="20" fill="url(#headerGrad)" />
   
   <text x="${width / 2}" y="38" text-anchor="middle" font-size="11" font-weight="700" fill="#BBF7D0" letter-spacing="1.5" font-family="sans-serif">
-    FEDERAL DEMOCRATIC REPUBLIC OF ETHIOPIA
+    ${t.country}
   </text>
   <text x="${width / 2}" y="56" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF" letter-spacing="0.5" font-family="sans-serif">
-    MINISTRY OF REVENUES (MoR)
+    ${t.ministry}
   </text>
   <text x="${width / 2}" y="74" text-anchor="middle" font-size="10" font-weight="600" fill="#E2E8F0" font-family="sans-serif">
-    ELECTRONIC INVOICE MANAGEMENT SYSTEM (EIMS)
+    ${t.system}
   </text>
 
   <!-- Status Pill -->
-  <rect x="${width / 2 - 80}" y="98" width="160" height="24" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1" />
-  <circle cx="${width / 2 - 64}" cy="110" r="4" fill="#16A34A" />
-  <text x="${width / 2 - 50}" y="114" font-size="11" font-weight="700" fill="#047857" font-family="sans-serif">
-    FISCAL CLEARED (HTTP 200)
+  <rect x="${width / 2 - 95}" y="98" width="190" height="24" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1" />
+  <circle cx="${width / 2 - 76}" cy="110" r="4" fill="#16A34A" />
+  <text x="${width / 2 - 62}" y="114" font-size="11" font-weight="700" fill="#047857" font-family="sans-serif">
+    ${t.cleared}
   </text>
 
   <!-- Merchant Info -->
@@ -112,25 +134,25 @@ export class ReceiptImageService {
   <line x1="30" y1="174" x2="${width - 30}" y2="174" stroke="#E2E8F0" stroke-dasharray="4,4" />
 
   <!-- Fiscal Identifiers -->
-  <text x="30" y="194" font-size="10" fill="#64748B" font-family="sans-serif">RECEIPT NO:</text>
-  <text x="120" y="194" font-size="11" font-weight="700" fill="#123D2C" font-family="monospace">${receipt.receiptNumber || 'N/A'}</text>
+  <text x="30" y="194" font-size="10" fill="#64748B" font-family="sans-serif">${t.receiptNo}</text>
+  <text x="130" y="194" font-size="11" font-weight="700" fill="#123D2C" font-family="monospace">${receipt.receiptNumber || 'N/A'}</text>
 
-  <text x="30" y="210" font-size="10" fill="#64748B" font-family="sans-serif">INVOICE IRN:</text>
-  <text x="120" y="210" font-size="11" font-weight="700" fill="#123D2C" font-family="monospace">${receipt.irn || 'N/A'}</text>
+  <text x="30" y="210" font-size="10" fill="#64748B" font-family="sans-serif">${t.irn}</text>
+  <text x="130" y="210" font-size="11" font-weight="700" fill="#123D2C" font-family="monospace">${receipt.irn || 'N/A'}</text>
 
-  <text x="30" y="226" font-size="10" fill="#64748B" font-family="sans-serif">ISSUED AT:</text>
-  <text x="120" y="226" font-size="11" font-weight="600" fill="#334155" font-family="sans-serif">${dateStr}</text>
+  <text x="30" y="226" font-size="10" fill="#64748B" font-family="sans-serif">${t.issuedAt}</text>
+  <text x="130" y="226" font-size="11" font-weight="600" fill="#334155" font-family="sans-serif">${dateStr}</text>
 
   <!-- Customer Info -->
-  <text x="30" y="248" font-size="10" fill="#64748B" font-family="sans-serif">CUSTOMER:</text>
-  <text x="120" y="248" font-size="11" font-weight="600" fill="#0F172A" font-family="sans-serif">${buyerName} (${buyerId})</text>
+  <text x="30" y="248" font-size="10" fill="#64748B" font-family="sans-serif">${t.customer}</text>
+  <text x="130" y="248" font-size="11" font-weight="600" fill="#0F172A" font-family="sans-serif">${buyerName} (${buyerId})</text>
 
   <!-- Table Header -->
   <rect x="24" y="262" width="${width - 48}" height="24" rx="4" fill="#F1F5F9" />
-  <text x="30" y="278" font-size="10" font-weight="700" fill="#475569" font-family="sans-serif">ITEM DESCRIPTION</text>
-  <text x="280" y="278" font-size="10" font-weight="700" fill="#475569" text-anchor="middle" font-family="sans-serif">QTY</text>
-  <text x="380" y="278" font-size="10" font-weight="700" fill="#475569" text-anchor="end" font-family="sans-serif">PRICE</text>
-  <text x="${width - 30}" y="278" font-size="10" font-weight="700" fill="#475569" text-anchor="end" font-family="sans-serif">TOTAL (ETB)</text>
+  <text x="30" y="278" font-size="10" font-weight="700" fill="#475569" font-family="sans-serif">${t.itemDesc}</text>
+  <text x="280" y="278" font-size="10" font-weight="700" fill="#475569" text-anchor="middle" font-family="sans-serif">${t.qty}</text>
+  <text x="380" y="278" font-size="10" font-weight="700" fill="#475569" text-anchor="end" font-family="sans-serif">${t.price}</text>
+  <text x="${width - 30}" y="278" font-size="10" font-weight="700" fill="#475569" text-anchor="end" font-family="sans-serif">${t.total}</text>
 
   <!-- Line Items -->
   ${itemsRows}
@@ -139,16 +161,16 @@ export class ReceiptImageService {
   <line x1="30" y1="${totalsY - 10}" x2="${width - 30}" y2="${totalsY - 10}" stroke="#CBD5E1" />
 
   <!-- Financial Totals -->
-  <text x="${width - 180}" y="${totalsY + 8}" font-size="11" fill="#64748B" font-family="sans-serif">Net Subtotal:</text>
+  <text x="${width - 180}" y="${totalsY + 8}" font-size="11" fill="#64748B" font-family="sans-serif">${t.subtotal}</text>
   <text x="${width - 30}" y="${totalsY + 8}" font-size="11" font-weight="600" fill="#0F172A" text-anchor="end" font-family="sans-serif">ETB ${subtotalStr}</text>
 
-  <text x="${width - 180}" y="${totalsY + 26}" font-size="11" fill="#64748B" font-family="sans-serif">VAT (15%):</text>
+  <text x="${width - 180}" y="${totalsY + 26}" font-size="11" fill="#64748B" font-family="sans-serif">${t.vat}</text>
   <text x="${width - 30}" y="${totalsY + 26}" font-size="11" font-weight="600" fill="#0F172A" text-anchor="end" font-family="sans-serif">ETB ${taxStr}</text>
 
   ${
     receipt.exciseTax
       ? `
-  <text x="${width - 180}" y="${totalsY + 44}" font-size="11" fill="#64748B" font-family="sans-serif">Excise Tax:</text>
+  <text x="${width - 180}" y="${totalsY + 44}" font-size="11" fill="#64748B" font-family="sans-serif">${t.excise}</text>
   <text x="${width - 30}" y="${totalsY + 44}" font-size="11" font-weight="600" fill="#0F172A" text-anchor="end" font-family="sans-serif">ETB ${exciseStr}</text>
   `
       : ''
@@ -156,18 +178,18 @@ export class ReceiptImageService {
 
   <line x1="${width - 200}" y1="${totalsY + 56}" x2="${width - 30}" y2="${totalsY + 56}" stroke="#123D2C" stroke-width="1.5" />
 
-  <text x="${width - 200}" y="${totalsY + 76}" font-size="14" font-weight="800" fill="#123D2C" font-family="sans-serif">GRAND TOTAL:</text>
+  <text x="${width - 200}" y="${totalsY + 76}" font-size="14" font-weight="800" fill="#123D2C" font-family="sans-serif">${t.grandTotal}</text>
   <text x="${width - 30}" y="${totalsY + 76}" font-size="16" font-weight="800" fill="#123D2C" text-anchor="end" font-family="sans-serif">ETB ${totalStr}</text>
 
   <!-- Payment Method -->
   <text x="30" y="${totalsY + 74}" font-size="11" fill="#475569" font-family="sans-serif">
-    Payment: <tspan font-weight="700" fill="#0F172A">${receipt.paymentMethod || 'Cash'}</tspan>
+    ${t.payment} <tspan font-weight="700" fill="#0F172A">${receipt.paymentMethod || 'Cash'}</tspan>
   </text>
 
   <!-- Cryptographic Seal Box -->
   <rect x="24" y="${totalsY + 98}" width="${width - 48}" height="48" rx="8" fill="#F0FDF4" stroke="#BBF7D0" />
   <text x="36" y="${totalsY + 116}" font-size="10" font-weight="700" fill="#166534" font-family="sans-serif">
-    🔐 MoR Cryptographic Fiscal Digital Signature Stamp
+    ${t.sigStamp}
   </text>
   <text x="36" y="${totalsY + 134}" font-size="9" fill="#15803D" font-family="monospace">
     ${receipt.digitalSignature || 'SHA256:AUTHENTICATED-EIMS-CLEARANCE'}
@@ -175,7 +197,7 @@ export class ReceiptImageService {
 
   <!-- Footer Watermark -->
   <text x="${width / 2}" y="${totalHeight - 20}" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="sans-serif">
-    Official Electronic Invoice · Validated in real-time by Ethiopian MoR
+    ${t.footer}
   </text>
 </svg>`;
   }
