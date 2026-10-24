@@ -14,6 +14,7 @@ import {
   X,
   Send,
   Languages,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { getStoredMerchantProfile } from '../merchant-registration';
@@ -136,7 +137,8 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
       maximumFractionDigits: 2,
     });
 
-  const verificationUrl = receipt ? `${window.location.origin}/?view=verify&irn=${receipt.irn}` : '';
+  const verificationUrl = receipt ? `${window.location.origin}/?view=verify&irn=${encodeURIComponent(receipt.irn)}` : '';
+  const receiptImageViewerUrl = receipt ? `${window.location.origin}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}` : '';
 
   const customerReceiptQrText = receipt ? [
     `=== eReceipt MoR Digital Fiscal Receipt ===`,
@@ -656,7 +658,7 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
               <div className={styles.qrSection}>
                 <div className={styles.qrBox}>
                   <QRCodeSVG
-                    value={customerReceiptQrText || verificationUrl || 'https://ereceipt.et'}
+                    value={receiptImageViewerUrl || customerReceiptQrText || verificationUrl || 'https://ereceipt.et'}
                     size={118}
                     level="M"
                     includeMargin={false}
@@ -783,6 +785,17 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
               >
                 <Printer size={16} />
                 <span>Print 80mm thermal receipt</span>
+              </button>
+
+              <button
+                type="button"
+                className={styles.btnOutlined}
+                onClick={() => window.open(receiptImageViewerUrl, '_blank')}
+                disabled={!receipt}
+                style={{ opacity: !receipt ? 0.6 : 1 }}
+              >
+                <ImageIcon size={16} />
+                <span>View receipt image</span>
               </button>
 
               <button
