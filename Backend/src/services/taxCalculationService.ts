@@ -48,9 +48,9 @@ export function calculateTaxes(
 
   // Ethiopian Statutory Withholding Rule:
   // Eligible ONLY if B2B AND (Goods > 10,000 ETB OR Services > 3,000 ETB)
+  const isB2BMode = Boolean(transactionMode && transactionMode.startsWith('B2B'));
   const withholdingEligible =
-    transactionMode.startsWith('B2B') &&
-    (goodsSubtotal > 10000 || servicesSubtotal > 3000);
+    isB2BMode && (goodsSubtotal > 10000 || servicesSubtotal > 3000);
 
   const withholdingTax =
     withholdingRequested && isDesignatedAgent && withholdingEligible ? subtotal * 0.02 : 0;

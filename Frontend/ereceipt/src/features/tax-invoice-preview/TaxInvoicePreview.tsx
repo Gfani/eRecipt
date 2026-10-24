@@ -19,6 +19,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { getStoredMerchantProfile } from '../merchant-registration';
 import { getLatestMerchantReceipt, type StoredReceipt } from '../../services/merchantDataStore';
+import { getReceiptViewerUrl, generateReceiptDataUri } from '../../utils/receiptImageRenderer';
 import styles from './TaxInvoicePreview.module.css';
 
 interface TaxInvoicePreviewProps {
@@ -138,7 +139,8 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
     });
 
   const verificationUrl = receipt ? `${window.location.origin}/?view=verify&irn=${encodeURIComponent(receipt.irn)}` : '';
-  const receiptImageViewerUrl = receipt ? `${window.location.origin}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}` : '';
+  const receiptImageViewerUrl = receipt ? getReceiptViewerUrl(receipt.irn, { lang: language }, window.location.origin, receipt) : '';
+  const receiptDataUri = receipt ? generateReceiptDataUri(receipt, { lang: language }) : '';
 
   const customerReceiptQrText = receipt ? [
     `=== eReceipt MoR Digital Fiscal Receipt ===`,
@@ -658,9 +660,9 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
               <div className={styles.qrSection}>
                 <div className={styles.qrBox}>
                   <QRCodeSVG
-                    value={receiptImageViewerUrl || customerReceiptQrText || verificationUrl || 'https://ereceipt.et'}
+                    value={receiptDataUri || receiptImageViewerUrl || customerReceiptQrText || verificationUrl || 'https://ereceipt.et'}
                     size={118}
-                    level="M"
+                    level="L"
                     includeMargin={false}
                   />
                 </div>

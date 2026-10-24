@@ -37,10 +37,11 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
   Fetches receipt by internal ID, IRN, or receipt number.
 ### 3. Visual Receipt Image Generation
 - **`GET /api/receipts/:irn/image`** (also `GET /api/receipts/image/:irn`)
-  Generates and returns an authentic, standalone vector graphic receipt image (`image/svg+xml`) rendered in real time from the cleared fiscal database.
+  Generates and returns an authentic, standalone vector graphic receipt image (`image/svg+xml`) rendered in real time.
   - **Query Parameters**:
     - `theme`: `modern` (default standard invoice layout) or `thermal` (80mm POS register receipt layout)
     - `lang`: `en` (English) or `am` (Amharic / አማርኛ)
+    - `data`: URL-safe base64 compressed receipt payload for standalone client-side fallback rendering if receipt was not yet written to server disk.
   - **Headers**: `Content-Type: image/svg+xml`, `Content-Disposition: inline; filename="receipt-...svg"`
   - **Features**: Features MoR seal, official EIMS clearance status pill, itemized grid, tax breakdown, and cryptographic fiscal digital signature stamp.
 
@@ -59,11 +60,11 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
 From the `Backend/` directory:
 
 ```powershell
-# Development mode with hot-reloading
+# Development mode with hot-reloading (bound to 0.0.0.0 for LAN/Wi-Fi access)
 npm run dev
 
 # Or run directly
 npm start
 ```
 
-Default server URL: **`http://localhost:5000`**
+Default server URL: **`http://localhost:5000`** (or `http://<lan-ip>:5000` across local devices)

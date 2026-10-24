@@ -44,7 +44,7 @@ export class ReceiptService {
     // 2. Perform server-side statutory calculation
     const taxResults = calculateTaxes(
       draft.items || [],
-      draft.transactionMode,
+      draft.transactionMode || 'B2C / Walk-in Customer',
       draft.designatedWithholdingAgent,
       draft.designatedWithholdingAgent
     );

@@ -26,7 +26,12 @@ import {
 } from '../types';
 import { getStoredMerchantProfile } from '../../merchant-registration';
 import { QRCodeSVG } from 'qrcode.react';
-import { downloadReceiptAsPng, getReceiptImageUrl } from '../../../utils/receiptImageRenderer';
+import {
+  downloadReceiptAsPng,
+  getReceiptImageUrl,
+  getReceiptViewerUrl,
+  generateReceiptDataUri,
+} from '../../../utils/receiptImageRenderer';
 import { getScannableHostUrl } from '../api';
 import styles from './IssuedReceiptModal.module.css';
 
@@ -46,7 +51,7 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   const [activeTab, setActiveTab] = useState<'document' | 'image'>('document');
   const [imageTheme, setImageTheme] = useState<'modern' | 'thermal'>('modern');
   const [isDownloadingImage, setIsDownloadingImage] = useState(false);
-  const [qrMode, setQrMode] = useState<'image' | 'direct-image' | 'info'>('image');
+  const [qrMode, setQrMode] = useState<'image' | 'data-uri' | 'info'>('image');
   const [scannableHost, setScannableHost] = useState<string>(
     typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
   );
@@ -90,13 +95,25 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
       : amountInAmharic(receipt.total);
 
   const verificationUrl = `${scannableHost}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
-  const receiptImageViewerUrl = `${scannableHost}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`;
-  const backendHost = scannableHost.includes(':5173') ? scannableHost.replace(':5173', ':5000') : scannableHost;
-  const receiptDirectImageUrl = `${backendHost}/api/receipts/${encodeURIComponent(receipt.irn)}/image`;
-  const renderedReceiptImageUrl = getReceiptImageUrl(receipt.irn, {
-    theme: imageTheme,
+  const receiptImageViewerUrl = getReceiptViewerUrl(
+    receipt.irn,
+    { theme: imageTheme, lang: language },
+    scannableHost,
+    receipt
+  );
+  const backendHost = scannableHost.includes(':5173')
+    ? scannableHost.replace(':5173', ':5000')
+    : scannableHost;
+  const receiptDirectImageUrl = getReceiptImageUrl(
+    receipt.irn,
+    { theme: imageTheme, lang: language },
+    backendHost,
+    receipt
+  );
+  const receiptDataUri = generateReceiptDataUri(receipt, {
     lang: language,
   });
+  const renderedReceiptImageUrl = receiptDataUri;
 
   const handleDownloadPng = async () => {
     try {
@@ -144,8 +161,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   const qrValue =
     qrMode === 'image'
       ? receiptImageViewerUrl
-      : qrMode === 'direct-image'
-      ? receiptDirectImageUrl
+      : qrMode === 'data-uri'
+      ? receiptDataUri
       : customerReceiptQrText;
 
   const handleCopyLink = async () => {
@@ -535,8 +552,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <QRCodeSVG
                     id="receipt-qr-svg"
                     value={qrValue}
-                    size={136}
-                    level="M"
+                    size={144}
+                    level={qrMode === 'data-uri' ? 'L' : 'M'}
                     includeMargin={false}
                     fgColor="#123D2C"
                   />
@@ -548,17 +565,17 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                       type="button"
                       className={`${styles.qrModeBtn} ${qrMode === 'image' ? styles.qrModeBtnActive : ''}`}
                       onClick={() => setQrMode('image')}
-                      title="QR code opens customer's visual receipt image"
+                      title="QR code opens customer's visual receipt image with full tools"
                     >
-                      Receipt Image
+                      Receipt Image Web
                     </button>
                     <button
                       type="button"
-                      className={`${styles.qrModeBtn} ${qrMode === 'direct-image' ? styles.qrModeBtnActive : ''}`}
-                      onClick={() => setQrMode('direct-image')}
-                      title="QR code loads direct SVG vector receipt image"
+                      className={`${styles.qrModeBtn} ${qrMode === 'data-uri' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('data-uri')}
+                      title="QR code holds complete offline vector SVG receipt image directly"
                     >
-                      Direct Image URL
+                      Offline SVG Image
                     </button>
                     <button
                       type="button"
@@ -566,7 +583,7 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                       onClick={() => setQrMode('info')}
                       title="QR code encodes customer text summary"
                     >
-                      Text Details
+                      Text Summary
                     </button>
                   </div>
 
@@ -575,14 +592,46 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   </p>
                   <p className={styles.qrCopy}>
                     {qrMode === 'image'
-                      ? "Scan using any smartphone camera to immediately load and display the authentic visual receipt image on your phone."
-                      : qrMode === 'direct-image'
-                      ? "Scan to directly download or render the official vector SVG receipt image from the Ministry of Revenues server."
+                      ? "Scan with any smartphone camera to immediately load and display the authentic visual receipt graphic on your mobile device."
+                      : qrMode === 'data-uri'
+                      ? "Scans directly as an authentic vector SVG receipt image document without requiring internet or server access."
                       : "Scan to read customer receipt details and fiscal clearance metadata in plain text format."}
                   </p>
                   <p className={styles.sigCode}>
                     Digital signature: {receipt.digitalSignature}
                   </p>
+
+                  <div className={styles.qrImageActionBanner}>
+                    <div className={styles.qrImageThumbnail}>
+                      <img src={renderedReceiptImageUrl} alt="Receipt Graphic Thumbnail" />
+                    </div>
+                    <div className={styles.qrImageActionInfo}>
+                      <span className={styles.qrImageActionHeading}>Visual Receipt Graphic Ready</span>
+                      <p className={styles.qrImageActionSub}>
+                        Scan QR code with smartphone camera or launch image directly.
+                      </p>
+                      <div className={styles.qrImageBtnGroup}>
+                        <a
+                          href={receiptImageViewerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.qrImageActionBtn}
+                        >
+                          <ExternalLink size={13} />
+                          <span>Open Receipt Image</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={handleDownloadPng}
+                          disabled={isDownloadingImage}
+                          className={styles.qrImageActionBtnSecondary}
+                        >
+                          <Download size={13} />
+                          <span>Save PNG</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -54,6 +54,40 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
 }
 
 /**
+ * Optional authentication middleware.
+ * Attaches authenticated user if valid Bearer JWT is supplied, but does not block requests if omitted.
+ * Essential for POS terminal registers issuing receipts directly.
+ */
+export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+
+  const token = authHeader.split(" ")[1]?.trim();
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const payload = verifyJwt(token);
+    req.user = {
+      id: payload.sub,
+      role: payload.role as UserRole,
+      identifier: payload.identifier || payload.tin || payload.username || payload.sub,
+      name: payload.name,
+      tin: payload.tin,
+      tradeName: payload.tradeName,
+    };
+  } catch {
+    // Proceed without req.user if token is invalid or expired
+  }
+
+  next();
+}
+
+/**
  * Role-based authorization guard
  */
 export function requireRole(...allowedRoles: UserRole[]) {
