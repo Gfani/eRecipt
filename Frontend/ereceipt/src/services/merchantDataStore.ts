@@ -156,7 +156,7 @@ export async function syncMerchantReceipts(
     const json = await res.json();
     const serverReceipts = json.receipts || [];
     // Strictly isolate only receipts belonging to this merchant
-    const valid = serverReceipts.filter((r: any) => r.merchantTin === cleanTin);
+    const valid = serverReceipts.filter((r: StoredReceipt) => r.merchantTin === cleanTin);
 
     const local = getMerchantReceipts(cleanTin);
     const map = new Map<string, StoredReceipt>();

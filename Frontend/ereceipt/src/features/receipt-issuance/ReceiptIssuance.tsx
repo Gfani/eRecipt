@@ -81,9 +81,7 @@ function generateFiscalClearanceData(date: Date, merchantCode: string = 'MCH-01'
   };
 }
 
-export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
-  onNavigate: _onNavigate,
-}) => {
+export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = () => {
   const [documentType, setDocumentType] = useState<DocumentType>(
     'Electronic Tax Invoice (VAT Invoice)'
   );
@@ -116,7 +114,7 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
         if (
           parsed.items &&
           parsed.items.some(
-            (it: any) =>
+            (it: { code?: string; name?: string }) =>
               it.code === 'HM-076' ||
               it.code === 'ST-018' ||
               it.name?.includes('Coffee Cup Set') ||
@@ -124,7 +122,6 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
           )
         ) {
           window.localStorage.removeItem('ereceipt:pos_draft');
-          setItems([]);
         }
       }
     } catch {

@@ -5,6 +5,7 @@ import { LoginForm } from './features/auth';
 import { Audit } from './features/audit';
 import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
+import { SESSION_EXPIRED_EVENT } from './services/apiClient';
 import './App.css';
 
 type AppView =
@@ -120,6 +121,20 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Auto-redirect to sign-in when session expires (401 response from any API call)
+  useEffect(() => {
+    const handleSessionExpired = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      console.info('[Auth] Session expired:', detail?.message);
+      sessionStorage.removeItem('ereceipt_active_view');
+      sessionStorage.removeItem('ereceipt_active_screen');
+      setCurrentView('signin');
+      setMerchantScreen('dashboard');
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
   }, []);
 
   const handleNavigate = (screen: string, pushHistory = true) => {

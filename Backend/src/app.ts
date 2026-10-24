@@ -14,7 +14,6 @@ import { merchantsRouter } from './modules/merchants/merchants.routes.js';
 import { receiptsRouter } from './modules/receipts/receipts.routes.js';
 import { auditRouter } from './modules/audit/audit.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
-import { receiptRoutes } from './routes/receiptRoutes.js';
 import { tinRoutes } from './routes/tinRoutes.js';
 import { productRoutes } from './routes/productRoutes.js';
 import { settingsRoutes } from './routes/settingsRoutes.js';
@@ -25,8 +24,20 @@ import { idempotencyMiddleware } from './middleware/idempotency.js';
 export const app: Application = express();
 
 // Middlewares
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS: origin '${origin}' not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'X-Idempotency-Key'],
@@ -85,7 +96,7 @@ app.use('/api/admin/fiscal', fiscalOversightRouter);
 // Mount Feature: Domain Modules from main
 app.use('/api/auth', authRouter);
 app.use('/api/merchants', merchantsRouter);
-app.use('/api/receipts', receiptRoutes);
+// Unified receipt routes (persisted, auth-protected, merchant-isolated, supporting POS issuance)
 app.use('/api/receipts', receiptsRouter);
 app.use('/api/tin', tinRoutes);
 app.use('/api/products', productRoutes);
