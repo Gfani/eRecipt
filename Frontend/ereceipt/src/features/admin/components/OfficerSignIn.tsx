@@ -10,6 +10,42 @@ import {
 } from 'lucide-react';
 import styles from './OfficerSignIn.module.css';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
+async function postOfficerAuth(endpoint: string, payload: any) {
+  const primaryUrl = `${API_BASE_URL}${endpoint}`;
+  try {
+    const res = await fetch(primaryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || data.message || `HTTP ${res.status}: Request failed.`);
+    }
+    return data;
+  } catch (primaryErr: any) {
+    if (primaryUrl.startsWith('http')) {
+      try {
+        const fallbackRes = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const fallbackData = await fallbackRes.json().catch(() => ({}));
+        if (!fallbackRes.ok || !fallbackData.success) {
+          throw new Error(fallbackData.error || fallbackData.message || `HTTP ${fallbackRes.status}`);
+        }
+        return fallbackData;
+      } catch {
+        // Fall through
+      }
+    }
+    throw primaryErr;
+  }
+}
+
 interface OfficerSignInProps {
   onSuccess: (officer?: any) => void;
   onReturnToMerchant?: () => void;
@@ -84,20 +120,11 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username.trim(),
-          password,
-          rememberMe: rememberOfficer,
-        }),
+      const data = await postOfficerAuth('/api/admin/auth/login', {
+        username: username.trim(),
+        password,
+        rememberMe: rememberOfficer,
       });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Authentication failed. Please verify credentials.');
-      }
 
       // Check if 2FA is required
       if (data.data?.requires2FA) {
@@ -141,19 +168,10 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/verify-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tempToken,
-          code: twoFaCode.trim(),
-        }),
+      const data = await postOfficerAuth('/api/admin/auth/verify-2fa', {
+        tempToken,
+        code: twoFaCode.trim(),
       });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Invalid or expired 2FA verification code.');
-      }
 
       if (data.data?.token) {
         localStorage.setItem('officer_token', data.data.token);
@@ -175,19 +193,16 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setTwoFaSuccessNotice(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/resend-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tempToken }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to resend code.');
-      }
+      const data = await postOfficerAuth('/api/admin/auth/resend-2fa', { tempToken });
 
       setTwoFaCooldown(data.data?.cooldownSeconds || 45);
-      setTwoFaSuccessNotice('A new security verification code has been sent to your email.');
+      const code = data.data?.code || data.data?.simulatedCode;
+      if (code) {
+        setTwoFaCode(code);
+        setTwoFaSuccessNotice(`Simulation Mode: Fresh security code is ${code}`);
+      } else {
+        setTwoFaSuccessNotice('A new security verification code has been sent to your email.');
+      }
     } catch (err: any) {
       setAuthError(err.message || 'Failed to resend code.');
     } finally {
@@ -223,24 +238,15 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: regFullName.trim(),
-          username: regUsername.trim(),
-          badgeNumber: regBadgeNumber.trim().toUpperCase(),
-          email: regEmail.trim(),
-          branch: regBranch,
-          role: regRole,
-          password: regPassword,
-        }),
+      const data = await postOfficerAuth('/api/admin/auth/register', {
+        fullName: regFullName.trim(),
+        username: regUsername.trim(),
+        badgeNumber: regBadgeNumber.trim().toUpperCase(),
+        email: regEmail.trim(),
+        branch: regBranch,
+        role: regRole,
+        password: regPassword,
       });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Registration failed. Please check your information.');
-      }
 
       if (data.data?.token) {
         localStorage.setItem('officer_token', data.data.token);
