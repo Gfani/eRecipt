@@ -1,0 +1,106 @@
+# ==============================================================================
+# eReceipt - Multi-Container Docker Compose Orchestration
+# Services:
+#   1. postgres: PostgreSQL 16 database with automated schema & seed initialization
+#   2. backend: Express / Node.js API with health checks and EIMS clearance engine
+#   3. frontend: Production React + Vite SPA served via Nginx with API reverse proxy
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL Database Service
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: ereceipt-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ereceipt}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Backend/src/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./Backend/src/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ereceipt}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ereceipt-net
+
+  # ----------------------------------------------------------------------------
+  # 2. Express Backend API Service
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: ereceipt-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      CORS_ORIGIN: "*"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ereceipt}
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATABASE: ${POSTGRES_DB:-ereceipt}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-eReceipt Tax Portal <onboarding@resend.dev>}
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - ereceipt-net
+
+  # ----------------------------------------------------------------------------
+  # 3. React Frontend Web Application (Nginx)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./Frontend/ereceipt
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5000}
+    container_name: ereceipt-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+      - "5173:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ereceipt-net
+
+# ------------------------------------------------------------------------------
+# Persistent Storage Volumes & Virtual Networks
+# ------------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    name: ereceipt_postgres_data
+
+networks:
+  ereceipt-net:
+    name: ereceipt_network
+    driver: bridge
