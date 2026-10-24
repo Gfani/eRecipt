@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, CheckCircle2, AlertCircle, RotateCw, X } from 'lucide-react';
+import { Mail, CheckCircle2, AlertCircle, RotateCw, X, Zap } from 'lucide-react';
 
 interface MerchantEmailOtpModalProps {
   email: string;
@@ -24,6 +24,9 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(45);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
+  const [simulatedCode, setSimulatedCode] = useState<string | null>(null);
+  const [isSimulated, setIsSimulated] = useState<boolean>(false);
+  const [deliveryNotice, setDeliveryNotice] = useState<string | null>(null);
 
   // Send OTP on initial modal open
   useEffect(() => {
@@ -31,6 +34,9 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
     setCode('');
     setError(null);
     setSuccessNotice(null);
+    setSimulatedCode(null);
+    setIsSimulated(false);
+    setDeliveryNotice(null);
     sendOtpCode();
   }, [isOpen, email]);
 
@@ -64,7 +70,12 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
       }
 
       setResendCooldown(data.cooldownSeconds || 45);
-      setSuccessNotice(`Verification code sent to ${email}.`);
+      setIsSimulated(Boolean(data.simulated));
+      setDeliveryNotice(data.deliveryNotice || null);
+      if (data.code) {
+        setSimulatedCode(data.code);
+      }
+      setSuccessNotice(data.message || `Verification code sent to ${email}.`);
     } catch (err: any) {
       setError(err.message || 'Could not send verification email. Please check the address.');
     } finally {
@@ -182,7 +193,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
               Verify Business Email
             </h3>
             <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#64748B' }}>
-              6-Digit Email Verification
+              {isSimulated ? 'Simulation Active · Instant Code Available' : '6-Digit Email Verification'}
             </p>
           </div>
         </div>
@@ -193,6 +204,75 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
           <strong style={{ color: '#0F172A', fontWeight: 600 }}>{email}</strong>
         </p>
 
+        {/* Simulation / Development Banner */}
+        {simulatedCode && (
+          <div
+            style={{
+              backgroundColor: '#FEF3C7',
+              border: '1px solid #FCD34D',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              marginBottom: '16px',
+              color: '#92400E',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '6px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px' }}>
+                <Zap size={15} color="#D97706" />
+                <span>Simulation / Dev Mode</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setCode(simulatedCode);
+                  setError(null);
+                }}
+                style={{
+                  backgroundColor: '#D97706',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 10px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s',
+                }}
+              >
+                Autofill Code
+              </button>
+            </div>
+            <p style={{ margin: '0 0 4px 0', fontSize: '12px', lineHeight: 1.4, color: '#78350F' }}>
+              Email delivery is simulated. Your verification code is:
+              <strong
+                style={{
+                  marginLeft: '6px',
+                  fontSize: '15px',
+                  letterSpacing: '2px',
+                  fontFamily: 'monospace',
+                  color: '#92400E',
+                  backgroundColor: '#FDE68A',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                }}
+              >
+                {simulatedCode}
+              </strong>
+            </p>
+            {deliveryNotice && (
+              <p style={{ margin: 0, fontSize: '11px', color: '#B45309', opacity: 0.9 }}>
+                {deliveryNotice}
+              </p>
+            )}
+          </div>
+        )}
 
         <form onSubmit={handleVerify}>
           {/* OTP Input Field */}
