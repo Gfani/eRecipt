@@ -102,22 +102,65 @@ export class OfficerAuthController {
     try {
       const { fullName, username, badgeNumber, email, branch, role, password } = req.body;
 
-      if (!fullName || !username || !badgeNumber || !email || !password) {
+      const cleanFullName = typeof fullName === 'string' ? fullName.trim() : '';
+      const cleanUsername = typeof username === 'string' ? username.trim() : '';
+      const cleanBadge = typeof badgeNumber === 'string' ? badgeNumber.trim().toUpperCase() : '';
+      const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+      const cleanPassword = typeof password === 'string' ? password : '';
+
+      if (!cleanFullName || !cleanUsername || !cleanBadge || !cleanEmail || !cleanPassword) {
         res.status(400).json({
           success: false,
-          error: 'Full name, username, badge number, email, and password are required',
+          error: 'Full name, username, badge number, email, and password are all required.',
         });
         return;
       }
 
+      if (cleanFullName.length < 3) {
+        res.status(400).json({
+          success: false,
+          error: 'Full name must be at least 3 characters long.',
+        });
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9._-]{3,30}$/.test(cleanUsername)) {
+        res.status(400).json({
+          success: false,
+          error: 'Username must be 3-30 characters and contain only letters, numbers, dots, or underscores.',
+        });
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        res.status(400).json({
+          success: false,
+          error: 'Please enter a valid official email address.',
+        });
+        return;
+      }
+
+      if (cleanPassword.length < 6) {
+        res.status(400).json({
+          success: false,
+          error: 'Password must contain at least 6 characters.',
+        });
+        return;
+      }
+
+      const allowedRoles = ['REVENUE_OFFICER', 'SENIOR_AUDITOR', 'ADMIN'];
+      const assignedRole = allowedRoles.includes(role) ? role : 'REVENUE_OFFICER';
+      const cleanBranch = typeof branch === 'string' && branch.trim() ? branch.trim() : 'Addis Ababa Large Taxpayers Branch';
+
       const authResult = await officerAuthService.register({
-        fullName,
-        username,
-        badgeNumber,
-        email,
-        branch,
-        role,
-        password,
+        fullName: cleanFullName,
+        username: cleanUsername,
+        badgeNumber: cleanBadge,
+        email: cleanEmail,
+        branch: cleanBranch,
+        role: assignedRole,
+        password: cleanPassword,
       });
 
       res.status(201).json({
@@ -157,6 +200,25 @@ export class OfficerAuthController {
       res.status(500).json({
         success: false,
         error: error.message || 'Failed to retrieve officer profile',
+      });
+    }
+  }
+
+  /**
+   * GET /api/admin/auth/check-availability
+   */
+  async checkAvailability(req: Request, res: Response): Promise<void> {
+    try {
+      const username = typeof req.query.username === 'string' ? req.query.username : undefined;
+      const badgeNumber = typeof req.query.badgeNumber === 'string' ? req.query.badgeNumber : undefined;
+      const email = typeof req.query.email === 'string' ? req.query.email : undefined;
+
+      const availability = officerAuthService.checkAvailability({ username, badgeNumber, email });
+      res.status(200).json({ success: true, ...availability });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to check officer credential availability',
       });
     }
   }

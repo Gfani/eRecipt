@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   CheckCircle2,
@@ -11,6 +11,10 @@ import {
   Check,
   Languages,
   Plus,
+  Image as ImageIcon,
+  Download,
+  ExternalLink,
+  FileText,
 } from 'lucide-react';
 import type { IssuedReceipt } from '../types';
 import {
@@ -21,6 +25,14 @@ import {
   lineExcise,
 } from '../types';
 import { getStoredMerchantProfile } from '../../merchant-registration';
+import { QRCodeSVG } from 'qrcode.react';
+import {
+  downloadReceiptAsPng,
+  getReceiptImageUrl,
+  getReceiptViewerUrl,
+  generateReceiptDataUri,
+} from '../../../utils/receiptImageRenderer';
+import { getScannableHostUrl } from '../api';
 import styles from './IssuedReceiptModal.module.css';
 
 interface IssuedReceiptModalProps {
@@ -29,14 +41,6 @@ interface IssuedReceiptModalProps {
   onReset: () => void;
 }
 
-const QR_PATTERN = Array.from({ length: 225 }, (_, index) => {
-  const row = Math.floor(index / 15);
-  const col = index % 15;
-  const finder =
-    (row < 5 && col < 5) || (row < 5 && col > 9) || (row > 9 && col < 5);
-  return finder || ((row * 7 + col * 11 + row * col) % 5 < 2);
-});
-
 export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   receipt,
   onClose,
@@ -44,6 +48,26 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
 }) => {
   const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'document' | 'image'>('document');
+  const [imageTheme, setImageTheme] = useState<'modern' | 'thermal'>('modern');
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+  const [qrMode, setQrMode] = useState<'image' | 'data-uri' | 'info'>('image');
+  const [scannableHost, setScannableHost] = useState<string>(
+    typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    getScannableHostUrl().then((host) => {
+      if (isMounted && host) {
+        setScannableHost(host);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const profile = getStoredMerchantProfile();
   const sellerName =
     (receipt as any).merchantLegalName ||
@@ -70,10 +94,80 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
       ? amountInWords(receipt.total)
       : amountInAmharic(receipt.total);
 
-  const handleCopyLink = async () => {
-    const url = `${window.location.origin}/eims/verify/${receipt.irn}`;
+  const verificationUrl = `${scannableHost}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
+  const receiptImageViewerUrl = getReceiptViewerUrl(
+    receipt.irn,
+    { theme: imageTheme, lang: language },
+    scannableHost,
+    receipt
+  );
+  const backendHost = scannableHost.includes(':5173')
+    ? scannableHost.replace(':5173', ':5000')
+    : scannableHost;
+  const receiptDirectImageUrl = getReceiptImageUrl(
+    receipt.irn,
+    { theme: imageTheme, lang: language },
+    backendHost,
+    receipt
+  );
+  const receiptDataUri = generateReceiptDataUri(receipt, {
+    lang: language,
+  });
+  const renderedReceiptImageUrl = receiptDataUri;
+
+  const handleDownloadPng = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      setIsDownloadingImage(true);
+      await downloadReceiptAsPng(receipt.irn, { theme: imageTheme, lang: language });
+    } catch (err) {
+      console.error('Failed to download receipt as PNG:', err);
+      window.open(receiptDirectImageUrl, '_blank');
+    } finally {
+      setIsDownloadingImage(false);
+    }
+  };
+
+  const customerReceiptQrText = [
+    `=== eReceipt MoR Digital Fiscal Receipt ===`,
+    `Receipt No: ${receipt.receiptNumber}`,
+    `IRN: ${receipt.irn}`,
+    `Date: ${receipt.clearanceTimestamp || new Date(receipt.issuedAt).toLocaleString()}`,
+    `Merchant: ${sellerName} (TIN: ${sellerTin})`,
+    `Customer: ${receipt.customerName || 'Walk-in Customer'}`,
+    receipt.customerTin ? `Customer TIN: ${receipt.customerTin}` : null,
+    receipt.customerNationalId ? `Fayda FIN: ${receipt.customerNationalId}` : null,
+    `----------------------------------------`,
+    `Items:`,
+    ...receipt.items.map(
+      (item, idx) =>
+        `${idx + 1}. ${item.name} (${item.qty} ${item.uom}) - ETB ${formatMoney(
+          netLineAmount(item) + lineExcise(item)
+        )}`
+    ),
+    `----------------------------------------`,
+    `Subtotal: ETB ${formatMoney(receipt.subtotal)}`,
+    receipt.exciseTax > 0 ? `Excise Tax: ETB ${formatMoney(receipt.exciseTax)}` : null,
+    `VAT (15%): ETB ${formatMoney(receipt.tax)}`,
+    receipt.withholdingTax > 0 ? `Withholding (2%): -ETB ${formatMoney(receipt.withholdingTax)}` : null,
+    `Grand Total: ETB ${formatMoney(receipt.total)}`,
+    `Payment: ${receipt.paymentMethod}${receipt.paymentReference ? ` (${receipt.paymentReference})` : ''}`,
+    `Status: CLEARED (MoR EIMS Verified)`,
+    `Digital Signature: ${receipt.digitalSignature}`,
+    `View Image: ${receiptImageViewerUrl}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const qrValue =
+    qrMode === 'image'
+      ? receiptImageViewerUrl
+      : qrMode === 'data-uri'
+      ? receiptDataUri
+      : customerReceiptQrText;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(verificationUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -84,6 +178,9 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   const handlePrintThermal = () => {
     const printWindow = window.open('', '_blank', 'width=420,height=760');
     if (!printWindow) return;
+
+    const qrSvgEl = document.getElementById('receipt-qr-svg');
+    const qrSvgHtml = qrSvgEl ? qrSvgEl.outerHTML : '';
 
     const lines = receipt.items
       .map(
@@ -115,15 +212,15 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             table { width: 100%; border-collapse: collapse; }
             td { padding: 3px 0; vertical-align: top; }
             .total { font-weight: bold; font-size: 13px; }
-            .qr-placeholder {
-              width: 30mm;
-              height: 30mm;
-              margin: 8px auto;
-              border: 2px solid #111;
+            .qr-wrap {
               display: flex;
-              align-items: center;
               justify-content: center;
-              font-size: 9px;
+              align-items: center;
+              margin: 10px 0;
+            }
+            .qr-wrap svg {
+              width: 32mm;
+              height: 32mm;
             }
           </style>
         </head>
@@ -142,8 +239,11 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             ${receipt.withholdingTax > 0 ? `<tr><td>Withholding (2%):</td><td style="text-align:right">-ETB ${formatMoney(receipt.withholdingTax)}</td></tr>` : ''}
             <tr class="total"><td>GRAND TOTAL:</td><td style="text-align:right">ETB ${formatMoney(receipt.total)}</td></tr>
           </table>
-          <div class="qr-placeholder">MoR EIMS QR CODE</div>
-          <p>Scan to verify authenticity on MoR EIMS.<br>የሰነዱን ትክክለኛነት በMoR ያረጋግጡ</p>
+          <div class="rule"></div>
+          <div class="qr-wrap">
+            ${qrSvgHtml}
+          </div>
+          <p>Scan QR code with any smartphone to inspect customer receipt &amp; verify clearance on MoR EIMS.<br>የሰነዱን ትክክለኛነት በMoR ያረጋግጡ</p>
         </body>
       </html>
     `);
@@ -163,6 +263,25 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             </span>
           </div>
 
+          <div className={styles.modalTabs}>
+            <button
+              type="button"
+              className={`${styles.modalTabBtn} ${activeTab === 'document' ? styles.modalTabBtnActive : ''}`}
+              onClick={() => setActiveTab('document')}
+            >
+              <FileText size={14} />
+              <span>Fiscal Document</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.modalTabBtn} ${activeTab === 'image' ? styles.modalTabBtnActive : ''}`}
+              onClick={() => setActiveTab('image')}
+            >
+              <ImageIcon size={14} />
+              <span>Receipt Image</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={onClose}
@@ -174,7 +293,58 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
         </div>
 
         <div className={styles.scrollArea}>
-          <div className={styles.receiptDoc}>
+          {activeTab === 'image' ? (
+            <div className={styles.imagePreviewWrapper}>
+              <div className={styles.imagePreviewToolbar}>
+                <div className={styles.imageThemeSelector}>
+                  <button
+                    type="button"
+                    className={`${styles.imageThemeBtn} ${imageTheme === 'modern' ? styles.imageThemeBtnActive : ''}`}
+                    onClick={() => setImageTheme('modern')}
+                  >
+                    Standard Invoice
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.imageThemeBtn} ${imageTheme === 'thermal' ? styles.imageThemeBtnActive : ''}`}
+                    onClick={() => setImageTheme('thermal')}
+                  >
+                    Thermal Slip (80mm)
+                  </button>
+                </div>
+
+                <div className={styles.imagePreviewActions}>
+                  <button
+                    type="button"
+                    onClick={handleDownloadPng}
+                    disabled={isDownloadingImage}
+                    className={styles.downloadPngBtn}
+                  >
+                    <Download size={14} />
+                    <span>{isDownloadingImage ? 'Generating PNG...' : 'Download PNG'}</span>
+                  </button>
+                  <a
+                    href={renderedReceiptImageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.openVectorBtn}
+                  >
+                    <ExternalLink size={14} />
+                    <span>Open Vector SVG</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className={styles.imageCanvas}>
+                <img
+                  src={renderedReceiptImageUrl}
+                  alt={`Official Electronic Receipt ${receipt.receiptNumber}`}
+                  className={styles.previewReceiptImg}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className={styles.receiptDoc}>
             {/* MoR Banner */}
             <div className={styles.morBanner}>
               <div className={styles.morLeft}>
@@ -247,8 +417,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <p className={styles.buyerLabel}>Buyer / {receipt.transactionMode}</p>
                   <p className={styles.buyerName}>{receipt.customerName || 'Walk-in customer'}</p>
                   <p className={styles.buyerMeta}>
-                    TIN: {receipt.customerTin || 'Not provided'}<br />
-                    Fayda FIN: {receipt.customerNationalId || 'Not provided'}<br />
+                    TIN: {receipt.customerTin || (receipt.transactionMode?.startsWith('B2C') ? 'Optional (Not provided)' : 'Not provided')}<br />
+                    Fayda FIN: {receipt.customerNationalId || (receipt.transactionMode?.startsWith('B2C') ? 'Optional (Not provided)' : 'Not provided')}<br />
                     VAT: {receipt.customerVat || 'Not provided'}<br />
                     Contact: {receipt.customerPhone || 'Not provided'}
                   </p>
@@ -376,43 +546,119 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                 </dl>
               </div>
 
-              {/* MoR Verified QR code */}
+              {/* MoR Verified Scannable QR code */}
               <div className={styles.qrBox}>
-                <div className={styles.qrGraphic} aria-label="Official MoR verification QR">
-                  {QR_PATTERN.map((isDark, idx) => (
-                    <span
-                      key={idx}
-                      className={isDark ? styles.qrPixelDark : styles.qrPixelLight}
-                    />
-                  ))}
+                <div className={styles.qrGraphic} aria-label="Official MoR verification QR code">
+                  <QRCodeSVG
+                    id="receipt-qr-svg"
+                    value={qrValue}
+                    size={144}
+                    level={qrMode === 'data-uri' ? 'L' : 'M'}
+                    includeMargin={false}
+                    fgColor="#123D2C"
+                  />
                 </div>
 
                 <div className={styles.qrInfo}>
+                  <div className={styles.qrModeSelector}>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'image' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('image')}
+                      title="QR code opens customer's visual receipt image with full tools"
+                    >
+                      Receipt Image Web
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'data-uri' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('data-uri')}
+                      title="QR code holds complete offline vector SVG receipt image directly"
+                    >
+                      Offline SVG Image
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'info' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('info')}
+                      title="QR code encodes customer text summary"
+                    >
+                      Text Summary
+                    </button>
+                  </div>
+
                   <p className={styles.qrTitle}>
                     <ShieldCheck size={18} /> Official MoR-verified QR code
                   </p>
-                  <p className={styles.copy}>
-                    Scan using any device or MoR EIMS inspector app to authenticate fiscal clearance.
+                  <p className={styles.qrCopy}>
+                    {qrMode === 'image'
+                      ? "Scan with any smartphone camera to immediately load and display the authentic visual receipt graphic on your mobile device."
+                      : qrMode === 'data-uri'
+                      ? "Scans directly as an authentic vector SVG receipt image document without requiring internet or server access."
+                      : "Scan to read customer receipt details and fiscal clearance metadata in plain text format."}
                   </p>
                   <p className={styles.sigCode}>
                     Digital signature: {receipt.digitalSignature}
                   </p>
+
+                  <div className={styles.qrImageActionBanner}>
+                    <div className={styles.qrImageThumbnail}>
+                      <img src={renderedReceiptImageUrl} alt="Receipt Graphic Thumbnail" />
+                    </div>
+                    <div className={styles.qrImageActionInfo}>
+                      <span className={styles.qrImageActionHeading}>Visual Receipt Graphic Ready</span>
+                      <p className={styles.qrImageActionSub}>
+                        Scan QR code with smartphone camera or launch image directly.
+                      </p>
+                      <div className={styles.qrImageBtnGroup}>
+                        <a
+                          href={receiptImageViewerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.qrImageActionBtn}
+                        >
+                          <ExternalLink size={13} />
+                          <span>Open Receipt Image</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={handleDownloadPng}
+                          disabled={isDownloadingImage}
+                          className={styles.qrImageActionBtnSecondary}
+                        >
+                          <Download size={13} />
+                          <span>Save PNG</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className={styles.modalFooter}>
-          <div className={styles.footerLeft}>
-            <button
-              type="button"
-              onClick={() => setLanguage((l) => (l === 'en' ? 'am' : 'en'))}
-              className={styles.actionBtn}
-            >
-              <Languages size={15} />
-              <span>{language === 'en' ? 'Show in አማርኛ' : 'Show in English'}</span>
-            </button>
+      <div className={styles.modalFooter}>
+        <div className={styles.footerLeft}>
+          <button
+            type="button"
+            onClick={handleDownloadPng}
+            disabled={isDownloadingImage}
+            className={styles.actionBtn}
+          >
+            <Download size={15} />
+            <span>{isDownloadingImage ? 'Generating PNG...' : 'Save image (.png)'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setLanguage((l) => (l === 'en' ? 'am' : 'en'))}
+            className={styles.actionBtn}
+          >
+            <Languages size={15} />
+            <span>{language === 'en' ? 'Show in አማርኛ' : 'Show in English'}</span>
+          </button>
 
             <button
               type="button"

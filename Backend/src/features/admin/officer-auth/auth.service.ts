@@ -220,13 +220,15 @@ export class OfficerAuthService {
       expiresAt: Date.now() + 10 * 60 * 1000,
     });
 
-    await otpService.sendOtp(officer.email, 'admin_login', officer.name);
+    const otpResult = await otpService.sendOtp(officer.email, 'admin_login', officer.name);
 
     return {
       requires2FA: true,
       tempToken,
       email: officer.email,
       maskedEmail: maskEmail(officer.email),
+      code: otpResult.simulated || process.env.NODE_ENV !== 'production' ? otpResult.code : undefined,
+      simulatedCode: otpResult.simulated || process.env.NODE_ENV !== 'production' ? otpResult.code : undefined,
     };
   }
 
@@ -306,12 +308,28 @@ export class OfficerAuthService {
     }
 
     const cleanUsername = payload.username.trim().toLowerCase();
-    const existing = this.officersCache.find(
+    const cleanBadge = payload.badgeNumber.trim().toUpperCase();
+    const cleanEmail = payload.email.trim().toLowerCase();
+
+    const existingUsername = this.officersCache.find(
       (o) => o.username.toLowerCase() === cleanUsername
     );
+    if (existingUsername) {
+      throw new Error(`Officer username "${payload.username.trim()}" is already taken.`);
+    }
 
-    if (existing) {
-      throw new Error(`Officer username "${payload.username}" is already taken.`);
+    const existingBadge = this.officersCache.find(
+      (o) => o.badgeNumber.toUpperCase() === cleanBadge
+    );
+    if (existingBadge) {
+      throw new Error(`Officer badge / employee ID "${payload.badgeNumber.trim()}" is already registered.`);
+    }
+
+    const existingEmail = this.officersCache.find(
+      (o) => o.email.toLowerCase() === cleanEmail
+    );
+    if (existingEmail) {
+      throw new Error(`Official email "${payload.email.trim()}" is already associated with another officer.`);
     }
 
     const newOfficer: StoredOfficer = {
@@ -358,6 +376,7 @@ export class OfficerAuthService {
    */
   async getOfficerFromToken(token: string): Promise<OfficerUser | null> {
     if (!token) return null;
+    this.ensureLoaded();
 
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
     const session = activeSessions.get(cleanToken);
@@ -376,9 +395,39 @@ export class OfficerAuthService {
   }
 
   /**
+   * Check availability of username, badge number, or email
+   */
+  checkAvailability(query: { username?: string; badgeNumber?: string; email?: string }): {
+    usernameAvailable?: boolean;
+    badgeAvailable?: boolean;
+    emailAvailable?: boolean;
+  } {
+    this.ensureLoaded();
+    const result: { usernameAvailable?: boolean; badgeAvailable?: boolean; emailAvailable?: boolean } = {};
+
+    if (query.username) {
+      const cleanUser = query.username.trim().toLowerCase();
+      result.usernameAvailable = !this.officersCache.some((o) => o.username.toLowerCase() === cleanUser);
+    }
+    if (query.badgeNumber) {
+      const cleanBadge = query.badgeNumber.trim().toUpperCase();
+      result.badgeAvailable = !this.officersCache.some((o) => o.badgeNumber.toUpperCase() === cleanBadge);
+    }
+    if (query.email) {
+      const cleanMail = query.email.trim().toLowerCase();
+      result.emailAvailable = !this.officersCache.some((o) => o.email.toLowerCase() === cleanMail);
+    }
+
+    return result;
+  }
+
+  /**
    * Logout by invalidating session token
    */
   async logout(token: string): Promise<boolean> {
+    if (!token) return false;
+    this.ensureLoaded();
+
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7).trim() : token.trim();
     const result = activeSessions.delete(cleanToken);
     this.saveSessionsToFile();

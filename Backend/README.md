@@ -14,7 +14,7 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
   - Excise Tax: $\text{Net Amount} \times (\text{Excise Rate} / 100)$
   - Standard VAT (15%): $(\text{Net Amount} + \text{Excise Tax}) \times 0.15$
   - Withholding Tax (2%): Eligible only for B2B transactions where Goods Subtotal > 10,000 ETB or Services Subtotal > 3,000 ETB, and buyer is a designated agent.
-  - High-Value B2C Enforcement: Mandatory buyer identification (Name + TIN or Fayda FIN) for cash transactions $\ge$ 10,000 ETB.
+  - B2C Identification Rules: Customer TIN and Fayda National ID (FIN) are both optional for B2C walk-in receipts; 10-digit TIN is required for B2B registered business buyers.
   - Credit/Debit Notes: Mandates original cleared IRN and adjustment reason.
 - **Persistent Storage**: Automatic JSON database storage in `data/` for zero external database dependencies.
 
@@ -35,14 +35,21 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
   Lists issued receipts with optional query filters: `?search=...`, `?documentType=...`, `?limit=...`, `?offset=...`.
 - **`GET /api/receipts/:id`**
   Fetches receipt by internal ID, IRN, or receipt number.
-- **`GET /api/receipts/verify/:irn`**
-  Public verification endpoint matching MoR QR verification scanning.
+### 3. Visual Receipt Image Generation
+- **`GET /api/receipts/:irn/image`** (also `GET /api/receipts/image/:irn`)
+  Generates and returns an authentic, standalone vector graphic receipt image (`image/svg+xml`) rendered in real time.
+  - **Query Parameters**:
+    - `theme`: `modern` (default standard invoice layout) or `thermal` (80mm POS register receipt layout)
+    - `lang`: `en` (English) or `am` (Amharic / አማርኛ)
+    - `data`: URL-safe base64 compressed receipt payload for standalone client-side fallback rendering if receipt was not yet written to server disk.
+  - **Headers**: `Content-Type: image/svg+xml`, `Content-Disposition: inline; filename="receipt-...svg"`
+  - **Features**: Features MoR seal, official EIMS clearance status pill, itemized grid, tax breakdown, and cryptographic fiscal digital signature stamp.
 
-### 3. Taxpayer TIN Verification
+### 4. Taxpayer TIN Verification
 - **`POST /api/tin/verify`** (or `GET /api/tin/:tin`)
   Verifies 10-digit Ethiopian TIN against the MoR registry.
 
-### 4. Products Catalog
+### 5. Products Catalog
 - **`GET /api/products`**
   Returns standard products with default pricing, UOM, VAT categories, and excise tax rates.
 
@@ -53,11 +60,11 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
 From the `Backend/` directory:
 
 ```powershell
-# Development mode with hot-reloading
+# Development mode with hot-reloading (bound to 0.0.0.0 for LAN/Wi-Fi access)
 npm run dev
 
 # Or run directly
 npm start
 ```
 
-Default server URL: **`http://localhost:5000`**
+Default server URL: **`http://localhost:5000`** (or `http://<lan-ip>:5000` across local devices)

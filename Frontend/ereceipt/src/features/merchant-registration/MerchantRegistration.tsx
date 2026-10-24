@@ -392,9 +392,10 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
         recipientName={formData.fullName}
         onClose={() => setIsOtpModalOpen(false)}
         onVerified={() => {
-          updateFormData({ emailVerified: true });
+          setFormData((prev) => ({ ...prev, emailVerified: true }));
           setIsOtpModalOpen(false);
           setStep(2);
+          setStepError(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />

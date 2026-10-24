@@ -62,23 +62,18 @@ The system has two primary interfaces:
 - Assign a unique identifier to each receipt.
 - Generate QR codes for receipt verification.
 - Store and retrieve receipt records.
-- Display receipt details, including merchant information, items, quantities, totals, and applicable taxes.
+- Display receipt details, including merchant information, items, quantities, totals, applicable taxes, and customer identification (mandatory 10-digit TIN for B2B; optional TIN and Fayda FIN for B2C).
 - Track receipt status and retain appropriate records of voided receipts.
 
-### 4. Receipt Verification
+### 4. Receipt Verification & Visual Receipt Image QR Scanning
 
-Customers and authorized users should be able to scan a receipt's QR code to verify its authenticity.
+Customers and authorized users can scan the receipt's QR code with any smartphone camera to immediately load the authentic **visual receipt image** rather than raw text.
 
-The verification page is intended to display relevant receipt information, such as:
-
-- Receipt number.
-- Merchant name and identification details.
-- Transaction date and time.
-- Total transaction amount.
-- Applicable tax amount.
-- Current receipt status.
-
-Verification should retrieve information from the system rather than relying solely on information encoded in the QR code.
+The QR code generator supports two output modes:
+- **Embedded Web Receipt Viewer (`/?view=receipt-image&irn=...&data=...`):** Full interactive viewer with theme toggle (Modern Invoice / 80mm POS Thermal Slip), Amharic/English bilingual toggle, PNG/SVG download, and thermal printing. The full receipt payload is encoded directly into query parameters, guaranteeing instant rendering even if the device cannot access the backend database.
+- **Direct SVG Data URI (`data:image/svg+xml,...`):** Completely self-contained vector graphic encoded directly inside the QR code matrix. When scanned by camera or barcode scanners, it opens natively as a crisp visual receipt image with zero network or server requests.
+- **Cross-Device Mobile Access (`0.0.0.0` Binding):** Both the Vite frontend dev server (port 5173) and Express backend (port 5000) bind to `0.0.0.0`, allowing phones and tablets on the same Wi-Fi network to connect via the detected LAN IP address (e.g. `http://192.168.x.x:5173`).
+- **MoR Vector Image Endpoint (`/api/receipts/:irn/image`):** Dynamic SVG endpoint rendering high-resolution fiscal receipts on-demand with official Ministry of Revenues clearance stamps and SHA-256 cryptographic signatures.
 
 ## System Workflow
 
@@ -167,6 +162,78 @@ The entire eReceipt platform is fully containerized with **Docker** and **Docker
    docker compose down
    ```
    *(To wipe database volumes and re-seed from scratch, use `docker compose down -v`)*
+
+---
+
+## Merchant Email Verification & Resend Setup
+
+The merchant registration workflow requires 6-digit email OTP verification at Step 1 before advancing to Step 2 (Tax Identity & TIN).
+
+### 1. Development Simulation Mode (Zero Configuration)
+By default, if `RESEND_API_KEY` is not provided in `Backend/.env`:
+- The backend automatically runs in **simulation mode**.
+- The 6-digit verification code is printed to the backend terminal log.
+- The registration modal displays a **Simulation / Dev Mode** banner containing the code and an **"Autofill & Verify"** button, ensuring developers and testers are never blocked.
+- Verification codes expire after 10 minutes and have a 45-second resend cooldown.
+
+### 2. Live Email Delivery via Resend
+To send live verification emails to real inboxes:
+
+1. Create a free account at [resend.com](https://resend.com) and generate an API key.
+2. In `Backend/.env`, configure:
+   ```env
+   RESEND_API_KEY=re_your_api_key_here
+   RESEND_FROM_EMAIL=eReceipt <onboarding@resend.dev>
+   ```
+3. **Important Sandbox Limitation:**
+   - Free Resend accounts using the default domain `onboarding@resend.dev` can **only send to the verified account owner email**.
+   - If a test user registers with any other email address, the backend gracefully catches the restriction, logs the diagnostic reason, and activates simulation fallback so registration continues seamlessly.
+4. **Custom Domain (Production):**
+   - Verify your custom domain at [resend.com/domains](https://resend.com/domains) (e.g. `mail.ereceipt.et`).
+   - Set `RESEND_FROM_EMAIL=eReceipt Verification <noreply@mail.ereceipt.et>`.
+   - Real emails will be delivered to any recipient worldwide.
+
+### 3. OTP API Endpoints
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/otp/send` | Dispatches 6-digit verification code to email (or generates simulation code) |
+| `POST` | `/api/otp/verify` | Validates submitted 6-digit OTP code against session store |
+| `POST` | `/api/otp/resend` | Dispatches a new code respecting 45s cooldown |
+| `GET` | `/api/otp/status` | Checks if an email has an active verification or pending code |
+
+---
+
+## Revenue Officer & Admin Onboarding
+
+Authorized tax officers and administrators can access the portal via `http://localhost:5173/?view=admin` or by clicking **"Admin"** in the navigation header.
+
+### 1. Officer Registration
+New Ministry officers can onboard using the **"Officer Registration"** tab:
+- **Full Legal Name**: Official name (minimum 3 characters).
+- **Officer Username**: Alphanumeric identifier (3-30 characters).
+- **Badge / Employee ID**: Official government badge (e.g. `RO-401`, unique).
+- **Official Email**: Government email address (e.g. `officer@mor.gov.et`, unique).
+- **Branch & Role**: Assignable branches and roles (`REVENUE_OFFICER`, `SENIOR_AUDITOR`, `ADMIN`).
+- **Authorization Declaration**: Mandatory certification checkbox.
+- Upon successful submission, an active 24-hour session token is issued, recorded to the audit log, and the officer transitions directly to the workspace.
+
+### 2. Built-in Demo Credentials
+| Account | Username | Password | Role |
+|---|---|---|---|
+| **Fanuel** | `officer.fani` | `Password123` | Revenue Officer |
+| **Abebe** | `officer.demo` | `Revenue123` | Senior Tax Auditor |
+| **Admin** | `admin` | `Admin123` | System Administrator |
+
+### 3. Admin Authentication Endpoints
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/admin/auth/register` | Onboards new officer and issues session token |
+| `POST` | `/api/admin/auth/login` | Authenticates username/password and dispatches 2FA OTP |
+| `POST` | `/api/admin/auth/verify-2fa` | Validates 2FA code and issues bearer token |
+| `POST` | `/api/admin/auth/resend-2fa` | Resends 2FA code respecting cooldown |
+| `GET` | `/api/admin/auth/check-availability` | Verifies availability of username, badge, or email |
+| `GET` | `/api/admin/auth/me` | Returns authenticated officer session details |
+| `POST` | `/api/admin/auth/logout` | Invalidates active officer session |
 
 ---
 

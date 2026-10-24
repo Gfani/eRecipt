@@ -6,6 +6,8 @@ import { Audit } from './features/audit';
 import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
 import { SESSION_EXPIRED_EVENT } from './services/apiClient';
+import { ReceiptVerification } from './features/verification';
+import { ReceiptImageView } from './features/receipt-image';
 import './App.css';
 
 type AppView =
@@ -16,7 +18,9 @@ type AppView =
   | 'merchant'
   | 'audit'
   | 'admin'
-  | 'registration';
+  | 'registration'
+  | 'verify'
+  | 'receipt-image';
 
 const SESSION_VIEW_KEY = 'ereceipt_active_view';
 const SESSION_SCREEN_KEY = 'ereceipt_active_screen';
@@ -29,6 +33,14 @@ function parseUrlState(): { view: AppView; merchantScreen: string } {
 
   const savedView = window.sessionStorage.getItem(SESSION_VIEW_KEY) as AppView | null;
   const savedScreen = window.sessionStorage.getItem(SESSION_SCREEN_KEY) || 'dashboard';
+
+  // Public receipt verification or image routes
+  if (viewParam === 'receipt-image' || viewParam === 'image' || pathname.startsWith('/receipt-image')) {
+    return { view: 'receipt-image', merchantScreen: 'dashboard' };
+  }
+  if (viewParam === 'verify' || pathname.startsWith('/verify') || params.get('irn')) {
+    return { view: 'verify', merchantScreen: 'dashboard' };
+  }
 
   // 1. Pathname-based detection (e.g. /admin, /registration, /signin, /merchant/*)
   if (pathname.includes('/admin')) {
@@ -154,6 +166,12 @@ function App() {
     } else if (screen === 'admin') {
       targetView = 'admin';
       urlQuery = '?view=admin';
+    } else if (screen === 'verify' || screen === 'verification') {
+      targetView = 'verify';
+      urlQuery = '?view=verify';
+    } else if (screen === 'receipt-image' || screen === 'image') {
+      targetView = 'receipt-image';
+      urlQuery = '?view=receipt-image';
     } else if (screen === 'pos' || screen === 'receipt-issuance') {
       targetView = 'receipt-issuance';
       urlQuery = '?view=pos';
@@ -185,14 +203,18 @@ function App() {
 
   return (
     <div className="app-container">
-      {currentView === 'landing' ? (
+      {currentView === 'receipt-image' ? (
+        <ReceiptImageView onBack={() => handleNavigate('landing')} />
+      ) : currentView === 'landing' ? (
         <LandingPage
           onNavigate={handleNavigate}
           onSignInClick={() => handleNavigate('signin')}
           onGetStartedClick={() => handleNavigate('registration')}
-          onScanReceiptClick={() => handleNavigate('receipt-issuance')}
+          onScanReceiptClick={() => handleNavigate('verify')}
           onMerchantPortalClick={() => handleNavigate('dashboard')}
         />
+      ) : currentView === 'verify' ? (
+        <ReceiptVerification onNavigate={handleNavigate} />
       ) : currentView === 'signin' || currentView === 'login' ? (
         <LoginForm
           onSuccess={() => handleNavigate('dashboard')}

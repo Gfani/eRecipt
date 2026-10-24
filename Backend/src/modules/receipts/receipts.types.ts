@@ -18,6 +18,7 @@ export interface Receipt {
   merchantAddress: string;
   customerName?: string;
   customerTin?: string;
+  customerNationalId?: string;
   customerPhone?: string;
   items: ReceiptItem[];
   subtotal: number;

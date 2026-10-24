@@ -105,8 +105,8 @@ class Database {
         (r) =>
           r.receiptNumber.toLowerCase().includes(q) ||
           r.irn.toLowerCase().includes(q) ||
-          r.customerName.toLowerCase().includes(q) ||
-          r.customerTin.toLowerCase().includes(q)
+          r.customerName?.toLowerCase().includes(q) ||
+          r.customerTin?.toLowerCase().includes(q)
       );
     }
 

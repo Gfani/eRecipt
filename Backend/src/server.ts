@@ -1,10 +1,13 @@
 import 'dotenv/config';
 import app from './app.js';
 import { config } from './config/index.js';
+import { NetworkService } from './services/networkService.js';
 
 const port = config.port || 5000;
 
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
+  const lanIp = NetworkService.getPreferredLanIp();
+
   // ⚠️  Security warnings for insecure defaults
   const defaultJwtSecret = 'ereceipt-dev-secret-key-change-in-prod';
   const defaultEimsKey = 'mor-eims-fiscal-secret-key-2026';
@@ -16,10 +19,10 @@ const server = app.listen(port, () => {
   if (!process.env.EIMS_SECRET_KEY || process.env.EIMS_SECRET_KEY === defaultEimsKey) {
     console.warn('⚠️  [SECURITY WARNING] EIMS_SECRET_KEY is using the default value. Change it in production.\n');
   }
-
   console.log('====================================================');
   console.log(`🚀 eReceipt Backend Server is RUNNING`);
   console.log(`📡 URL: http://localhost:${port}`);
+  console.log(`📱 Mobile LAN URL: http://${lanIp}:${port}`);
   console.log(`📋 Health Check: http://localhost:${port}/api/health`);
   console.log(`📝 Registration API: http://localhost:${port}/api/registration`);
   console.log(`🔐 Officer Auth: http://localhost:${port}/api/admin/auth`);

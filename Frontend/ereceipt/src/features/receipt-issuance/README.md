@@ -52,10 +52,15 @@ The calculations in this feature follow the statutory tax formulas specified in 
 5. **Grand Total**:
    $$\text{Grand Total} = \text{Subtotal} + \text{Excise Tax} + \text{VAT} - \text{Withholding Tax}$$
 
+6. **Customer Identification Rules**:
+   - **B2B / Registered Buyer**: Requires registered legal business name and 10-digit TIN.
+   - **B2C / Walk-in Customer**: Buyer TIN and Ethiopian National ID (Fayda FIN) are completely optional, including for high-value sales.
+
 ---
 
 ## ⚡ Quick Test Scenarios
 
 The user interface provides quick-test preset buttons above the form:
 - **B2B Wholesale Sample**: Pre-populates registered buyer "Hana Trading PLC", valid 10-digit TIN, CBE bank transfer, and qualifying withholding items.
-- **Retail Walk-in Sample**: Pre-populates a walk-in retail customer paying cash with zero withholding.
+- **Retail Walk-in Sample**: Pre-populates a walk-in retail customer paying cash with optional TIN and optional Fayda FIN.
+

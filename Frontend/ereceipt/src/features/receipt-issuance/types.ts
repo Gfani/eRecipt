@@ -50,11 +50,11 @@ export interface BuyerInfo {
 export interface ReceiptDraft {
   documentType: DocumentType;
   transactionMode: TransactionMode;
-  customerName: string;
-  customerTin: string;
-  customerVat: string;
-  customerNationalId: string;
-  customerPhone: string;
+  customerName?: string;
+  customerTin?: string;
+  customerVat?: string;
+  customerNationalId?: string;
+  customerPhone?: string;
   designatedWithholdingAgent: boolean;
   withholdingReference: string;
   originalIrn: string;

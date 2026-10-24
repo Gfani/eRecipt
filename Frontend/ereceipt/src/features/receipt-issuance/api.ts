@@ -6,11 +6,16 @@ export interface BackendHealthResponse {
   status: string;
   service: string;
   version: string;
-  mode: string;
-  merchantCode: string;
-  branchCode: string;
-  registerCode: string;
+  mode?: string;
+  merchantCode?: string;
+  branchCode?: string;
+  registerCode?: string;
   timestamp: string;
+  network?: {
+    lanIp: string;
+    preferredHost: string;
+    frontendMobileUrl: string;
+  };
 }
 
 export interface TinVerifyResult {
@@ -45,6 +50,25 @@ export async function checkBackendHealth(): Promise<BackendHealthResponse | null
 }
 
 /**
+ * Retrieves the preferred scannable host URL for mobile devices (using detected LAN IP)
+ */
+export async function getScannableHostUrl(): Promise<string> {
+  // If the page is already accessed via an IP address (not localhost), use that
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return window.location.origin;
+  }
+  try {
+    const health = await checkBackendHealth();
+    if (health?.network?.frontendMobileUrl) {
+      return health.network.frontendMobileUrl;
+    }
+  } catch {
+    // fallback to current origin
+  }
+  return typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173';
+}
+
+/**
  * Verify a 10-digit Ethiopian TIN with the backend registry
  */
 export async function verifyTinApi(tin: string): Promise<TinVerifyResult> {
@@ -70,23 +94,30 @@ export async function issueReceiptApi(
   idempotencyKey?: string
 ): Promise<IssuedReceipt> {
   const token =
-    localStorage.getItem('merchant_token') ||
-    localStorage.getItem('ereceipt_token') ||
-    sessionStorage.getItem('ereceipt_token');
+    (typeof window !== 'undefined' &&
+      (localStorage.getItem('ereceipt_token') ||
+        localStorage.getItem('merchant_token') ||
+        sessionStorage.getItem('ereceipt_token'))) ||
+    null;
 
   const key =
     idempotencyKey ||
     (draft as any).idempotencyKey ||
     `idem-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Idempotency-Key': key,
+    'X-Idempotency-Key': key,
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}/receipts/issue`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Idempotency-Key': key,
-      'X-Idempotency-Key': key,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    credentials: 'include',
+    headers,
     body: JSON.stringify({ ...draft, idempotencyKey: key }),
   });
 

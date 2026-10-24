@@ -10,6 +10,42 @@ import {
 } from 'lucide-react';
 import styles from './OfficerSignIn.module.css';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
+async function postOfficerAuth(endpoint: string, payload: any) {
+  const primaryUrl = `${API_BASE_URL}${endpoint}`;
+  try {
+    const res = await fetch(primaryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || data.message || `HTTP ${res.status}: Request failed.`);
+    }
+    return data;
+  } catch (primaryErr: any) {
+    if (primaryUrl.startsWith('http')) {
+      try {
+        const fallbackRes = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const fallbackData = await fallbackRes.json().catch(() => ({}));
+        if (!fallbackRes.ok || !fallbackData.success) {
+          throw new Error(fallbackData.error || fallbackData.message || `HTTP ${fallbackRes.status}`);
+        }
+        return fallbackData;
+      } catch {
+        // Fall through
+      }
+    }
+    throw primaryErr;
+  }
+}
+
 interface OfficerSignInProps {
   onSuccess: (officer?: any) => void;
   onReturnToMerchant?: () => void;
@@ -69,6 +105,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
 
   // Common state
   const [authError, setAuthError] = useState('');
+  const [regSuccessNotice, setRegSuccessNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle Sign In submission
@@ -84,20 +121,11 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username.trim(),
-          password,
-          rememberMe: rememberOfficer,
-        }),
+      const data = await postOfficerAuth('/api/admin/auth/login', {
+        username: username.trim(),
+        password,
+        rememberMe: rememberOfficer,
       });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Authentication failed. Please verify credentials.');
-      }
 
       // Check if 2FA is required
       if (data.data?.requires2FA) {
@@ -105,7 +133,13 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         setTempToken(data.data.tempToken);
         setMaskedEmail(data.data.maskedEmail || data.data.email || 'your official email');
         setTwoFaCooldown(45);
-        setTwoFaCode('');
+        const code = data.data.code || data.data.simulatedCode || '';
+        if (code) {
+          setTwoFaCode(code);
+          setTwoFaSuccessNotice(`Simulation Mode: Your 2FA security code is ${code}`);
+        } else {
+          setTwoFaCode('');
+        }
         setAuthError('');
         return;
       }
@@ -135,19 +169,10 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/verify-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tempToken,
-          code: twoFaCode.trim(),
-        }),
+      const data = await postOfficerAuth('/api/admin/auth/verify-2fa', {
+        tempToken,
+        code: twoFaCode.trim(),
       });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Invalid or expired 2FA verification code.');
-      }
 
       if (data.data?.token) {
         localStorage.setItem('officer_token', data.data.token);
@@ -169,19 +194,16 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setTwoFaSuccessNotice(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/resend-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tempToken }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to resend code.');
-      }
+      const data = await postOfficerAuth('/api/admin/auth/resend-2fa', { tempToken });
 
       setTwoFaCooldown(data.data?.cooldownSeconds || 45);
-      setTwoFaSuccessNotice('A new security verification code has been sent to your email.');
+      const code = data.data?.code || data.data?.simulatedCode;
+      if (code) {
+        setTwoFaCode(code);
+        setTwoFaSuccessNotice(`Simulation Mode: Fresh security code is ${code}`);
+      } else {
+        setTwoFaSuccessNotice('A new security verification code has been sent to your email.');
+      }
     } catch (err: any) {
       setAuthError(err.message || 'Failed to resend code.');
     } finally {
@@ -194,8 +216,34 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     e.preventDefault();
     setAuthError('');
 
-    if (!regFullName.trim() || !regUsername.trim() || !regBadgeNumber.trim() || !regEmail.trim() || !regPassword) {
+    const cleanName = regFullName.trim();
+    const cleanUser = regUsername.trim();
+    const cleanBadge = regBadgeNumber.trim().toUpperCase();
+    const cleanMail = regEmail.trim();
+
+    if (!cleanName || !cleanUser || !cleanBadge || !cleanMail || !regPassword) {
       setAuthError('All fields marked with an asterisk are required.');
+      return;
+    }
+
+    if (cleanName.length < 3) {
+      setAuthError('Full name must be at least 3 characters long.');
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9._-]{3,30}$/.test(cleanUser)) {
+      setAuthError('Officer username must be 3-30 characters with letters, numbers, dots or underscores.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanMail)) {
+      setAuthError('Please enter a valid official email address (e.g., officer@mor.gov.et).');
+      return;
+    }
+
+    if (cleanBadge.length < 3) {
+      setAuthError('Officer badge number or employee ID must be at least 3 characters.');
       return;
     }
 
@@ -217,30 +265,25 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: regFullName.trim(),
-          username: regUsername.trim(),
-          badgeNumber: regBadgeNumber.trim().toUpperCase(),
-          email: regEmail.trim(),
-          branch: regBranch,
-          role: regRole,
-          password: regPassword,
-        }),
+      const data = await postOfficerAuth('/api/admin/auth/register', {
+        fullName: regFullName.trim(),
+        username: regUsername.trim(),
+        badgeNumber: regBadgeNumber.trim().toUpperCase(),
+        email: regEmail.trim(),
+        branch: regBranch,
+        role: regRole,
+        password: regPassword,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Registration failed. Please check your information.');
-      }
+      setRegSuccessNotice('✓ Officer registered successfully! Connecting to workspace...');
 
       if (data.data?.token) {
         localStorage.setItem('officer_token', data.data.token);
         localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
       }
-      onSuccess(data.data?.officer);
+      setTimeout(() => {
+        onSuccess(data.data?.officer);
+      }, 400);
     } catch (err: any) {
       setAuthError(err.message || 'Officer registration failed. Please check your information.');
     } finally {
@@ -834,6 +877,26 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                   <div role="alert" className={styles.errorMessage}>
                     <AlertCircle size={17} style={{ flexShrink: 0 }} />
                     <span>{authError}</span>
+                  </div>
+                )}
+
+                {regSuccessNotice && !authError && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 14px',
+                      backgroundColor: '#F0FDF4',
+                      border: '1px solid #BBF7D0',
+                      borderRadius: '6px',
+                      color: '#15803D',
+                      fontSize: '13px',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                    <span>{regSuccessNotice}</span>
                   </div>
                 )}
 

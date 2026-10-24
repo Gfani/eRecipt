@@ -29,10 +29,16 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
       <label className="field-group">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="field-label">Official business email *</span>
-          {formData.emailVerified && (
+          {formData.emailVerified ? (
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#16A34A', display: 'flex', alignItems: 'center', gap: '4px' }}>
               ✓ Verified
             </span>
+          ) : (
+            formData.email.includes('@') && (
+              <span style={{ fontSize: '11px', fontWeight: 500, color: '#64748B' }}>
+                6-digit code verification required
+              </span>
+            )
           )}
         </div>
         <input

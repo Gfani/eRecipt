@@ -27,6 +27,7 @@ export interface SendOtpResult {
   email: string;
   simulated?: boolean;
   code?: string; // provided in simulated mode for easy local testing
+  deliveryNotice?: string;
   cooldownSeconds?: number;
 }
 
@@ -55,13 +56,13 @@ class OtpService {
     if (apiKey && apiKey.trim() !== '') {
       try {
         this.resendClient = new Resend(apiKey.trim());
-        console.log('?? [Resend]: Initialized with API Key.');
+        console.log('[Resend Service]: Initialized successfully with API Key.');
       } catch (err) {
-        console.warn('?? [Resend]: Failed to initialize client, using simulation mode:', err);
+        console.warn('[Resend Service]: Failed to initialize client, switching to simulation mode:', err);
         this.resendClient = null;
       }
     } else {
-      console.log('?? [Resend]: No RESEND_API_KEY provided in .env. Running in development simulation mode.');
+      console.log('[Resend Service]: No RESEND_API_KEY detected in environment. Running in development simulation mode.');
       this.resendClient = null;
     }
   }
@@ -158,6 +159,8 @@ class OtpService {
     this.initResend(); // Re-read if key was updated in environment
 
     let deliverySimulated = true;
+    let fallbackReason: string | undefined;
+
     if (this.resendClient) {
       try {
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'eReceipt <onboarding@resend.dev>';
@@ -205,7 +208,11 @@ class OtpService {
             this.persistStore();
             throw new Error(`Email delivery failed: ${response.error.message}`);
           }
-          console.warn('⚠️ [Resend API Error]:', response.error);
+          console.warn('[Resend API Error]:', response.error.message || response.error);
+          fallbackReason = response.error.message || 'Resend rejected delivery request';
+          if (response.error.message?.includes('testing emails')) {
+            console.warn('[Resend Sandbox Notice]: Free accounts can only send to your verified account email address. Set a custom domain in Resend to send to any recipient.');
+          }
           deliverySimulated = true;
         } else {
           console.log(`✓ [Resend Email Sent]: Message ID ${response.data?.id} to ${cleanEmail}`);
@@ -217,9 +224,12 @@ class OtpService {
           this.persistStore();
           throw new Error('Email delivery failed.', { cause: sendError });
         }
-        console.warn('⚠️ [Email Delivery Failed, falling back to simulated mode]:', sendError);
+        console.warn('[Resend Fallback]: Email dispatch threw error, falling back to simulated mode:', sendError?.message || sendError);
+        fallbackReason = sendError?.message || 'Network/connection error during email dispatch';
         deliverySimulated = true;
       }
+    } else {
+      fallbackReason = 'No RESEND_API_KEY defined in environment';
     }
 
     if (deliverySimulated) {
@@ -228,14 +238,27 @@ class OtpService {
       console.log(`📧 Recipient : ${cleanEmail}`);
       console.log(`🎯 Purpose   : ${purpose}`);
       console.log(`🔒 CODE      : ${code}`);
+      console.log(`ℹ️ Reason    : ${fallbackReason || 'Simulation mode'}`);
       console.log(`⏳ Expires   : in ${this.EXPIRY_MINUTES} minutes`);
       console.log(`=======================================================`);
     }
 
+    const isDev = config.nodeEnv !== 'production';
+    const showCodeInResponse = deliverySimulated || isDev;
+
     return {
       success: true,
-      message: `Verification code sent to ${cleanEmail}.`,
+      message: deliverySimulated
+        ? `Verification code generated in simulation mode for ${cleanEmail}.`
+        : `Verification code sent to ${cleanEmail}.`,
       email: cleanEmail,
+      simulated: deliverySimulated,
+      code: showCodeInResponse ? code : undefined,
+      deliveryNotice: deliverySimulated
+        ? (fallbackReason
+            ? `Simulation mode (${fallbackReason}). Your verification code is provided for testing.`
+            : 'Resend email dispatch was simulated. The 6-digit verification code is available for development testing.')
+        : 'Email successfully dispatched via Resend to your mailbox.',
       cooldownSeconds: this.COOLDOWN_SECONDS,
     };
   }
@@ -324,6 +347,42 @@ class OtpService {
     const expiresAt = this.verifiedEmails.get(key);
     this.verifiedEmails.delete(key);
     return expiresAt !== undefined && expiresAt > Date.now();
+  }
+
+  /**
+   * Checks whether an email is currently verified or has a pending code
+   */
+  public checkEmailVerificationStatus(email: string, purpose: string = 'auth'): {
+    verified: boolean;
+    pending: boolean;
+    expiresInSeconds?: number;
+  } {
+    this.ensureLoaded();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const key = this.getKey(cleanEmail, purpose);
+
+    const verifiedExpiresAt = this.verifiedEmails.get(key);
+    if (verifiedExpiresAt && verifiedExpiresAt > Date.now()) {
+      return {
+        verified: true,
+        pending: false,
+        expiresInSeconds: Math.ceil((verifiedExpiresAt - Date.now()) / 1000),
+      };
+    }
+
+    const record = this.otpCache.get(key);
+    if (record && record.expiresAt > Date.now()) {
+      return {
+        verified: false,
+        pending: true,
+        expiresInSeconds: Math.ceil((record.expiresAt - Date.now()) / 1000),
+      };
+    }
+
+    return {
+      verified: false,
+      pending: false,
+    };
   }
 
   public async sendMerchantStatusNotification(input: {
