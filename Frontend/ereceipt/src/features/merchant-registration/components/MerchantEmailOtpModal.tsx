@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, CheckCircle2, AlertCircle, RotateCw, X, ShieldCheck } from 'lucide-react';
+import { Mail, CheckCircle2, AlertCircle, RotateCw, X } from 'lucide-react';
 
 interface MerchantEmailOtpModalProps {
   email: string;
@@ -21,7 +21,6 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(45);
-  const [simulatedCode, setSimulatedCode] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
   // Send OTP on initial modal open
@@ -63,10 +62,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
       }
 
       setResendCooldown(data.cooldownSeconds || 45);
-      if (data.code) {
-        setSimulatedCode(data.code);
-      }
-      setSuccessNotice(`Verification code sent to ${email} via Resend.`);
+      setSuccessNotice(`Verification code sent to ${email}.`);
     } catch (err: any) {
       setError(err.message || 'Could not send verification email. Please check the address.');
     } finally {
@@ -184,7 +180,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
               Verify Business Email
             </h3>
             <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#64748B' }}>
-              Resend 6-Digit Email Verification
+              6-Digit Email Verification
             </p>
           </div>
         </div>
@@ -195,47 +191,6 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
           <strong style={{ color: '#0F172A', fontWeight: 600 }}>{email}</strong>
         </p>
 
-        {/* Development Auto-Fill Helper Chip */}
-        {simulatedCode && (
-          <div
-            onClick={() => {
-              setCode(simulatedCode);
-              setError(null);
-            }}
-            style={{
-              backgroundColor: '#F0FDF4',
-              border: '1px dashed #22C55E',
-              borderRadius: '8px',
-              padding: '10px 12px',
-              marginBottom: '16px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              transition: 'background-color 0.15s ease',
-            }}
-            title="Click to auto-fill development code"
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldCheck size={16} color="#16A34A" />
-              <span style={{ fontSize: '12px', color: '#15803D', fontWeight: 600 }}>
-                Test OTP Code: <code style={{ fontSize: '13px', fontWeight: 800 }}>{simulatedCode}</code>
-              </span>
-            </div>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                color: '#15803D',
-                backgroundColor: '#DCFCE7',
-                padding: '2px 8px',
-                borderRadius: '4px',
-              }}
-            >
-              Click to fill
-            </span>
-          </div>
-        )}
 
         <form onSubmit={handleVerify}>
           {/* OTP Input Field */}
@@ -352,7 +307,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
                 }}
               >
                 <RotateCw size={13} className={isResending ? 'spin' : ''} />
-                {isResending ? 'Sending...' : 'Resend code via Resend'}
+                {isResending ? 'Sending...' : 'Resend code'}
               </button>
             )}
           </div>

@@ -1,49 +1,13 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 1200px;
-  padding: 40px 48px;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-.header {
-  margin-bottom: 32px;
-}
-
-.dateTag {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #0b8060;
-  margin-bottom: 8px;
-}
-
-.heading {
-  font-size: 32px;
-  font-weight: 800;
-  color: #0c2033;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.6px;
-}
-
-.subheading {
-  font-size: 14.5px;
-  color: #64748b;
-  margin: 0;
-}
-
-.gridSection {
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   width: 100%;
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 24px 16px;
-  }
-
-  .heading {
-    font-size: 26px;
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }

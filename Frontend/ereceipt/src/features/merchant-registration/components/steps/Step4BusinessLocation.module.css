@@ -25,7 +25,7 @@
   height: 40px;
   border-radius: var(--radius-md, 8px);
   background-color: #FFFFFF;
-  color: var(--color-primary, #0D9488);
+  color: var(--color-accent, #176B4D);
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
 }
@@ -38,13 +38,13 @@
 .gpsTitle {
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-navy, #12304A);
+  color: var(--color-text-heading, #17201B);
   margin: 0;
 }
 
 .gpsOptional {
   font-weight: 400;
-  color: var(--color-text-muted, #64748B);
+  color: var(--color-text-secondary, #526059);
 }
 
 .gpsCopy {

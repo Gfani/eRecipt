@@ -70,23 +70,30 @@ export const AdminAuditLog: React.FC<AdminAuditLogProps> = ({ auditEvents }) => 
             </tr>
           </thead>
           <tbody>
-            {filteredEvents.map((row) => (
-              <tr key={`${row.timestamp}-${row.reference}`}>
-                <td className={styles.td}>{row.timestamp}</td>
-                <td className={styles.td}>{row.officer}</td>
-                <td className={styles.td}>{row.action}</td>
-                <td className={`${styles.td} ${styles.tdRef}`}>{row.reference}</td>
-                <td className={styles.td}>{row.statusTransition}</td>
-                <td className={styles.td}>{row.notes}</td>
+            {filteredEvents.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: '#64748B' }}>
+                  No administrative audit records logged yet. System operations will appear here dynamically.
+                </td>
               </tr>
-            ))}
+            ) : (
+              filteredEvents.map((row) => (
+                <tr key={`${row.timestamp}-${row.reference}`}>
+                  <td className={styles.td}>{row.timestamp}</td>
+                  <td className={styles.td}>{row.officer}</td>
+                  <td className={styles.td}>{row.action}</td>
+                  <td className={`${styles.td} ${styles.tdRef}`}>{row.reference}</td>
+                  <td className={styles.td}>{row.statusTransition}</td>
+                  <td className={styles.td}>{row.notes}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
       <div className={styles.noticeBar}>
-        Administrative audit entries are append-only in this prototype and cannot be edited from
-        the interface.
+        Administrative audit entries are append-only and cryptographically secured.
       </div>
     </div>
   );

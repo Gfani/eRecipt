@@ -20,7 +20,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           type="text"
           className="field-input"
           autoComplete="off"
-          placeholder="e.g. Abeba Tesfaye"
+          placeholder="Enter your full name"
           value={formData.fullName}
           onChange={(e) => onChange({ fullName: e.target.value })}
         />
@@ -31,7 +31,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           <span className="field-label">Official business email *</span>
           {formData.emailVerified && (
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#16A34A', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              ✓ Verified via Resend OTP
+              ✓ Verified
             </span>
           )}
         </div>
@@ -40,7 +40,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           type="email"
           className="field-input"
           autoComplete="off"
-          placeholder="e.g. merchant@company.com"
+          placeholder="merchant@example.com"
           value={formData.email}
           onChange={(e) => onChange({ email: e.target.value, emailVerified: false })}
         />
@@ -53,7 +53,7 @@ export const Step1AccountDetails: React.FC<Step1Props> = ({ formData, onChange }
           type="tel"
           className="field-input"
           autoComplete="off"
-          placeholder="e.g. +251 911 234 567"
+          placeholder="+251 9XX XXX XXX"
           value={formData.phoneNumber}
           onChange={(e) => onChange({ phoneNumber: e.target.value })}
         />

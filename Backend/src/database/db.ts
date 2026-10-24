@@ -14,46 +14,9 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-export const SAMPLE_PRODUCTS: Product[] = [
-  { id: 101, name: 'Sidamo Coffee 500g', code: 'GR-104', price: 680, uom: 'PCS', vatCategory: 'Standard VAT (15%)', exciseRate: 10, supplyType: 'Goods' },
-  { id: 102, name: 'Teff Flour 5kg', code: 'GR-118', price: 920, uom: 'KG', vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-  { id: 103, name: 'Leather Notebook', code: 'ST-042', price: 450, uom: 'PCS', vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-  { id: 104, name: 'Desk Lamp', code: 'HM-091', price: 1250, uom: 'PCS', vatCategory: 'Standard VAT (15%)', exciseRate: 20, supplyType: 'Goods' },
-  { id: 105, name: 'Coffee Cup Set', code: 'HM-076', price: 780, uom: 'BOX', vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-  { id: 106, name: 'Blue Pen Pack (10pcs)', code: 'ST-018', price: 180, uom: 'BOX', vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-  { id: 107, name: 'Logistics / Delivery Service', code: 'SV-001', price: 250, uom: 'HRS', vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Services' },
-  { id: 108, name: 'Gift Packaging & Handling', code: 'SV-012', price: 120, uom: 'PCS', vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Services' },
-];
+export const SAMPLE_PRODUCTS: Product[] = [];
 
-export const REGISTERED_TAXPAYERS: Record<string, RegisteredTaxpayer> = {
-  '0012345678': {
-    tin: '0012345678',
-    tradeName: 'Hana Trading PLC',
-    vatNumber: 'VAT-ET-0012345678',
-    registrationStatus: 'ACTIVE',
-    designatedWithholdingAgent: true,
-    taxCenter: 'Large Taxpayers Office (LTO), Addis Ababa',
-    verifiedAt: new Date().toISOString(),
-  },
-  '0098765432': {
-    tin: '0098765432',
-    tradeName: 'Abyssinia General Merchandise Share Co.',
-    vatNumber: 'VAT-ET-0098765432',
-    registrationStatus: 'ACTIVE',
-    designatedWithholdingAgent: true,
-    taxCenter: 'Medium Taxpayers Office Bole Branch',
-    verifiedAt: new Date().toISOString(),
-  },
-  '0045678901': {
-    tin: '0045678901',
-    tradeName: 'Selam Tech Solutions Enterprise',
-    vatNumber: 'VAT-ET-0045678901',
-    registrationStatus: 'ACTIVE',
-    designatedWithholdingAgent: false,
-    taxCenter: 'Kirkos Sub-City Branch',
-    verifiedAt: new Date().toISOString(),
-  },
-};
+export const REGISTERED_TAXPAYERS: Record<string, RegisteredTaxpayer> = {};
 
 class Database {
   private receipts: IssuedReceipt[] = [];

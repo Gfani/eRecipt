@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { applicationStorage } from './storage.js';
-import { hashPassword } from './password.js';
+import { hashPassword } from '../../common/auth/security.js';
 import { otpService } from '../../services/otp.service.js';
 import { randomBytes } from 'node:crypto';
 import type {
@@ -77,7 +77,6 @@ export class MerchantRegistrationService {
     if (applicationStorage.getByEmail(email)) {
       throw new Error('This email address is already associated with a merchant account.');
     }
-
     if (
       !input.sellerLegalName?.trim() ||
       !input.tradeName?.trim() ||

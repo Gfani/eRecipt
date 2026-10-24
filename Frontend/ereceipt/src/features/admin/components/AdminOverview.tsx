@@ -36,7 +36,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
 
   const totalReceiptsIssued = receipts.length;
   const liveClearedSales = receipts.reduce((acc, r) => acc + (r.total || 0), 0);
-  const totalLedgerSales = 12604300 + liveClearedSales;
+  const totalLedgerSales = liveClearedSales;
 
   const metricCards = [
     {
@@ -279,27 +279,35 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.slice(0, 3).map((item) => (
-                    <tr key={item.ref}>
-                      <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
-                      <td className={styles.td}>{item.tin}</td>
-                      <td className={styles.td}>{item.period}</td>
-                      <td className={styles.td}>{item.category}</td>
-                      <td className={styles.td}>{item.date}</td>
-                      <td className={styles.td}>
-                        <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
-                      </td>
-                      <td className={styles.td} style={{ textAlign: 'right' }}>
-                        <button
-                          type="button"
-                          onClick={() => onReviewReport(item.ref)}
-                          className={styles.reviewBtn}
-                        >
-                          Review Report
-                        </button>
+                  {reports.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '28px 16px', color: '#667069' }}>
+                        No tax report submissions recorded yet.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    reports.slice(0, 3).map((item) => (
+                      <tr key={item.ref}>
+                        <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
+                        <td className={styles.td}>{item.tin}</td>
+                        <td className={styles.td}>{item.period}</td>
+                        <td className={styles.td}>{item.category}</td>
+                        <td className={styles.td}>{item.date}</td>
+                        <td className={styles.td}>
+                          <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
+                        </td>
+                        <td className={styles.td} style={{ textAlign: 'right' }}>
+                          <button
+                            type="button"
+                            onClick={() => onReviewReport(item.ref)}
+                            className={styles.reviewBtn}
+                          >
+                            Review Report
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -310,13 +318,19 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
         <aside className={styles.asideCard}>
           <h2 className={styles.cardTitle}>Recent Administrative Decisions</h2>
           <div className={styles.asideList}>
-            {auditEvents.slice(0, 4).map((event) => (
-              <div key={`${event.timestamp}-${event.reference}`} className={styles.asideItem}>
-                <p className={styles.asideAction}>{event.action}</p>
-                <p className={styles.asideMeta}>{event.reference} · {event.officer}</p>
-                <p className={styles.asideDate}>{event.timestamp}</p>
-              </div>
-            ))}
+            {auditEvents.length === 0 ? (
+              <p style={{ fontSize: '13px', color: '#667069', padding: '16px 0', margin: 0 }}>
+                No administrative decisions logged yet. Decisions made by officers will record here in real-time.
+              </p>
+            ) : (
+              auditEvents.slice(0, 4).map((event) => (
+                <div key={`${event.timestamp}-${event.reference}`} className={styles.asideItem}>
+                  <p className={styles.asideAction}>{event.action}</p>
+                  <p className={styles.asideMeta}>{event.reference} · {event.officer}</p>
+                  <p className={styles.asideDate}>{event.timestamp}</p>
+                </div>
+              ))
+            )}
           </div>
         </aside>
       </div>

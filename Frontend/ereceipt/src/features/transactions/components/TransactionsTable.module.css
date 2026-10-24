@@ -1,8 +1,8 @@
 .tableCard {
   background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #eef2f6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   overflow: hidden;
 }
 
@@ -24,17 +24,18 @@
 .searchIcon {
   position: absolute;
   left: 14px;
-  color: #94a3b8;
+  color: #64748b;
   pointer-events: none;
 }
 
 .searchInput {
   width: 100%;
-  padding: 10px 16px 10px 42px;
+  height: 44px;
+  padding: 0 16px 0 44px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
   font-size: 14px;
-  color: #1e293b;
+  color: #0f172a;
   outline: none;
   background-color: #ffffff;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -56,9 +57,15 @@
   align-items: center;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 0 30px 0 36px;
+  height: 44px;
+  padding: 0 32px 0 38px;
   background-color: #ffffff;
-  height: 40px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.yearSelectWrapper:hover {
+  border-color: #cbd5e1;
 }
 
 .calendarIcon {
@@ -74,9 +81,10 @@
   background: transparent;
   font-size: 14px;
   font-weight: 500;
-  color: #1e293b;
+  color: #0f172a;
   cursor: pointer;
   appearance: none;
+  -webkit-appearance: none;
 }
 
 .chevronIcon {
@@ -99,22 +107,45 @@
 }
 
 .table thead th {
-  padding: 14px 24px;
-  font-size: 12.5px;
+  padding: 16px 24px;
+  font-size: 13px;
   font-weight: 600;
   color: #64748b;
   border-top: 1px solid #f1f5f9;
   border-bottom: 1px solid #f1f5f9;
-  background-color: #fafbfc;
+  background-color: #ffffff;
+  text-align: left;
+  letter-spacing: -0.01em;
+}
+
+.monthHeader {
+  width: 18%;
+}
+
+.incomeHeader {
+  width: 22%;
+}
+
+.taxHeader {
+  width: 20%;
+}
+
+.expenseHeader {
+  width: 20%;
 }
 
 .detailsHeader {
-  text-align: right;
+  width: 20%;
+  text-align: left;
 }
 
 .tableRow {
-  transition: background-color 0.15s ease;
+  transition: background-color 0.12s ease;
   border-bottom: 1px solid #f1f5f9;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
 }
 
 .tableRow:hover {
@@ -122,13 +153,18 @@
 }
 
 .table tbody td {
-  padding: 18px 24px;
-  font-size: 14px;
+  padding: 20px 24px;
+  font-size: 14.5px;
   vertical-align: middle;
+  text-align: left;
 }
 
 /* Month Cell */
 .monthCell {
+  text-align: left;
+}
+
+.monthGroup {
   display: flex;
   flex-direction: column;
 }
@@ -136,48 +172,54 @@
 .monthName {
   font-weight: 700;
   color: #0f172a;
+  font-size: 14.5px;
 }
 
 .yearText {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #94a3b8;
-  margin-top: 2px;
+  margin-top: 3px;
+  font-weight: 400;
 }
 
 /* Monetary Cells */
 .incomeCell {
-  font-weight: 600;
+  font-weight: 700;
   color: #0f172a;
+  font-size: 14.5px;
 }
 
 .taxCell {
   font-weight: 500;
   color: #334155;
+  font-size: 14.5px;
 }
 
 .expensesCell {
   font-weight: 500;
   color: #334155;
+  font-size: 14.5px;
 }
 
 /* Action Button */
 .actionCell {
-  text-align: right;
+  text-align: left;
 }
 
 .viewDetailsBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
   background-color: #ffffff;
   color: #0f172a;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .viewDetailsBtn:hover {
@@ -185,10 +227,15 @@
   border-color: #cbd5e1;
 }
 
+.eyeIcon {
+  color: #0f172a;
+}
+
 .emptyState {
   text-align: center;
   color: #94a3b8;
-  padding: 36px !important;
+  padding: 40px 24px !important;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {

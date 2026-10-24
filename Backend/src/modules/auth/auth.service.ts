@@ -7,12 +7,7 @@ import {
 } from "./auth.schema.js";
 import { MerchantAuthResponse, OfficerAuthResponse } from "./auth.types.js";
 import { applicationStorage } from "../../features/merchant-registration/storage.js";
-import {
-  hashPassword,
-  needsPasswordRehash,
-  verifyPassword,
-} from "../../features/merchant-registration/password.js";
-import { createAuthToken } from "../../common/authToken.js";
+import { verifyPassword, hashPassword, signJwt } from "../../common/auth/security.js";
 import { otpService } from "../../services/otp.service.js";
 
 export class AuthService {
@@ -34,29 +29,6 @@ export class AuthService {
     const app = applicationStorage.getByTin(tin);
 
     if (!app) {
-      // Demo / seed fallback for testing default TIN if applications file is pristine
-      if (tin === "0012847391" && input.password === "Password123") {
-        const token = signJwt({
-          sub: "mer-10482",
-          role: "merchant",
-          identifier: tin,
-          name: "Abeba Market PLC",
-          tin,
-          tradeName: "Abeba Market",
-          status: "Approved",
-        });
-        return {
-          token,
-          user: {
-            id: "mer-10482",
-            role: "merchant",
-            tin,
-            businessName: "Abeba Market PLC",
-            tradeName: "Abeba Market",
-            status: "Approved",
-          },
-        };
-      }
       throw new UnauthorizedError(`No merchant registered with TIN ${tin}. Please complete registration first.`);
     }
 

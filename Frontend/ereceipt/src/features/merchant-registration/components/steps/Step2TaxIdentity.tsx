@@ -22,7 +22,7 @@ export const Step2TaxIdentity: React.FC<Step2Props> = ({ formData, onChange }) =
           type="text"
           className="field-input"
           autoComplete="off"
-          placeholder="e.g. Abeba Market PLC"
+          placeholder="Registered business / corporate name"
           value={formData.sellerLegalName}
           onChange={(e) => onChange({ sellerLegalName: e.target.value })}
         />
@@ -35,7 +35,7 @@ export const Step2TaxIdentity: React.FC<Step2Props> = ({ formData, onChange }) =
           type="text"
           className="field-input"
           autoComplete="off"
-          placeholder="e.g. Abeba Market"
+          placeholder="Commercial / trade name"
           value={formData.tradeName}
           onChange={(e) => onChange({ tradeName: e.target.value })}
         />
@@ -53,7 +53,7 @@ export const Step2TaxIdentity: React.FC<Step2Props> = ({ formData, onChange }) =
           maxLength={10}
           className="field-input"
           autoComplete="off"
-          placeholder="e.g. 0012345678"
+          placeholder="0000000000"
           value={formData.tin}
           onChange={handleTinChange}
         />

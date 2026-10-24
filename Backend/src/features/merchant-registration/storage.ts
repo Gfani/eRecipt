@@ -132,7 +132,6 @@ class MerchantApplicationStorage {
     this.saveToFile();
     return application;
   }
-
   public getByPhone(phoneNumber: string): StoredMerchantApplication | undefined {
     this.ensureLoaded();
     const cleanPhone = phoneNumber.replace(/\s+/g, '');
