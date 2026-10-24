@@ -84,3 +84,22 @@ export function requireRole(...allowedRoles: UserRole[]) {
     next();
   };
 }
+
+export function requireMerchantSelfOrStaff(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void {
+  if (!req.user) {
+    throw new UnauthorizedError("User is not authenticated.");
+  }
+
+  if (
+    req.user.role === "merchant" &&
+    req.params.id !== req.user.identifier
+  ) {
+    throw new ForbiddenError("Merchants may only access their own profile.");
+  }
+
+  next();
+}
