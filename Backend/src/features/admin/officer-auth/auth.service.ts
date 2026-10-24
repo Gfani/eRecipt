@@ -363,13 +363,6 @@ export class OfficerAuthService {
     const session = activeSessions.get(cleanToken);
 
     if (!session) {
-      this.ensureLoaded();
-      if (cleanToken === 'demo-token' || cleanToken === 'mock-demo-token') {
-        if (this.officersCache.length > 0) {
-          const { passwordHash: _, ...officer } = this.officersCache[0];
-          return officer;
-        }
-      }
       return null;
     }
 

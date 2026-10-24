@@ -143,98 +143,9 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     };
   }, [signedIn, page]);
 
-  const [reports, setReports] = useState<TaxReportItem[]>([
-    {
-      ref: 'TR-2026-0918',
-      name: 'Lomi Café and Bakery',
-      tin: '0019274635',
-      period: 'September 2026',
-      category: 'VAT',
-      sales: 1482500,
-      tax: 193370,
-      date: '18 Oct 2026',
-      status: 'Pending Review',
-    },
-    {
-      ref: 'TR-2026-0917',
-      name: 'Addis Medical Supplies',
-      tin: '0013847295',
-      period: 'September 2026',
-      category: 'VAT',
-      sales: 2834000,
-      tax: 369652,
-      date: '18 Oct 2026',
-      status: 'Under Review',
-    },
-    {
-      ref: 'TR-2026-0914',
-      name: 'Selam Printing House',
-      tin: '0015638204',
-      period: 'Q3 2026',
-      category: 'TOT',
-      sales: 624800,
-      tax: 12496,
-      date: '17 Oct 2026',
-      status: 'Additional Information Required',
-    },
-    {
-      ref: 'TR-2026-0909',
-      name: 'Abyssinia Textiles PLC',
-      tin: '0018473620',
-      period: 'September 2026',
-      category: 'VAT',
-      sales: 4187600,
-      tax: 546209,
-      date: '16 Oct 2026',
-      status: 'Approved',
-    },
-    {
-      ref: 'TR-2026-0905',
-      name: 'Guzo Tour Services',
-      tin: '0012746385',
-      period: 'Q3 2026',
-      category: 'TOT',
-      sales: 891500,
-      tax: 17830,
-      date: '15 Oct 2026',
-      status: 'Rejected',
-    },
-  ]);
+  const [reports, setReports] = useState<TaxReportItem[]>([]);
 
-  const [auditEvents, setAuditEvents] = useState<AuditEventItem[]>([
-    {
-      timestamp: '20 Oct 2026 · 16:22',
-      officer: 'Hana Alemu · RO-218',
-      action: 'Merchant application reviewed',
-      reference: 'APP-2026-0147',
-      statusTransition: 'Pending → Under Review',
-      notes: 'Document review initiated',
-    },
-    {
-      timestamp: '20 Oct 2026 · 15:48',
-      officer: 'Bekele Tadesse · RO-184',
-      action: 'Tax report approved',
-      reference: 'TR-2026-0909',
-      statusTransition: 'Under Review → Approved',
-      notes: 'Reconciliation within accepted variance',
-    },
-    {
-      timestamp: '20 Oct 2026 · 14:31',
-      officer: 'Hana Alemu · RO-218',
-      action: 'Additional information requested',
-      reference: 'APP-2026-0145',
-      statusTransition: 'Under Review → More Information',
-      notes: 'Updated trade licence requested',
-    },
-    {
-      timestamp: '20 Oct 2026 · 12:06',
-      officer: 'Meron Girma · RO-203',
-      action: 'Receipt authorization changed',
-      reference: 'MER-10473',
-      statusTransition: 'Authorized → Suspended',
-      notes: 'Administrative review reference AR-1108',
-    },
-  ]);
+  const [auditEvents, setAuditEvents] = useState<AuditEventItem[]>([]);
 
   const pageTitles: Record<AdminPage, string> = {
     overview: 'Overview',
@@ -504,10 +415,10 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
             <div>
               <h1 className={styles.headingTitle}>{pageTitles[page]}</h1>
               <p className={styles.headingCopy}>
-                Authorized officer workspace · All records below are fictional prototype data.
+                Ministry of Revenues Authorized Officer Workspace · Real-time clearance and compliance ledger
               </p>
             </div>
-            <Badge tone="neutral">Prototype only</Badge>
+            <Badge tone="success">MoR EIMS Active</Badge>
           </div>
 
           {page === 'overview' && (

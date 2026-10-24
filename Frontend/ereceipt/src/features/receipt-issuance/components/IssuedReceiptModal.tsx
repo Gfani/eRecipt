@@ -20,6 +20,7 @@ import {
   netLineAmount,
   lineExcise,
 } from '../types';
+import { getStoredMerchantProfile } from '../../merchant-registration';
 import styles from './IssuedReceiptModal.module.css';
 
 interface IssuedReceiptModalProps {
@@ -43,6 +44,26 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
 }) => {
   const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [copied, setCopied] = useState(false);
+  const profile = getStoredMerchantProfile();
+  const sellerName =
+    (receipt as any).merchantLegalName ||
+    (receipt as any).merchantName ||
+    profile.sellerLegalName ||
+    profile.tradeName ||
+    'Registered Merchant';
+  const sellerTrade =
+    (receipt as any).merchantTradeName ||
+    (receipt as any).merchantName ||
+    profile.tradeName ||
+    profile.sellerLegalName ||
+    'Registered Merchant';
+  const sellerTin = (receipt as any).merchantTin || profile.tin || '';
+  const sellerAddress =
+    (receipt as any).merchantAddress ||
+    [profile.buildingName, profile.subCity, profile.city].filter(Boolean).join(', ') ||
+    'Addis Ababa, Ethiopia';
+  const cashierName = (receipt as any).cashierName || profile.fullName || 'Cashier / Operator';
+  const operatorId = (receipt as any).operatorId || `CASH-014 / ${receipt.registerCode}`;
 
   const words =
     language === 'en'
@@ -107,8 +128,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
           </style>
         </head>
         <body>
-          <h1>Abeba Market PLC</h1>
-          <p>MoR EIMS CLEARED<br>TIN: 0012345642 · VAT: VAT-ET-0012345642</p>
+          <h1>${sellerName}</h1>
+          <p>MoR EIMS CLEARED<br>TIN: ${sellerTin} · VAT: VAT-ET-${sellerTin}</p>
           <div class="rule"></div>
           <p><b>IRN:</b> ${receipt.irn}<br><b>RRN:</b> ${receipt.rrn}<br>${receipt.clearanceTimestamp}</p>
           <div class="rule"></div>
@@ -179,26 +200,26 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                       <Store size={22} />
                     </div>
                     <div>
-                      <h4 className={styles.sellerTitle}>Abeba Market PLC</h4>
-                      <p className={styles.sellerTradeName}>Trade name: Abeba Market</p>
+                      <h4 className={styles.sellerTitle}>{sellerName}</h4>
+                      <p className={styles.sellerTradeName}>Trade name: {sellerTrade}</p>
                     </div>
                   </div>
 
                   <div className={styles.sellerMetaGrid}>
                     <p>
-                      <b>Seller TIN:</b> 0012345642<br />
-                      <b>VAT No:</b> VAT-ET-0012345642
+                      <b>Seller TIN:</b> {sellerTin || 'N/A'}<br />
+                      <b>VAT No:</b> {sellerTin ? `VAT-ET-${sellerTin}` : 'N/A'}
                     </p>
                     <p>
-                      <b>Branch:</b> Bole Main Outlet ({receipt.branchCode})<br />
-                      <b>Address:</b> Bole, Woreda 03, House 114<br />
+                      <b>Branch:</b> {receipt.branchCode ? `Branch (${receipt.branchCode})` : 'Main'}<br />
+                      <b>Address:</b> {sellerAddress}<br />
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                        <MapPin size={12} /> 8.9806° N, 38.7578° E
+                        <MapPin size={12} /> {sellerAddress}
                       </span>
                     </p>
                     <p>
-                      <b>Cashier:</b> Tigist Getachew<br />
-                      <b>Operator ID:</b> CASH-014 / {receipt.registerCode}
+                      <b>Cashier:</b> {cashierName}<br />
+                      <b>Operator ID:</b> {operatorId}
                     </p>
                     <p>
                       <b>Receipt No:</b> {receipt.receiptNumber}<br />

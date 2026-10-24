@@ -14,6 +14,20 @@ export const TaxReportReview: React.FC<TaxReportReviewProps> = ({
   onBack,
   onOpenDecision,
 }) => {
+  if (!report) {
+    return (
+      <div className={styles.reviewContainer}>
+        <button type="button" onClick={onBack} className={styles.backBtn}>
+          <ArrowLeft size={16} />
+          <span>Back to tax reports</span>
+        </button>
+        <p style={{ padding: '32px', textAlign: 'center', color: '#64748B' }}>
+          No tax report selected or available for review.
+        </p>
+      </div>
+    );
+  }
+
   const recordedSales = 1468900;
   const difference = report.sales - recordedSales;
 

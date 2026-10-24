@@ -29,29 +29,6 @@ export class AuthService {
     const app = applicationStorage.getByTin(tin);
 
     if (!app) {
-      // Demo / seed fallback for testing default TIN if applications file is pristine
-      if (tin === "0012847391" && input.password === "Password123") {
-        const token = signJwt({
-          sub: "mer-10482",
-          role: "merchant",
-          identifier: tin,
-          name: "Abeba Market PLC",
-          tin,
-          tradeName: "Abeba Market",
-          status: "Approved",
-        });
-        return {
-          token,
-          user: {
-            id: "mer-10482",
-            role: "merchant",
-            tin,
-            businessName: "Abeba Market PLC",
-            tradeName: "Abeba Market",
-            status: "Approved",
-          },
-        };
-      }
       throw new UnauthorizedError(`No merchant registered with TIN ${tin}. Please complete registration first.`);
     }
 
