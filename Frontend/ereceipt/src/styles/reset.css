@@ -11,7 +11,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--color-bg-body, #F7F5EF);
+  background-color: var(--color-bg-body, #F3F6F8);
   color: var(--color-text-body, #1F2937);
   font-family: var(--font-family-sans, system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;

@@ -20,25 +20,25 @@
 }
 
 .uploadZone:hover, .uploadZoneActive {
-  border-color: var(--color-accent, #176B4D);
-  background-color: var(--color-primary-light, #E8F5EE);
+  border-color: var(--color-primary, #0D9488);
+  background-color: var(--color-primary-light, #F0FDFA);
 }
 
 .uploadIcon {
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0D9488);
   margin-bottom: 12px;
 }
 
 .uploadTitle {
   font-size: 14px;
   font-weight: 700;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
   margin-bottom: 4px;
 }
 
 .uploadSubtitle {
   font-size: 12px;
-  color: var(--color-text-secondary, #526059);
+  color: var(--color-text-muted, #64748B);
 }
 
 .hiddenFileInput {

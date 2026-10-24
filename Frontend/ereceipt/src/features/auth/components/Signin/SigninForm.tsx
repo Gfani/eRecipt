@@ -1,87 +1,121 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Logo } from '../../../../components/ui/Logo/Logo';
 import styles from './SigninForm.module.css';
 
-export interface LoginFormProps {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+export interface AuthenticatedMerchant {
+  id: string;
+  role: string;
+  tin: string;
+  businessName: string;
+  tradeName?: string;
+  status: string;
+}
+
+export interface SigninFormProps {
+  onLoginSuccess?: (merchant: AuthenticatedMerchant) => void;
   onSuccess?: (authData?: { token: string; user: any }) => void;
   onNavigateToRegister?: () => void;
   onRegisterClick?: () => void;
   onNavigateToHome?: () => void;
+  onNavigateHome?: () => void;
   onHomeClick?: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({
+export type LoginFormProps = SigninFormProps;
+
+export const LoginForm: React.FC<SigninFormProps> = ({
+  onLoginSuccess,
   onSuccess,
   onNavigateToRegister,
   onRegisterClick,
   onNavigateToHome,
+  onNavigateHome,
   onHomeClick,
 }) => {
   const handleRegister = onNavigateToRegister || onRegisterClick;
-  const handleHome = onNavigateToHome || onHomeClick;
+  const handleHome = onNavigateToHome || onNavigateHome || onHomeClick;
   const [tin, setTin] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tinError, setTinError] = useState('');
-  const [authError, setAuthError] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleTinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // only allow digits
     if (value.length <= 10) {
       setTin(value);
       if (tinError) setTinError('');
-      if (authError) setAuthError('');
+      if (authError) setAuthError(null);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthError('');
+    setAuthError(null);
 
     if (tin.length !== 10) {
       setTinError('Please enter a valid 10-digit TIN');
       return;
     }
 
-    if (!password) {
-      setAuthError('Please enter your password.');
+    if (!password || password.length < 6) {
+      setAuthError('Password must be at least 6 characters.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/merchant/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tin: tin.trim(),
-          password,
-          rememberMe,
-        }),
+      const response = await axios.post(`${API_BASE_URL}/api/auth/merchant/login`, {
+        tin: tin.trim(),
+        password,
+        rememberMe,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || data.error || 'Invalid TIN or password.');
+      const data = response.data?.data || response.data;
+      const token = data.token;
+      const merchant = data.user;
+
+      if (token) {
+        localStorage.setItem('ereceipt_token', token);
+        localStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
+        localStorage.setItem('merchant_token', token);
+        localStorage.setItem('merchant_user', JSON.stringify(merchant));
+        if (!rememberMe) {
+          sessionStorage.setItem('ereceipt_token', token);
+          sessionStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
+        }
       }
 
-      if (data.data?.token) {
-        localStorage.setItem('merchant_token', data.data.token);
-        localStorage.setItem('merchant_user', JSON.stringify(data.data.user));
-      }
+      setIsLoading(false);
 
+      if (onLoginSuccess) {
+        onLoginSuccess(merchant);
+      }
       if (onSuccess) {
-        onSuccess(data.data);
-      } else {
+        onSuccess(data);
+      }
+      if (!onLoginSuccess && !onSuccess) {
         window.location.href = '/merchant/overview';
       }
-    } catch (err: any) {
-      setAuthError(err.message || 'Authentication failed. Please verify your TIN and password.');
-    } finally {
+    } catch (err: unknown) {
       setIsLoading(false);
+      if (axios.isAxiosError(err)) {
+        const errorMsg =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          'Failed to sign in. Please verify your TIN and password.';
+        setAuthError(errorMsg);
+      } else if (err instanceof Error) {
+        setAuthError(err.message);
+      } else {
+        setAuthError('An unexpected authentication error occurred.');
+      }
     }
   };
 
@@ -106,19 +140,28 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
           {authError && (
             <div
-              style={{
-                backgroundColor: '#FEF2F2',
-                border: '1px solid #FCA5A5',
-                borderRadius: '8px',
-                padding: '10px 14px',
-                color: '#B91C1C',
-                fontSize: '13px',
-                fontWeight: 500,
-                marginBottom: '16px',
-                lineHeight: 1.4,
-              }}
+              className={
+                authError.toLowerCase().includes('pending') ||
+                authError.toLowerCase().includes('review')
+                  ? styles.alertWarningBox
+                  : styles.alertBox
+              }
+              role="alert"
             >
-              {authError}
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{ flexShrink: 0, marginTop: 2 }}
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{authError}</span>
             </div>
           )}
 
@@ -259,7 +302,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" />
+              <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" />
               <line x1="8" y1="8" x2="16" y2="8" />
               <line x1="8" y1="12" x2="16" y2="12" />
               <line x1="8" y1="16" x2="12" y2="16" />

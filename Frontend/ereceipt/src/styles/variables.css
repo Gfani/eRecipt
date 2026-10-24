@@ -1,46 +1,41 @@
 :root {
-  /* Brand Revenue Forest Green Palette (Aligned with Admin Side) */
-  --color-primary: #123D2C;
-  --color-primary-hover: #0E2F22;
-  --color-primary-active: #092017;
-  --color-primary-light: #E8F5EE;
-  --color-primary-subtle: #DCE9E0;
-  --color-primary-ring: rgba(18, 61, 44, 0.2);
+  /* Brand Teal Palette */
+  --color-primary: #0D9488;
+  --color-primary-hover: #0A7F75;
+  --color-primary-active: #0F766E;
+  --color-primary-light: #ECFDF9;
+  --color-primary-subtle: #CCFBF1;
+  --color-primary-ring: rgba(13, 148, 136, 0.2);
 
-  /* Secondary Accent Green */
-  --color-accent: #176B4D;
-  --color-accent-hover: #145C42;
-  --color-accent-light: #F0FDF4;
-
-  /* Deep Forest Brand Colors (Replaces former navy) */
-  --color-navy: #123D2C;
-  --color-navy-dark: #0A2218;
-  --color-navy-light: #1A543D;
-  --color-navy-subtle: #246B4F;
+  /* Deep Navy Brand Colors */
+  --color-navy: #12304A;
+  --color-navy-dark: #0B1E2E;
+  --color-navy-light: #1A3E5E;
+  --color-navy-subtle: #2A5175;
 
   /* Typography Colors */
-  --color-text-heading: #17201B;
+  --color-text-heading: #12304A;
   --color-text-body: #1F2937;
-  --color-text-secondary: #526059;
-  --color-text-muted: #7A847E;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
   --color-text-placeholder: #94A3B8;
 
   /* Backgrounds & Surfaces */
-  --color-bg-body: #F7F5EF;
+  --color-bg-body: #F3F6F8;
   --color-bg-surface: #FFFFFF;
-  --color-bg-subtle: #FFFDF8;
-  --color-bg-alt: #ECEEE9;
+  --color-bg-subtle: #F8FAFC;
+  --color-bg-alt: #F1F5F9;
 
   /* Borders */
-  --color-border-subtle: #DDE3DE;
+  --color-border-subtle: #E2E8F0;
   --color-border-input: #CBD5E1;
-  --color-border-focus: #176B4D;
+  --color-border-focus: #0D9488;
 
   /* Status Colors */
-  --color-success: #176B4D;
-  --color-success-bg: #E8F5EE;
+  --color-success: #16A34A;
+  --color-success-bg: #F0FDF4;
   --color-success-border: #BBF7D0;
-  --color-success-text: #123D2C;
+  --color-success-text: #157A36;
 
   --color-warning: #D97706;
   --color-warning-bg: #FFFBEB;
