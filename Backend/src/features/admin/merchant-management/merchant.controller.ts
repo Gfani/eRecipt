@@ -67,9 +67,21 @@ export class MerchantManagementController {
       }
 
       let filePath = rawApp.documentPath;
+      const uploadDirectory = path.resolve(__dirname, '../../../../uploads/licenses');
+      if (
+        filePath &&
+        !filePath.startsWith(`${uploadDirectory}${path.sep}`)
+      ) {
+        res.status(400).json({ success: false, error: 'Stored document path is invalid.' });
+        return;
+      }
       if (!filePath || !fs.existsSync(filePath)) {
         if (rawApp.uploadedFileName) {
-          const fallbackPath = path.resolve(__dirname, '../../../../uploads/licenses', rawApp.uploadedFileName);
+          const fallbackPath = path.resolve(uploadDirectory, rawApp.uploadedFileName);
+          if (!fallbackPath.startsWith(`${uploadDirectory}${path.sep}`)) {
+            res.status(400).json({ success: false, error: 'Stored document path is invalid.' });
+            return;
+          }
           if (fs.existsSync(fallbackPath)) {
             filePath = fallbackPath;
           }

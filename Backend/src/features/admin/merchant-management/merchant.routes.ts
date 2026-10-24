@@ -1,28 +1,10 @@
-import { Router, type NextFunction, type Request, type Response } from 'express';
+import { Router } from 'express';
 import { merchantManagementController } from './merchant.controller.js';
-import { officerAuthService } from '../officer-auth/index.js';
-import { UnauthorizedError } from '../../../common/errors.js';
+import { requireOfficerSession } from '../../../middleware/requireOfficerSession.js';
 
 export const merchantManagementRouter = Router();
 
-merchantManagementRouter.use(async (req: Request, _res: Response, next: NextFunction) => {
-  try {
-    const officer = await officerAuthService.getOfficerFromToken(req.headers.authorization || '');
-    if (!officer) {
-      throw new UnauthorizedError('A valid revenue officer session is required.');
-    }
-
-    req.user = {
-      id: officer.id,
-      role: officer.role === 'ADMIN' ? 'admin' : 'officer',
-      identifier: officer.username,
-      name: officer.name,
-    };
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+merchantManagementRouter.use(requireOfficerSession);
 
 // Onboarding Applications Review
 merchantManagementRouter.get('/applications', (req, res) =>
