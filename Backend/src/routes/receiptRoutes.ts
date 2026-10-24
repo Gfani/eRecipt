@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { ReceiptController } from '../controllers/receiptController.js';
-import { requireAuth, requireApprovedMerchant } from '../middleware/authMiddleware.js';
+import { requireAuth, optionalAuth } from '../middleware/authMiddleware.js';
 
 export const receiptRoutes = Router();
 
 // Issuing and calculations
-receiptRoutes.post('/issue', requireAuth, requireApprovedMerchant, ReceiptController.issue);
+receiptRoutes.post('/issue', optionalAuth, ReceiptController.issue);
 receiptRoutes.post('/calculate', ReceiptController.calculate);
 
 // Retrieval & verification
