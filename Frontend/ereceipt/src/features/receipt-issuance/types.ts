@@ -82,22 +82,12 @@ export interface IssuedReceipt extends ReceiptDraft {
   clearanceTimestamp: string;
 }
 
-export const MERCHANT_CODE = 'AM2081';
-export const BRANCH_CODE = 'BOL01';
+export const MERCHANT_CODE = 'MCH-01';
+export const BRANCH_CODE = 'BR01';
 export const REGISTER_CODE = 'REG01';
 
 export const INITIAL_ITEMS: CartItem[] = [];
 
-export const SAMPLE_PRODUCTS = [
-  { id: 101, name: 'Sidamo Coffee 500g', code: 'GR-104', price: 680, uom: 'PCS' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 10, supplyType: 'Goods' as SupplyType },
-  { id: 102, name: 'Teff Flour 5kg', code: 'GR-118', price: 920, uom: 'KG' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 0, supplyType: 'Goods' as SupplyType },
-  { id: 103, name: 'Leather Notebook', code: 'ST-042', price: 450, uom: 'PCS' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 0, supplyType: 'Goods' as SupplyType },
-  { id: 104, name: 'Desk Lamp', code: 'HM-091', price: 1250, uom: 'PCS' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 20, supplyType: 'Goods' as SupplyType },
-  { id: 105, name: 'Coffee Cup Set', code: 'HM-076', price: 780, uom: 'BOX' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 0, supplyType: 'Goods' as SupplyType },
-  { id: 106, name: 'Blue Pen Pack (10pcs)', code: 'ST-018', price: 180, uom: 'BOX' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 0, supplyType: 'Goods' as SupplyType },
-  { id: 107, name: 'Logistics / Delivery Service', code: 'SV-001', price: 250, uom: 'HRS' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 0, supplyType: 'Services' as SupplyType },
-  { id: 108, name: 'Gift Packaging & Handling', code: 'SV-012', price: 120, uom: 'PCS' as UomType, vatCategory: 'Standard VAT (15%)' as VatCategory, exciseRate: 0, supplyType: 'Services' as SupplyType },
-];
 
 export function netLineAmount(item: CartItem): number {
   return Math.max(0, item.price * item.qty - item.discount);

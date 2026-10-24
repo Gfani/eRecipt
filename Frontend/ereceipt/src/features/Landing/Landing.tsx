@@ -8,6 +8,7 @@ import selamAvatarImg from '../../assets/selam-avatar.jpg';
 import styles from './LandingPage.module.css';
 
 export interface LandingPageProps {
+  onNavigate?: (screen: string) => void;
   onSignInClick?: () => void;
   onGetStartedClick?: () => void;
   onScanReceiptClick?: () => void;
@@ -15,11 +16,16 @@ export interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
+  onNavigate,
   onSignInClick,
   onGetStartedClick,
   onScanReceiptClick,
   onMerchantPortalClick,
 }) => {
+  const handleSignIn = onSignInClick || (() => onNavigate?.('signin'));
+  const handleGetStarted = onGetStartedClick || (() => onNavigate?.('registration'));
+  const handleScanReceipt = onScanReceiptClick || (() => onNavigate?.('receipt-issuance'));
+  const handleMerchantPortal = onMerchantPortalClick || onSignInClick || (() => onNavigate?.('signin'));
   const [activeLang, setActiveLang] = useState<'EN' | 'አማ'>('EN');
 
   return (
@@ -32,7 +38,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             className={styles.brandLogo}
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (onNavigate) {
+                onNavigate('landing');
+              } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
             }}
           >
             <img
@@ -48,6 +58,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <a href="#customers" className={styles.navLink}>For Customers</a>
             <a href="#merchants" className={styles.navLink}>For Merchants</a>
             <a href="#about" className={styles.navLink}>About</a>
+            <a
+              href="/admin"
+              className={styles.navLink}
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate?.('admin');
+              }}
+              style={{ color: '#0b8060', fontWeight: 600 }}
+            >
+              Tax Authority
+            </a>
           </nav>
 
           <div className={styles.navActions}>
@@ -65,10 +86,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               href="/login"
               className={styles.btnSecondary}
               onClick={(e) => {
-                if (onSignInClick) {
-                  e.preventDefault();
-                  onSignInClick();
-                }
+                e.preventDefault();
+                handleSignIn();
               }}
             >
               Sign In
@@ -77,10 +96,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               href="/merchant/register"
               className={styles.btnPrimary}
               onClick={(e) => {
-                if (onGetStartedClick) {
-                  e.preventDefault();
-                  onGetStartedClick();
-                }
+                e.preventDefault();
+                handleGetStarted();
               }}
             >
               Get Started
@@ -130,13 +147,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   href="/scan"
                   className={styles.portalCtaBtnPrimary}
                   onClick={(e) => {
-                    if (onScanReceiptClick) {
-                      e.preventDefault();
-                      onScanReceiptClick();
-                    }
+                    e.preventDefault();
+                    handleScanReceipt();
                   }}
                 >
-                  <span className={styles.btnArrow}>→</span>
                   <span>Scan Receipt</span>
                   <span className={styles.btnArrow}>→</span>
                 </a>
@@ -162,18 +176,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   href="/merchant/login"
                   className={styles.portalCtaBtnSecondary}
                   onClick={(e) => {
-                    if (onSignInClick || onMerchantPortalClick) {
-                      e.preventDefault();
-                      if (onMerchantPortalClick) {
-                        onMerchantPortalClick();
-                      } else if (onSignInClick) {
-                        onSignInClick();
-                      }
-                    }
+                    e.preventDefault();
+                    handleMerchantPortal();
                   }}
                 >
-                  <span className={styles.btnArrow}>→</span>
                   <span>Merchant Portal</span>
+                  <span className={styles.btnArrow}>→</span>
                 </a>
               </div>
             </div>
@@ -701,6 +709,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   }}
                 >
                   Merchant Sign In
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/admin"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigate?.('admin');
+                  }}
+                >
+                  Ministry of Revenues Admin
                 </a>
               </li>
               <li><a href="/guide">Verification Guide</a></li>

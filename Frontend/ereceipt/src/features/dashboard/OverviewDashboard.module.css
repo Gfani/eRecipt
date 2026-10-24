@@ -1,0 +1,154 @@
+.container {
+  padding: 0 0 40px 0;
+}
+
+.dateText {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0b8060;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.2px;
+}
+
+.heading {
+  font-size: 32px;
+  font-weight: 800;
+  color: #12304A;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.6px;
+}
+
+.subheading {
+  font-size: 14.5px;
+  color: #55655D;
+  margin: 0 0 36px 0;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1200px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  text-align: left;
+  border: none;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.iconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.arrowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.card:hover .arrowIcon {
+  transform: translate(3px, -3px);
+}
+
+.cardBody {
+  margin-top: auto;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.cardDesc {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #4b5563;
+  margin: 0;
+}
+
+/* 4 Distinct Aesthetic Themes matching Screenshot 1 */
+.receiptCard {
+  background-color: #E8F9F3;
+  border: 1px solid #B8EBD9;
+}
+.receiptCard .iconWrapper {
+  color: #0b8060;
+}
+.receiptCard .arrowIcon {
+  color: #0b8060;
+}
+
+.previewCard {
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+}
+.previewCard .iconWrapper {
+  color: #2563EB;
+}
+.previewCard .arrowIcon {
+  color: #2563EB;
+}
+
+.transactionsCard {
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+}
+.transactionsCard .iconWrapper {
+  color: #D97706;
+}
+.transactionsCard .arrowIcon {
+  color: #D97706;
+}
+
+.auditCard {
+  background-color: #FBF5FF;
+  border: 1px solid #E9D5FF;
+}
+.auditCard .iconWrapper {
+  color: #9333EA;
+}
+.auditCard .arrowIcon {
+  color: #9333EA;
+}

@@ -63,7 +63,7 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
             value={buyer.name}
             onChange={(e) => onBuyerChange({ name: e.target.value })}
             className={styles.inputField}
-            placeholder={isB2B ? 'Registered legal name (e.g. Hana Trading PLC)' : 'Walk-in customer name'}
+            placeholder={isB2B ? 'Registered legal business name' : 'Walk-in customer name'}
           />
         </div>
 
@@ -76,7 +76,7 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
             value={buyer.vat}
             onChange={(e) => onBuyerChange({ vat: e.target.value })}
             className={styles.inputField}
-            placeholder="Optional / conditional (e.g. VAT-ET-0012345678)"
+            placeholder="Optional (e.g. VAT-ET-XXXXXXXXXX)"
           />
         </div>
 

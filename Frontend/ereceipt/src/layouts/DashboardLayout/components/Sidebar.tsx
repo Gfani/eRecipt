@@ -6,12 +6,12 @@ import {
   ReceiptText,
   Database,
   Settings,
-  UserPlus,
+  LogOut,
   X,
   ChevronDown,
 } from 'lucide-react';
 import Logo from '../../../components/ui/Logo/Logo';
-import { getStoredMerchantProfile } from '../../../features/merchant-registration';
+import { getStoredMerchantProfile, clearStoredMerchantProfile } from '../../../features/merchant-registration';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {profile.status === 'Approved' ? 'Verified merchant' : 'Pending accreditation'}
             </p>
           </div>
-          <ChevronDown size={15} style={{ color: '#AFC1CE' }} />
+          <ChevronDown size={15} style={{ color: '#AFC5B6' }} />
         </div>
 
         <nav className={styles.navSection}>
@@ -119,12 +119,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="button"
             className={styles.navItem}
             onClick={() => {
-              onNavigate?.('registration');
+              clearStoredMerchantProfile();
+              onNavigate?.('signin');
               onClose();
             }}
           >
-            <UserPlus size={18} />
-            <span>Merchant registration</span>
+            <LogOut size={18} />
+            <span>Sign out</span>
           </button>
         </div>
       </aside>

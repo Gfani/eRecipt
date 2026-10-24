@@ -1,14 +1,13 @@
 import React from 'react';
 import { Plus, Trash2, PackageSearch } from 'lucide-react';
 import type { CartItem, SupplyType, UomType, VatCategory } from '../types';
-import { netLineAmount, lineExcise, formatMoney, SAMPLE_PRODUCTS } from '../types';
+import { netLineAmount, lineExcise, formatMoney } from '../types';
 import styles from './TaxLineItemsTable.module.css';
 
 interface TaxLineItemsTableProps {
   items: CartItem[];
   onUpdateItem: (id: number, patch: Partial<CartItem>) => void;
   onAddItem: () => void;
-  onAddPresetProduct: (product: (typeof SAMPLE_PRODUCTS)[0]) => void;
   onRemoveItem: (id: number) => void;
 }
 
@@ -16,7 +15,6 @@ export const TaxLineItemsTable: React.FC<TaxLineItemsTableProps> = ({
   items,
   onUpdateItem,
   onAddItem,
-  onAddPresetProduct,
   onRemoveItem,
 }) => {
   return (
@@ -30,29 +28,6 @@ export const TaxLineItemsTable: React.FC<TaxLineItemsTableProps> = ({
         </div>
 
         <div className={styles.headerActions}>
-          <select
-            className={styles.presetSelect}
-            defaultValue=""
-            onChange={(e) => {
-              const selectedId = Number(e.target.value);
-              const found = SAMPLE_PRODUCTS.find((p) => p.id === selectedId);
-              if (found) {
-                onAddPresetProduct(found);
-                e.target.value = '';
-              }
-            }}
-            aria-label="Quick-add catalog product"
-          >
-            <option value="" disabled>
-              ⚡ Quick-add catalog product...
-            </option>
-            {SAMPLE_PRODUCTS.map((prod) => (
-              <option key={prod.id} value={prod.id}>
-                {prod.code} · {prod.name} (ETB {prod.price})
-              </option>
-            ))}
-          </select>
-
           <button
             type="button"
             onClick={onAddItem}
@@ -70,7 +45,7 @@ export const TaxLineItemsTable: React.FC<TaxLineItemsTableProps> = ({
             <PackageSearch size={36} className={styles.emptyStateIcon} />
             <p style={{ margin: 0, fontWeight: 600 }}>No items added yet</p>
             <p style={{ fontSize: 13, marginTop: 4 }}>
-              Click &quot;Add line&quot; or choose a catalog product above to begin.
+              Click &quot;Add line&quot; to add a product or service.
             </p>
           </div>
         ) : (

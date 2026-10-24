@@ -34,7 +34,7 @@ export const Step5Review: React.FC<Step5Props> = ({ formData, onChange, onGoToSt
             {formData.fullName} · {formData.phoneNumber} · {formData.email || 'No email'}
             {formData.emailVerified && (
               <span style={{ marginLeft: '8px', color: '#16A34A', fontWeight: 600, fontSize: '12px' }}>
-                (Email Verified via Resend)
+                (Email Verified)
               </span>
             )}
           </p>

@@ -33,7 +33,6 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
   const [tempToken, setTempToken] = useState('');
   const [maskedEmail, setMaskedEmail] = useState('');
   const [twoFaCode, setTwoFaCode] = useState('');
-  const [simulatedCode, setSimulatedCode] = useState<string | null>(null);
   const [twoFaCooldown, setTwoFaCooldown] = useState(45);
   const [isResending2FA, setIsResending2FA] = useState(false);
   const [twoFaSuccessNotice, setTwoFaSuccessNotice] = useState<string | null>(null);
@@ -105,7 +104,6 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         setIs2FA(true);
         setTempToken(data.data.tempToken);
         setMaskedEmail(data.data.maskedEmail || data.data.email || 'your official email');
-        setSimulatedCode(data.data.simulatedCode || null);
         setTwoFaCooldown(45);
         setTwoFaCode('');
         setAuthError('');
@@ -183,10 +181,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
       }
 
       setTwoFaCooldown(data.data?.cooldownSeconds || 45);
-      if (data.data?.simulatedCode) {
-        setSimulatedCode(data.data.simulatedCode);
-      }
-      setTwoFaSuccessNotice('New security verification code dispatched via Resend.');
+      setTwoFaSuccessNotice('A new security verification code has been sent to your email.');
     } catch (err: any) {
       setAuthError(err.message || 'Failed to resend code.');
     } finally {
@@ -329,51 +324,10 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
               <p className={styles.preTitle}>SECURITY VERIFICATION</p>
               <h1 className={styles.title}>Two-Factor Authentication</h1>
               <p className={styles.description}>
-                To comply with Ministry security protocols, a 6-digit one-time code has been dispatched via <strong>Resend</strong> to:
+                To comply with Ministry security protocols, a 6-digit verification code has been sent to:
                 <br />
                 <span style={{ color: '#0F172A', fontWeight: 600 }}>{maskedEmail}</span>
               </p>
-
-              {/* Dev Simulation Helper Chip */}
-              {simulatedCode && (
-                <div
-                  onClick={() => {
-                    setTwoFaCode(simulatedCode);
-                    setAuthError('');
-                  }}
-                  style={{
-                    backgroundColor: '#F0FDF4',
-                    border: '1px dashed #22C55E',
-                    borderRadius: '8px',
-                    padding: '10px 14px',
-                    marginBottom: '16px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                  title="Click to fill development test code"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ShieldCheck size={16} color="#16A34A" />
-                    <span style={{ fontSize: '12px', color: '#15803D', fontWeight: 600 }}>
-                      Dev OTP Code: <code style={{ fontSize: '13px', fontWeight: 800 }}>{simulatedCode}</code>
-                    </span>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      color: '#15803D',
-                      backgroundColor: '#DCFCE7',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                    }}
-                  >
-                    Click to fill
-                  </span>
-                </div>
-              )}
 
               <form onSubmit={submit2FA} className={styles.form}>
                 <div className={styles.fieldGroup}>
@@ -471,7 +425,7 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                       }}
                     >
                       <RotateCw size={14} className={isResending2FA ? 'spin' : ''} />
-                      {isResending2FA ? 'Sending...' : 'Resend code via Resend'}
+                      {isResending2FA ? 'Sending...' : 'Resend code'}
                     </button>
                   )}
                 </div>

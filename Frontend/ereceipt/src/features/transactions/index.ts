@@ -1,5 +1,3 @@
-export * from './TransactionsView';
-export * from './components/TransactionsTable';
-export * from './components/TransactionDetailsModal';
-export * from './types/TransactionTypes';
-export * from './data/mockTransactions';
+export { TransactionsLedger, default } from './TransactionsLedger';
+export { TransactionsView } from './TransactionsView';
+export type { TransactionsViewProps } from './TransactionsView';

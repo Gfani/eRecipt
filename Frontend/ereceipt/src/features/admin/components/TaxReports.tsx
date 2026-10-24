@@ -116,34 +116,42 @@ export const TaxReports: React.FC<TaxReportsProps> = ({
             </tr>
           </thead>
           <tbody>
-            {filteredReports.map((item) => (
-              <tr key={item.ref}>
-                <td className={`${styles.td} ${styles.tdRef}`}>{item.ref}</td>
-                <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
-                <td className={styles.td}>{item.tin}</td>
-                <td className={styles.td}>{item.period}</td>
-                <td className={styles.td}>{item.category}</td>
-                <td className={`${styles.td} ${styles.tdNumber}`}>
-                  ETB {item.sales.toLocaleString()}
-                </td>
-                <td className={`${styles.td} ${styles.tdNumber}`}>
-                  ETB {item.tax.toLocaleString()}
-                </td>
-                <td className={styles.td}>{item.date}</td>
-                <td className={styles.td}>
-                  <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
-                </td>
-                <td className={styles.td} style={{ textAlign: 'right' }}>
-                  <button
-                    type="button"
-                    onClick={() => onReviewReport(item.ref)}
-                    className={styles.reviewBtn}
-                  >
-                    Review
-                  </button>
+            {filteredReports.length === 0 ? (
+              <tr>
+                <td colSpan={10} style={{ textAlign: 'center', padding: '32px', color: '#64748B' }}>
+                  No tax reports found. Merchant periodic reports will appear here dynamically.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredReports.map((item) => (
+                <tr key={item.ref}>
+                  <td className={`${styles.td} ${styles.tdRef}`}>{item.ref}</td>
+                  <td className={`${styles.td} ${styles.tdMerchant}`}>{item.name}</td>
+                  <td className={styles.td}>{item.tin}</td>
+                  <td className={styles.td}>{item.period}</td>
+                  <td className={styles.td}>{item.category}</td>
+                  <td className={`${styles.td} ${styles.tdNumber}`}>
+                    ETB {item.sales.toLocaleString()}
+                  </td>
+                  <td className={`${styles.td} ${styles.tdNumber}`}>
+                    ETB {item.tax.toLocaleString()}
+                  </td>
+                  <td className={styles.td}>{item.date}</td>
+                  <td className={styles.td}>
+                    <Badge tone={getToneForStatus(item.status)}>{item.status}</Badge>
+                  </td>
+                  <td className={styles.td} style={{ textAlign: 'right' }}>
+                    <button
+                      type="button"
+                      onClick={() => onReviewReport(item.ref)}
+                      className={styles.reviewBtn}
+                    >
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

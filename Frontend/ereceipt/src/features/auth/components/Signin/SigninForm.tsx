@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Logo } from '../../../../components/ui/Logo/Logo';
+import { saveStoredMerchantProfile } from '../../../merchant-registration/profileStorage';
+import { syncMerchantReceipts } from '../../../../services/merchantDataStore';
 import styles from './SigninForm.module.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -15,15 +18,29 @@ export interface AuthenticatedMerchant {
 
 export interface SigninFormProps {
   onLoginSuccess?: (merchant: AuthenticatedMerchant) => void;
+  onSuccess?: (authData?: { token: string; user: any }) => void;
   onNavigateToRegister?: () => void;
+  onRegisterClick?: () => void;
+  onNavigateToHome?: () => void;
   onNavigateHome?: () => void;
+  onHomeClick?: () => void;
+  onAdminClick?: () => void;
 }
+
+export type LoginFormProps = SigninFormProps;
 
 export const LoginForm: React.FC<SigninFormProps> = ({
   onLoginSuccess,
+  onSuccess,
   onNavigateToRegister,
+  onRegisterClick,
+  onNavigateToHome,
   onNavigateHome,
+  onHomeClick,
+  onAdminClick,
 }) => {
+  const handleRegister = onNavigateToRegister || onRegisterClick;
+  const handleHome = onNavigateToHome || onNavigateHome || onHomeClick;
   const [tin, setTin] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -43,6 +60,7 @@ export const LoginForm: React.FC<SigninFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
 
     if (tin.length !== 10) {
       setTinError('Please enter a valid 10-digit TIN');
@@ -55,32 +73,62 @@ export const LoginForm: React.FC<SigninFormProps> = ({
     }
 
     setIsLoading(true);
-    setAuthError(null);
 
     try {
       const response = await axios.post(`${API_BASE_URL}/api/auth/merchant/login`, {
-        tin,
+        tin: tin.trim(),
         password,
+        rememberMe,
       });
 
       const data = response.data?.data || response.data;
       const token = data.token;
       const merchant = data.user;
 
-      if (token) {
-        if (rememberMe) {
-          localStorage.setItem('ereceipt_token', token);
-          localStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
-        } else {
+      if (token && merchant) {
+        localStorage.setItem('ereceipt_token', token);
+        localStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
+        localStorage.setItem('merchant_token', token);
+        localStorage.setItem('merchant_user', JSON.stringify(merchant));
+        if (!rememberMe) {
           sessionStorage.setItem('ereceipt_token', token);
           sessionStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
         }
+
+        // Set authoritative active profile for this merchant to ensure isolation
+        saveStoredMerchantProfile({
+          fullName: merchant.fullName || merchant.businessName || '',
+          phoneNumber: merchant.phoneNumber || '',
+          sellerLegalName: merchant.businessName || merchant.sellerLegalName || '',
+          tradeName: merchant.tradeName || merchant.businessName || '',
+          tin: merchant.tin,
+          businessLicenseNumber: merchant.businessLicenseNumber || '',
+          uploadedFileName: '',
+          uploadedFileSize: '',
+          city: merchant.city || '',
+          subCity: merchant.subCity || '',
+          buildingName: merchant.buildingName || '',
+          floor: merchant.floor || '',
+          gpsLocation: merchant.gpsLocation || '',
+          referenceNumber: merchant.referenceNumber || '',
+          status: merchant.status || 'Approved',
+          registeredAt: merchant.registeredAt || new Date().toISOString(),
+        });
+
+        // Sync real receipts from backend for this merchant (and ONLY this merchant)
+        syncMerchantReceipts(merchant.tin, token);
       }
 
       setIsLoading(false);
 
       if (onLoginSuccess) {
         onLoginSuccess(merchant);
+      }
+      if (onSuccess) {
+        onSuccess(data);
+      }
+      if (!onLoginSuccess && !onSuccess) {
+        window.location.href = '/merchant/overview';
       }
     } catch (err: unknown) {
       setIsLoading(false);
@@ -104,30 +152,8 @@ export const LoginForm: React.FC<SigninFormProps> = ({
       <div className={styles.leftColumn}>
         <div className={styles.formWrapper}>
           {/* Logo Header */}
-          <div
-            className={styles.brandRow}
-            style={{ cursor: onNavigateHome ? 'pointer' : 'default' }}
-            onClick={onNavigateHome}
-          >
-            <div className={styles.brandLogo}>
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
-            </div>
-            <span className={styles.brandTitle}>eReceipt</span>
+          <div className={styles.brandRow}>
+            <Logo onClick={handleHome ? handleHome : () => { window.location.href = '/'; }} />
           </div>
 
           {/* Titles & Pre-header */}
@@ -264,11 +290,41 @@ export const LoginForm: React.FC<SigninFormProps> = ({
             <span>New to eReceipt? </span>
             <button
               type="button"
-              onClick={onNavigateToRegister}
+              onClick={handleRegister ? handleRegister : () => { window.location.href = '/?view=registration'; }}
               className={styles.signupLink}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                color: '#16A34A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                font: 'inherit',
+                textDecoration: 'underline',
+              }}
             >
               Create an account
+            </button>
+          </div>
+
+          {/* Revenue Authority Officer Link */}
+          <div style={{ marginTop: '14px', textAlign: 'center', fontSize: '13px', color: '#526059' }}>
+            <span>Revenue Authority Officer? </span>
+            <button
+              type="button"
+              onClick={onAdminClick ? onAdminClick : () => { window.location.href = '/?view=admin'; }}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                color: '#123D2C',
+                fontWeight: 600,
+                cursor: 'pointer',
+                font: 'inherit',
+                textDecoration: 'underline',
+              }}
+            >
+              Sign in to Admin Portal
             </button>
           </div>
 
@@ -294,7 +350,7 @@ export const LoginForm: React.FC<SigninFormProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" />
+              <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" />
               <line x1="8" y1="8" x2="16" y2="8" />
               <line x1="8" y1="12" x2="16" y2="12" />
               <line x1="8" y1="16" x2="12" y2="16" />
@@ -352,3 +408,5 @@ export const LoginForm: React.FC<SigninFormProps> = ({
     </div>
   );
 };
+
+export default LoginForm;

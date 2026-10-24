@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 import AuditFilterBar from './components/AuditFilterBar';
 import MonthlyRecordsTable from './components/MonthlyRecordsTable';
-import { initialMonthlyRecords } from './types';
-import { ClearedInvoiceDocument } from '../tax-invoice-preview/components/ClearedInvoiceDocument';
+import { getStoredMerchantProfile } from '../merchant-registration';
+import { getMerchantAuditRecords } from '../../services/merchantDataStore';
+import { TaxInvoicePreview } from '../tax-invoice-preview';
+import { OverviewDashboard } from '../dashboard';
+import { TransactionsLedger } from '../transactions';
 import { SettingsVerticalNav, type SettingsTabId } from '../settings/components/SettingsVerticalNav';
 import { BusinessProfileTab } from '../settings/components/tabs/BusinessProfileTab';
 import { ReceiptIssuanceContent } from '../receipt-issuance';
-import { Overview } from '../overview';
-import { TransactionsView } from '../transactions';
 import styles from './Audit.module.css';
 
 interface AuditProps {
@@ -32,17 +33,55 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   const [activeScreen, setActiveScreen] = useState<string>(initialScreen);
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('profile');
 
+  // Authenticated merchant isolation
+  const [merchantProfile, setMerchantProfile] = useState(() => getStoredMerchantProfile());
+  const merchantTin = merchantProfile.tin;
+  const businessName = merchantProfile.sellerLegalName || merchantProfile.tradeName || (merchantTin ? `Merchant (${merchantTin})` : 'Merchant');
+
+  useEffect(() => {
+    if (initialScreen) {
+      setActiveScreen(initialScreen);
+    }
+  }, [initialScreen]);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setMerchantProfile(getStoredMerchantProfile());
+    };
+    window.addEventListener('ereceipt:profile_updated', handleProfileUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleProfileUpdate);
+  }, []);
+
   // Audit state
   const [auditStartDate, setAuditStartDate] = useState('2026-01-01');
   const [auditEndDate, setAuditEndDate] = useState('2026-10-31');
   const [calculatedTax, setCalculatedTax] = useState<number | null>(null);
   const [taxApproved, setTaxApproved] = useState(false);
 
-  const visibleAuditMonths = initialMonthlyRecords.filter(
-    (record) =>
-      record.key >= auditStartDate.slice(0, 7) &&
-      record.key <= auditEndDate.slice(0, 7)
+  const [visibleAuditMonths, setVisibleAuditMonths] = useState(() =>
+    merchantTin ? getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate) : []
   );
+
+  useEffect(() => {
+    const refreshRecords = () => {
+      if (!merchantTin) {
+        setVisibleAuditMonths([]);
+        return;
+      }
+      setVisibleAuditMonths(getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate));
+    };
+
+    refreshRecords();
+
+    const handleReceiptsUpdated = () => {
+      refreshRecords();
+    };
+
+    window.addEventListener('ereceipt:receipts_updated', handleReceiptsUpdated);
+    return () => {
+      window.removeEventListener('ereceipt:receipts_updated', handleReceiptsUpdated);
+    };
+  }, [merchantTin, auditStartDate, auditEndDate]);
 
   const handleCalculateTax = () => {
     const total = visibleAuditMonths.reduce((sum, item) => sum + item.tax, 0);
@@ -70,16 +109,20 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   };
 
   const handleSidebarNavigate = (screen: string) => {
-    if (
-      screen === 'landing' ||
-      screen === 'home' ||
-      screen === 'login' ||
-      screen === 'signin' ||
-      screen === 'registration' ||
-      screen === 'register' ||
-      screen === 'admin'
-    ) {
-      onNavigate?.(screen);
+    if (screen === 'registration' || screen === 'register') {
+      onNavigate?.('registration');
+      return;
+    }
+    if (screen === 'admin') {
+      onNavigate?.('admin');
+      return;
+    }
+    if (screen === 'signin' || screen === 'login' || screen === 'signout' || screen === 'logout') {
+      onNavigate?.('signin');
+      return;
+    }
+    if (screen === 'landing' || screen === 'home') {
+      onNavigate?.('landing');
       return;
     }
     if (screen === 'receipt-issuance') {
@@ -98,8 +141,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
               <p className={styles.eyebrow}>Monthly tax review</p>
               <h1 className={styles.title}>Audit</h1>
               <p className={styles.copy}>
-                Select a date range to review monthly income, expenses, and tax, then calculate
-                the total tax for that period.
+                Review verified monthly income, expenses, and tax records for {businessName} (TIN: {merchantTin}).
               </p>
             </div>
           </div>
@@ -134,21 +176,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
       )}
 
       {activeScreen === 'receipt' && (
-        <>
-          <div className={styles.pageHead}>
-            <div>
-              <p className={styles.eyebrow}>Ministry of Revenue · EIMS Compliance</p>
-              <h1 className={styles.title}>Tax Invoice Document Preview</h1>
-              <p className={styles.copy}>
-                Official fiscal electronic tax invoice with Ministry of Revenue verified digital signature and QR clearance code.
-              </p>
-            </div>
-          </div>
-
-          <div style={{ maxWidth: '900px', margin: '20px auto 0 auto' }}>
-            <ClearedInvoiceDocument onPrint={() => window.print()} />
-          </div>
-        </>
+        <TaxInvoicePreview onNavigate={handleSidebarNavigate} />
       )}
 
       {activeScreen === 'settings' && (
@@ -182,15 +210,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #DDE3DE',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
                     System Preferences
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
                     Configure default currency (ETB), fiscal calendar, and language preferences.
                   </p>
                 </div>
@@ -199,15 +227,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #DDE3DE',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
                     Compliance Notifications
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
                     Manage SMS and Email alerts for tax report deadlines and receipt clearances.
                   </p>
                 </div>
@@ -216,15 +244,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #DDE3DE',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
                     Security & API Keys
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
                     Manage Ministry of Revenue EIMS clearance credentials and digital signature keys.
                   </p>
                 </div>
@@ -235,7 +263,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
       )}
 
       {activeScreen === 'dashboard' && (
-        <Overview onNavigate={handleSidebarNavigate} />
+        <OverviewDashboard onNavigate={handleSidebarNavigate} />
       )}
 
       {activeScreen === 'pos' && (
@@ -243,7 +271,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
       )}
 
       {activeScreen === 'sales' && (
-        <TransactionsView onNavigate={handleSidebarNavigate} />
+        <TransactionsLedger />
       )}
     </DashboardLayout>
   );

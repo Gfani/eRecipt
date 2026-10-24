@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedError, ForbiddenError } from "../common/errors.js";
-import { verifyAuthToken } from "../common/authToken.js";
-import { config } from "../config/index.js";
+import { verifyJwt } from "../common/auth/security.js";
 import { applicationStorage } from "../features/merchant-registration/storage.js";
 import { merchantManagementStorage } from "../features/admin/merchant-management/merchant.storage.js";
 

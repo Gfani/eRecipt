@@ -14,11 +14,8 @@ import type {
   TransactionMode,
   PaymentMethod,
   IssuedReceipt,
-  SAMPLE_PRODUCTS,
 } from './types';
 import {
-  INITIAL_ITEMS,
-  MERCHANT_CODE,
   BRANCH_CODE,
   REGISTER_CODE,
   netLineAmount,
@@ -26,6 +23,8 @@ import {
   lineVat,
 } from './types';
 import { verifyTinApi, issueReceiptApi, checkBackendHealth } from './api';
+import { getStoredMerchantProfile } from '../merchant-registration';
+import { saveMerchantReceipt } from '../../services/merchantDataStore';
 import styles from './ReceiptIssuance.module.css';
 
 interface ReceiptIssuanceProps {
@@ -44,12 +43,12 @@ const INITIAL_BUYER: BuyerInfo = {
 
 let fallbackSequenceCounter = 194;
 
-function generateFiscalClearanceData(date: Date) {
+function generateFiscalClearanceData(date: Date, merchantCode: string = 'MCH-01') {
   fallbackSequenceCounter += 1;
   const seq = fallbackSequenceCounter;
   const year = date.getFullYear();
   const padSeq = String(seq).padStart(6, '0');
-  const receiptNumber = `${MERCHANT_CODE}-${REGISTER_CODE}-${year}-${padSeq}`;
+  const receiptNumber = `${merchantCode}-${REGISTER_CODE}-${year}-${padSeq}`;
   const irn = `IRN-ET-${year}-${Math.floor(100000000 + Math.random() * 900000000)}`;
   const rrn = `RRN-ET-${year}-${Math.floor(100000000 + Math.random() * 900000000)}`;
   const sigHex = Array.from({ length: 16 }, () =>
@@ -99,7 +98,7 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
   const [withholding, setWithholding] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
   const [paymentReference, setPaymentReference] = useState('');
-  const [items, setItems] = useState<CartItem[]>(INITIAL_ITEMS);
+  const [items, setItems] = useState<CartItem[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [issuedReceipt, setIssuedReceipt] = useState<IssuedReceipt | null>(null);
@@ -108,8 +107,30 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Check Backend health on mount
+  // Check Backend health on mount & purge any legacy mock drafts
   useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem('ereceipt:pos_draft');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (
+          parsed.items &&
+          parsed.items.some(
+            (it: any) =>
+              it.code === 'HM-076' ||
+              it.code === 'ST-018' ||
+              it.name?.includes('Coffee Cup Set') ||
+              it.name?.includes('Sidamo Coffee')
+          )
+        ) {
+          window.localStorage.removeItem('ereceipt:pos_draft');
+          setItems([]);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     checkBackendHealth()
       .then((health) => {
         if (health && health.status === 'online') {
@@ -247,23 +268,6 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
     setItems((curr) => [...curr, newItem]);
   };
 
-  const handleAddPresetProduct = (preset: (typeof SAMPLE_PRODUCTS)[0]) => {
-    const newItem: CartItem = {
-      id: Date.now(),
-      code: preset.code,
-      name: preset.name,
-      price: preset.price,
-      qty: 1,
-      uom: preset.uom,
-      discount: 0,
-      vatCategory: preset.vatCategory,
-      exciseRate: preset.exciseRate,
-      supplyType: preset.supplyType,
-    };
-    setItems((curr) => [...curr, newItem]);
-    showToast(`Added "${preset.name}" to line items.`);
-  };
-
   const handleRemoveItem = (id: number) => {
     setItems((curr) => curr.filter((item) => item.id !== id));
   };
@@ -274,7 +278,22 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
 
     setIsSubmitting(true);
 
+    const profile = getStoredMerchantProfile();
+    const merchantTin = profile.tin;
+
+    if (!merchantTin) {
+      setIsSubmitting(false);
+      showToast('Please sign in with your registered merchant account to issue receipts.');
+      return;
+    }
+
     const draftPayload = {
+      merchantTin,
+      merchantName: profile.tradeName || profile.sellerLegalName || 'Registered Merchant',
+      merchantLegalName: profile.sellerLegalName || profile.tradeName,
+      merchantTradeName: profile.tradeName || profile.sellerLegalName,
+      merchantAddress: [profile.buildingName, profile.subCity, profile.city].filter(Boolean).join(', ') || 'Addis Ababa, Ethiopia',
+      cashierName: profile.fullName || 'Cashier / Operator',
       documentType,
       transactionMode,
       customerName: buyer.name || 'Walk-in customer',
@@ -301,64 +320,43 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
       const clearedReceipt = await issueReceiptApi(draftPayload);
       setIsSubmitting(false);
       setIssuedReceipt(clearedReceipt);
+
+      // Persist in merchant scoped store
+      saveMerchantReceipt(merchantTin, {
+        ...clearedReceipt,
+        merchantTin,
+        merchantName: draftPayload.merchantName,
+        merchantLegalName: draftPayload.merchantLegalName,
+        merchantTradeName: draftPayload.merchantTradeName,
+        merchantAddress: draftPayload.merchantAddress,
+        cashierName: draftPayload.cashierName,
+      } as any);
+
       showToast('MoR EIMS Clearance confirmed (HTTP 200). Receipt issued.');
     } catch {
       // Fallback local clearance ensures uninterrupted POS uptime
-      const clearanceData = generateFiscalClearanceData(new Date());
+      const mCode = profile.tin ? `MCH-${profile.tin.slice(-4)}` : undefined;
+      const clearanceData = generateFiscalClearanceData(new Date(), mCode);
       const finalReceipt: IssuedReceipt = {
         ...draftPayload,
         ...clearanceData,
       };
       setIsSubmitting(false);
       setIssuedReceipt(finalReceipt);
+
+      // Persist in merchant scoped store
+      saveMerchantReceipt(merchantTin, {
+        ...finalReceipt,
+        merchantTin,
+        merchantName: draftPayload.merchantName,
+        merchantLegalName: draftPayload.merchantLegalName,
+        merchantTradeName: draftPayload.merchantTradeName,
+        merchantAddress: draftPayload.merchantAddress,
+        cashierName: draftPayload.cashierName,
+      } as any);
+
       showToast('MoR EIMS Clearance confirmed (HTTP 200). Receipt issued.');
     }
-  };
-
-  const handleLoadB2BScenario = () => {
-    setDocumentType('Electronic Tax Invoice (VAT Invoice)');
-    setTransactionMode('B2B / Registered Buyer');
-    setBuyer({
-      name: 'Hana Trading PLC',
-      tin: '0012345678',
-      vat: 'VAT-ET-0012345678',
-      nationalId: '',
-      contact: '+251 911 234 567',
-      designatedAgent: true,
-      withholdingReference: 'WHT-2026-9812',
-    });
-    setTinVerified(true);
-    setPaymentMethod('Bank Transfer — CBE');
-    setPaymentReference('CBE-FT-884291');
-    setItems([
-      { id: 1, code: 'GR-104', name: 'Sidamo Coffee 500g', price: 680, qty: 15, uom: 'PCS', discount: 200, vatCategory: 'Standard VAT (15%)', exciseRate: 10, supplyType: 'Goods' },
-      { id: 2, code: 'ST-042', name: 'Leather Notebook', price: 450, qty: 8, uom: 'PCS', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-    ]);
-    setWithholding(true);
-    showToast('Loaded B2B Wholesale Sample scenario.');
-  };
-
-  const handleLoadRetailScenario = () => {
-    setDocumentType('Electronic Cash / Payment Receipt');
-    setTransactionMode('B2C / Walk-in Customer');
-    setBuyer({
-      name: 'Walk-in Customer',
-      tin: '',
-      vat: '',
-      nationalId: '',
-      contact: '',
-      designatedAgent: false,
-      withholdingReference: '',
-    });
-    setTinVerified(false);
-    setPaymentMethod('Cash');
-    setPaymentReference('');
-    setWithholding(false);
-    setItems([
-      { id: 1, code: 'HM-076', name: 'Coffee Cup Set', price: 780, qty: 1, uom: 'BOX', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-      { id: 2, code: 'ST-018', name: 'Blue Pen Pack (10pcs)', price: 180, qty: 2, uom: 'BOX', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-    ]);
-    showToast('Loaded Retail Walk-in Sample scenario.');
   };
 
   const handleReset = () => {
@@ -412,24 +410,6 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
         </div>
       </div>
 
-      <div className={styles.scenarioBar}>
-        <span className={styles.scenarioLabel}>Quick test scenarios:</span>
-        <button
-          type="button"
-          onClick={handleLoadB2BScenario}
-          className={styles.scenarioBtn}
-        >
-          💼 B2B Wholesale Sample
-        </button>
-        <button
-          type="button"
-          onClick={handleLoadRetailScenario}
-          className={styles.scenarioBtn}
-        >
-          🛒 Retail Walk-in Sample
-        </button>
-      </div>
-
       <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
         <DocumentClassificationCard
           documentType={documentType}
@@ -464,7 +444,6 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
           items={items}
           onUpdateItem={handleUpdateItem}
           onAddItem={handleAddItem}
-          onAddPresetProduct={handleAddPresetProduct}
           onRemoveItem={handleRemoveItem}
         />
 
