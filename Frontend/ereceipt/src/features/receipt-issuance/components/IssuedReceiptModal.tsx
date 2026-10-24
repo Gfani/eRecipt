@@ -600,6 +600,38 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <p className={styles.sigCode}>
                     Digital signature: {receipt.digitalSignature}
                   </p>
+
+                  <div className={styles.qrImageActionBanner}>
+                    <div className={styles.qrImageThumbnail}>
+                      <img src={renderedReceiptImageUrl} alt="Receipt Graphic Thumbnail" />
+                    </div>
+                    <div className={styles.qrImageActionInfo}>
+                      <span className={styles.qrImageActionHeading}>Visual Receipt Graphic Ready</span>
+                      <p className={styles.qrImageActionSub}>
+                        Scan QR code with smartphone camera or launch image directly.
+                      </p>
+                      <div className={styles.qrImageBtnGroup}>
+                        <a
+                          href={receiptImageViewerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.qrImageActionBtn}
+                        >
+                          <ExternalLink size={13} />
+                          <span>Open Receipt Image</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={handleDownloadPng}
+                          disabled={isDownloadingImage}
+                          className={styles.qrImageActionBtnSecondary}
+                        >
+                          <Download size={13} />
+                          <span>Save PNG</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
