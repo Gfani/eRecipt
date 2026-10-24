@@ -130,7 +130,42 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
     }, 3200);
   };
 
-  const verificationUrl = receipt?.qrVerificationUrl || (receipt ? `https://eims.mor.gov.et/verify/${receipt.irn}` : '');
+  const formatEtb = (val?: number) =>
+    (val || 0).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  const verificationUrl = receipt ? `${window.location.origin}/?view=verify&irn=${receipt.irn}` : '';
+
+  const customerReceiptQrText = receipt ? [
+    `=== eReceipt MoR Digital Fiscal Receipt ===`,
+    `Receipt No: ${receipt.receiptNumber}`,
+    `IRN: ${receipt.irn}`,
+    `Date: ${receipt.clearanceTimestamp || (receipt.issuedAt ? new Date(receipt.issuedAt).toLocaleString() : '')}`,
+    `Merchant: ${businessName} (TIN: ${receipt.merchantTin})`,
+    `Customer: ${receipt.customerName || 'Walk-in Customer'}`,
+    receipt.customerTin ? `Customer TIN: ${receipt.customerTin}` : null,
+    receipt.customerNationalId ? `Fayda FIN: ${receipt.customerNationalId}` : null,
+    `----------------------------------------`,
+    `Items:`,
+    ...((receipt.items || []).map(
+      (item: any, idx: number) =>
+        `${idx + 1}. ${item.name} (${item.qty || item.quantity || 1} ${item.uom || 'PCS'}) - ETB ${formatEtb(
+          (item.qty || item.quantity || 1) * (item.price || item.unitPrice || 0)
+        )}`
+    )),
+    `----------------------------------------`,
+    `Subtotal: ETB ${formatEtb(receipt.subtotal)}`,
+    receipt.exciseTax ? `Excise Tax: ETB ${formatEtb(receipt.exciseTax)}` : null,
+    `VAT (15%): ETB ${formatEtb(receipt.tax)}`,
+    receipt.withholdingTax ? `Withholding: -ETB ${formatEtb(receipt.withholdingTax)}` : null,
+    `Grand Total: ETB ${formatEtb(receipt.total)}`,
+    `Payment: ${receipt.paymentMethod || 'Cash'}${receipt.paymentReference ? ` (${receipt.paymentReference})` : ''}`,
+    `Status: CLEARED (MoR EIMS Verified)`,
+    `Digital Signature: ${receipt.digitalSignature}`,
+    `Verify: ${verificationUrl}`,
+  ].filter(Boolean).join('\n') : '';
 
   const handleCopyVerificationLink = () => {
     if (!verificationUrl) return;
@@ -196,7 +231,7 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
           <div class="rule"></div>
           <p><b>*** MoR EIMS CLEARED ***</b><br>IRN: ${receipt.irn}<br>RRN: ${receipt.rrn}<br>${receipt.clearanceTimestamp}</p>
           <div class="rule"></div>
-          <p style="text-align:left;"><b>BUYER:</b> ${receipt.customerName || 'Walk-in Customer'}<br>TIN: ${receipt.customerTin || 'N/A'}</p>
+          <p style="text-align:left;"><b>BUYER:</b> ${receipt.customerName || 'Walk-in Customer'}<br>TIN: ${receipt.customerTin || 'N/A'}${receipt.customerNationalId ? `<br>FIN: ${receipt.customerNationalId}` : ''}</p>
           <div class="rule"></div>
           <table>
             <tr><td><b>Item</b></td><td class="align-right"><b>Qty</b></td><td class="align-right"><b>Total (ETB)</b></td></tr>
@@ -491,7 +526,11 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
                 <div className={styles.buyerDetailsGrid}>
                   <div>
                     <span className={styles.buyerLabel}>TIN:</span>
-                    <span>{receipt.customerTin || 'Not provided'}</span>
+                    <span>{receipt.customerTin || (receipt.transactionMode?.startsWith('B2C') ? 'Optional / Not provided' : 'Not provided')}</span>
+                  </div>
+                  <div>
+                    <span className={styles.buyerLabel}>Fayda FIN:</span>
+                    <span>{receipt.customerNationalId || (receipt.transactionMode?.startsWith('B2C') ? 'Optional / Not provided' : 'Not provided')}</span>
                   </div>
                   <div>
                     <span className={styles.buyerLabel}>VAT:</span>
@@ -617,8 +656,8 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
               <div className={styles.qrSection}>
                 <div className={styles.qrBox}>
                   <QRCodeSVG
-                    value={verificationUrl || 'https://eims.mor.gov.et'}
-                    size={108}
+                    value={customerReceiptQrText || verificationUrl || 'https://ereceipt.et'}
+                    size={118}
                     level="M"
                     includeMargin={false}
                   />

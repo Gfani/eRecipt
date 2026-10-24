@@ -193,11 +193,16 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
 
   const total = subtotal + exciseTax + tax - withholdingTax;
 
-  const highValueB2C = transactionMode.startsWith('B2C') && total >= 10000;
-  const highValueBuyerValid =
-    !highValueB2C ||
-    (Boolean(buyer.name.trim()) &&
-      (buyer.tin.length === 10 || Boolean(buyer.nationalId.trim())));
+  const isB2B = transactionMode.startsWith('B2B');
+  const isB2C = transactionMode.startsWith('B2C');
+  const highValueB2C = isB2C && total >= 10000;
+
+  // B2B transactions require registered business buyer name and valid 10-digit TIN
+  const isB2BValid = !isB2B || (Boolean(buyer.name.trim()) && buyer.tin.trim().length === 10);
+
+  // For B2C receipts, TIN and Fayda FIN are both optional.
+  // If a TIN is typed, ensure it has all 10 digits before submission (or allow empty).
+  const isB2CTinValid = !isB2C || !buyer.tin.trim() || buyer.tin.trim().length === 10;
 
   const isAdjustment = documentType.startsWith('Credit') || documentType.startsWith('Debit');
   const requiresAdjustmentReason = !isAdjustment || Boolean(adjustmentReason.trim());
@@ -209,7 +214,8 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
 
   const canSubmit =
     items.length > 0 &&
-    highValueBuyerValid &&
+    isB2BValid &&
+    isB2CTinValid &&
     requiresAdjustmentReason &&
     requiresOriginalIrn &&
     requiresPaymentRef;
@@ -477,8 +483,10 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
             validationMessage={
               !items.length
                 ? 'Please add at least one line item.'
-                : !highValueBuyerValid
-                ? 'High-value sale requires buyer name and 10-digit TIN or Fayda FIN.'
+                : !isB2BValid
+                ? 'B2B transactions require registered buyer name and 10-digit TIN.'
+                : !isB2CTinValid
+                ? 'Customer TIN must be 10 numeric digits if provided (or leave blank for B2C).'
                 : isAdjustment && !adjustmentReason
                 ? 'Credit/Debit notes require an adjustment reason code.'
                 : undefined

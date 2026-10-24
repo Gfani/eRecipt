@@ -29,6 +29,7 @@ export interface OfficerLoginResponse {
   email?: string;
   maskedEmail?: string;
   simulatedCode?: string;
+  code?: string;
   token?: string;
   expiresIn?: string;
   officer?: OfficerUser;

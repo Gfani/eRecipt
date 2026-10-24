@@ -13,6 +13,7 @@ export const createReceiptSchema = z.object({
   merchantAddress: z.string().optional(),
   customerName: z.string().optional(),
   customerTin: z.string().optional(),
+  customerNationalId: z.string().optional(),
   customerPhone: z.string().optional(),
   items: z.array(receiptItemInputSchema).min(1, "At least one line item is required"),
   paymentMethod: z.enum(["Cash", "Telebirr", "CBEBirr", "Card", "Bank Transfer"]).default("Cash"),

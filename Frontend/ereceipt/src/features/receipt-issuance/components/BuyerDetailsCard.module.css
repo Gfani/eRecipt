@@ -89,6 +89,13 @@
   font-weight: 600;
 }
 
+.optionalBadge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted, #64748B);
+  margin-left: 4px;
+}
+
 .inputField {
   width: 100%;
   min-height: 44px;

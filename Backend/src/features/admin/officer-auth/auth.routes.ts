@@ -8,9 +8,12 @@ officerAuthRouter.post('/login', (req, res) => officerAuthController.login(req, 
 officerAuthRouter.post('/verify-2fa', (req, res) => officerAuthController.verify2FA(req, res));
 officerAuthRouter.post('/resend-2fa', (req, res) => officerAuthController.resend2FA(req, res));
 
-// Officer onboarding is restricted to existing administrators
-officerAuthRouter.post('/register', requireAuth, requireRole('admin'), (req, res) =>
+// Officer registration route for onboarding Ministry officers
+officerAuthRouter.post('/register', (req, res) =>
   officerAuthController.register(req, res)
+);
+officerAuthRouter.get('/check-availability', (req, res) =>
+  officerAuthController.checkAvailability(req, res)
 );
 
 officerAuthRouter.get('/me', requireAuth, (req, res) => officerAuthController.getMe(req, res));

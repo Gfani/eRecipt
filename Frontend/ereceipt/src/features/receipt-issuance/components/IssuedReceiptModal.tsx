@@ -21,6 +21,7 @@ import {
   lineExcise,
 } from '../types';
 import { getStoredMerchantProfile } from '../../merchant-registration';
+import { QRCodeSVG } from 'qrcode.react';
 import styles from './IssuedReceiptModal.module.css';
 
 interface IssuedReceiptModalProps {
@@ -29,14 +30,6 @@ interface IssuedReceiptModalProps {
   onReset: () => void;
 }
 
-const QR_PATTERN = Array.from({ length: 225 }, (_, index) => {
-  const row = Math.floor(index / 15);
-  const col = index % 15;
-  const finder =
-    (row < 5 && col < 5) || (row < 5 && col > 9) || (row > 9 && col < 5);
-  return finder || ((row * 7 + col * 11 + row * col) % 5 < 2);
-});
-
 export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   receipt,
   onClose,
@@ -44,6 +37,7 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
 }) => {
   const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [copied, setCopied] = useState(false);
+  const [qrMode, setQrMode] = useState<'info' | 'url'>('info');
   const profile = getStoredMerchantProfile();
   const sellerName =
     (receipt as any).merchantLegalName ||
@@ -70,10 +64,44 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
       ? amountInWords(receipt.total)
       : amountInAmharic(receipt.total);
 
+  const verificationUrl = `${window.location.origin}/?view=verify&irn=${receipt.irn}`;
+
+  const customerReceiptQrText = [
+    `=== eReceipt MoR Digital Fiscal Receipt ===`,
+    `Receipt No: ${receipt.receiptNumber}`,
+    `IRN: ${receipt.irn}`,
+    `Date: ${receipt.clearanceTimestamp || new Date(receipt.issuedAt).toLocaleString()}`,
+    `Merchant: ${sellerName} (TIN: ${sellerTin})`,
+    `Customer: ${receipt.customerName || 'Walk-in Customer'}`,
+    receipt.customerTin ? `Customer TIN: ${receipt.customerTin}` : null,
+    receipt.customerNationalId ? `Fayda FIN: ${receipt.customerNationalId}` : null,
+    `----------------------------------------`,
+    `Items:`,
+    ...receipt.items.map(
+      (item, idx) =>
+        `${idx + 1}. ${item.name} (${item.qty} ${item.uom}) - ETB ${formatMoney(
+          netLineAmount(item) + lineExcise(item)
+        )}`
+    ),
+    `----------------------------------------`,
+    `Subtotal: ETB ${formatMoney(receipt.subtotal)}`,
+    receipt.exciseTax > 0 ? `Excise Tax: ETB ${formatMoney(receipt.exciseTax)}` : null,
+    `VAT (15%): ETB ${formatMoney(receipt.tax)}`,
+    receipt.withholdingTax > 0 ? `Withholding (2%): -ETB ${formatMoney(receipt.withholdingTax)}` : null,
+    `Grand Total: ETB ${formatMoney(receipt.total)}`,
+    `Payment: ${receipt.paymentMethod}${receipt.paymentReference ? ` (${receipt.paymentReference})` : ''}`,
+    `Status: CLEARED (MoR EIMS Verified)`,
+    `Digital Signature: ${receipt.digitalSignature}`,
+    `Verify: ${verificationUrl}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const qrValue = qrMode === 'info' ? customerReceiptQrText : verificationUrl;
+
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/eims/verify/${receipt.irn}`;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(verificationUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -84,6 +112,9 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   const handlePrintThermal = () => {
     const printWindow = window.open('', '_blank', 'width=420,height=760');
     if (!printWindow) return;
+
+    const qrSvgEl = document.getElementById('receipt-qr-svg');
+    const qrSvgHtml = qrSvgEl ? qrSvgEl.outerHTML : '';
 
     const lines = receipt.items
       .map(
@@ -115,15 +146,15 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             table { width: 100%; border-collapse: collapse; }
             td { padding: 3px 0; vertical-align: top; }
             .total { font-weight: bold; font-size: 13px; }
-            .qr-placeholder {
-              width: 30mm;
-              height: 30mm;
-              margin: 8px auto;
-              border: 2px solid #111;
+            .qr-wrap {
               display: flex;
-              align-items: center;
               justify-content: center;
-              font-size: 9px;
+              align-items: center;
+              margin: 10px 0;
+            }
+            .qr-wrap svg {
+              width: 32mm;
+              height: 32mm;
             }
           </style>
         </head>
@@ -142,8 +173,11 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             ${receipt.withholdingTax > 0 ? `<tr><td>Withholding (2%):</td><td style="text-align:right">-ETB ${formatMoney(receipt.withholdingTax)}</td></tr>` : ''}
             <tr class="total"><td>GRAND TOTAL:</td><td style="text-align:right">ETB ${formatMoney(receipt.total)}</td></tr>
           </table>
-          <div class="qr-placeholder">MoR EIMS QR CODE</div>
-          <p>Scan to verify authenticity on MoR EIMS.<br>የሰነዱን ትክክለኛነት በMoR ያረጋግጡ</p>
+          <div class="rule"></div>
+          <div class="qr-wrap">
+            ${qrSvgHtml}
+          </div>
+          <p>Scan QR code with any smartphone to inspect customer receipt &amp; verify clearance on MoR EIMS.<br>የሰነዱን ትክክለኛነት በMoR ያረጋግጡ</p>
         </body>
       </html>
     `);
@@ -247,8 +281,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <p className={styles.buyerLabel}>Buyer / {receipt.transactionMode}</p>
                   <p className={styles.buyerName}>{receipt.customerName || 'Walk-in customer'}</p>
                   <p className={styles.buyerMeta}>
-                    TIN: {receipt.customerTin || 'Not provided'}<br />
-                    Fayda FIN: {receipt.customerNationalId || 'Not provided'}<br />
+                    TIN: {receipt.customerTin || (receipt.transactionMode?.startsWith('B2C') ? 'Optional (Not provided)' : 'Not provided')}<br />
+                    Fayda FIN: {receipt.customerNationalId || (receipt.transactionMode?.startsWith('B2C') ? 'Optional (Not provided)' : 'Not provided')}<br />
                     VAT: {receipt.customerVat || 'Not provided'}<br />
                     Contact: {receipt.customerPhone || 'Not provided'}
                   </p>
@@ -376,23 +410,46 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                 </dl>
               </div>
 
-              {/* MoR Verified QR code */}
+              {/* MoR Verified Scannable QR code */}
               <div className={styles.qrBox}>
-                <div className={styles.qrGraphic} aria-label="Official MoR verification QR">
-                  {QR_PATTERN.map((isDark, idx) => (
-                    <span
-                      key={idx}
-                      className={isDark ? styles.qrPixelDark : styles.qrPixelLight}
-                    />
-                  ))}
+                <div className={styles.qrGraphic} aria-label="Official MoR verification QR code">
+                  <QRCodeSVG
+                    id="receipt-qr-svg"
+                    value={qrValue}
+                    size={136}
+                    level="M"
+                    includeMargin={false}
+                    fgColor="#123D2C"
+                  />
                 </div>
 
                 <div className={styles.qrInfo}>
+                  <div className={styles.qrModeSelector}>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'info' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('info')}
+                      title="QR code encodes customer's full receipt information"
+                    >
+                      Customer receipt info
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'url' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('url')}
+                      title="QR code encodes online verification link"
+                    >
+                      Web verify link
+                    </button>
+                  </div>
+
                   <p className={styles.qrTitle}>
                     <ShieldCheck size={18} /> Official MoR-verified QR code
                   </p>
-                  <p className={styles.copy}>
-                    Scan using any device or MoR EIMS inspector app to authenticate fiscal clearance.
+                  <p className={styles.qrCopy}>
+                    {qrMode === 'info'
+                      ? "Scan using any smartphone camera to immediately read customer receipt details, item breakdown, and fiscal clearance status."
+                      : "Scan to open the public Ministry of Revenues electronic invoice verification page directly in your mobile browser."}
                   </p>
                   <p className={styles.sigCode}>
                     Digital signature: {receipt.digitalSignature}

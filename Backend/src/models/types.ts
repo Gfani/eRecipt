@@ -39,10 +39,10 @@ export interface CartItem {
 
 export interface BuyerInfo {
   name: string;
-  tin: string;
-  vat: string;
-  nationalId: string;
-  contact: string;
+  tin?: string;
+  vat?: string;
+  nationalId?: string;
+  contact?: string;
   designatedAgent: boolean;
   withholdingReference: string;
 }
@@ -54,11 +54,11 @@ export interface ReceiptDraft {
   merchantAddress?: string;
   documentType: DocumentType;
   transactionMode: TransactionMode;
-  customerName: string;
-  customerTin: string;
-  customerVat: string;
-  customerNationalId: string;
-  customerPhone: string;
+  customerName?: string;
+  customerTin?: string;
+  customerVat?: string;
+  customerNationalId?: string;
+  customerPhone?: string;
   designatedWithholdingAgent: boolean;
   withholdingReference: string;
   originalIrn: string;

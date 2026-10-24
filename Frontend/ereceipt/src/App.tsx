@@ -5,6 +5,7 @@ import { LoginForm } from './features/auth';
 import { Audit } from './features/audit';
 import { Admin } from './features/admin';
 import { ReceiptIssuance } from './features/receipt-issuance';
+import { ReceiptVerification } from './features/verification';
 import './App.css';
 
 type AppView =
@@ -15,13 +16,17 @@ type AppView =
   | 'merchant'
   | 'audit'
   | 'admin'
-  | 'registration';
+  | 'registration'
+  | 'verify';
 
 function parseUrlState(): { view: AppView; merchantScreen: string } {
   const params = new URLSearchParams(window.location.search);
   const viewParam = params.get('view');
   const screenParam = params.get('screen');
 
+  if (viewParam === 'verify' || window.location.pathname.startsWith('/verify') || params.get('irn')) {
+    return { view: 'verify', merchantScreen: 'dashboard' };
+  }
   if (viewParam === 'login' || viewParam === 'signin') {
     return { view: 'signin', merchantScreen: 'dashboard' };
   }
@@ -91,6 +96,9 @@ function App() {
     } else if (screen === 'admin') {
       targetView = 'admin';
       urlQuery = '?view=admin';
+    } else if (screen === 'verify' || screen === 'verification') {
+      targetView = 'verify';
+      urlQuery = '?view=verify';
     } else if (screen === 'pos' || screen === 'receipt-issuance') {
       targetView = 'receipt-issuance';
       urlQuery = '?view=pos';
@@ -123,9 +131,11 @@ function App() {
           onNavigate={handleNavigate}
           onSignInClick={() => handleNavigate('signin')}
           onGetStartedClick={() => handleNavigate('registration')}
-          onScanReceiptClick={() => handleNavigate('receipt-issuance')}
+          onScanReceiptClick={() => handleNavigate('verify')}
           onMerchantPortalClick={() => handleNavigate('dashboard')}
         />
+      ) : currentView === 'verify' ? (
+        <ReceiptVerification onNavigate={handleNavigate} />
       ) : currentView === 'signin' || currentView === 'login' ? (
         <LoginForm
           onSuccess={() => handleNavigate('dashboard')}

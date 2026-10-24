@@ -14,7 +14,7 @@ The backend engine for **eReceipt**, powering real-time clearance, cryptographic
   - Excise Tax: $\text{Net Amount} \times (\text{Excise Rate} / 100)$
   - Standard VAT (15%): $(\text{Net Amount} + \text{Excise Tax}) \times 0.15$
   - Withholding Tax (2%): Eligible only for B2B transactions where Goods Subtotal > 10,000 ETB or Services Subtotal > 3,000 ETB, and buyer is a designated agent.
-  - High-Value B2C Enforcement: Mandatory buyer identification (Name + TIN or Fayda FIN) for cash transactions $\ge$ 10,000 ETB.
+  - B2C Identification Rules: Customer TIN and Fayda National ID (FIN) are both optional for B2C walk-in receipts; 10-digit TIN is required for B2B registered business buyers.
   - Credit/Debit Notes: Mandates original cleared IRN and adjustment reason.
 - **Persistent Storage**: Automatic JSON database storage in `data/` for zero external database dependencies.
 
