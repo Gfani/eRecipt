@@ -1,0 +1,36 @@
+name: Build and Deploy to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+      - Fani
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZURE_ACR_LOGIN_SERVER }}
+          username: ${{ secrets.AZURE_ACR_USERNAME }}
+          password: ${{ secrets.AZURE_ACR_PASSWORD }}
+
+      - name: Build and Push Backend Image
+        run: |
+          docker build -t ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/ereceipt-backend:latest ./Backend
+          docker push ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/ereceipt-backend:latest
+
+      - name: Build and Push Frontend Image
+        run: |
+          docker build -t ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/ereceipt-frontend:latest ./Frontend/ereceipt
+          docker push ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/ereceipt-frontend:latest
