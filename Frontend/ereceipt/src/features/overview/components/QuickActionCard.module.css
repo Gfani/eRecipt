@@ -2,19 +2,19 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 190px;
+  min-height: 200px;
   padding: 28px;
-  border-radius: 14px;
+  border-radius: 16px;
   background-color: #ffffff;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   box-sizing: border-box;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.06);
 }
 
 .card:focus-visible {
@@ -22,57 +22,64 @@
   outline-offset: 2px;
 }
 
-/* Card Variants Matching Exact Image Colors */
+/* 1. Teal / Mint Variant (Issue a receipt) */
 .teal {
-  background-color: #f3fcf9;
-  border-color: #d1fae5;
+  background-color: #edfbf6;
+  border-color: #b8f2dc;
 }
 
 .teal .iconWrapper {
   color: #0b8060;
   background-color: #ffffff;
+  border: 1px solid #d4f4e7;
 }
 
 .teal .arrowIcon {
   color: #0b8060;
 }
 
+/* 2. Blue Variant (Tax invoice preview) */
 .blue {
-  background-color: #f4f8ff;
-  border-color: #dbeafe;
+  background-color: #f0f6fe;
+  border-color: #cde1fd;
 }
 
 .blue .iconWrapper {
   color: #2563eb;
   background-color: #ffffff;
+  border: 1px solid #dbeafe;
 }
 
 .blue .arrowIcon {
   color: #2563eb;
 }
 
+/* 3. Amber Variant (Transactions) */
 .amber {
-  background-color: #fffdf5;
-  border-color: #fef3c7;
+  background-color: #fefdf0;
+  border-color: #fdeaa8;
 }
 
 .amber .iconWrapper {
   color: #d97706;
   background-color: #ffffff;
+  border: 1px solid #fef3c7;
 }
 
 .amber .arrowIcon {
   color: #d97706;
 }
 
+/* 4. Purple Variant (Audit) */
 .purple {
-  background-color: #fbf8ff;
-  border-color: #ede9fe;
+  background-color: #f7f4fd;
+  border-color: #e4dbfc;
 }
 
 .purple .iconWrapper {
   color: #7c3aed;
   background-color: #ffffff;
+  border: 1px solid #ede9fe;
 }
 
 .purple .arrowIcon {
@@ -88,13 +95,13 @@
 }
 
 .iconWrapper {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .arrowIcon {
@@ -105,25 +112,25 @@
 }
 
 .card:hover .arrowIcon {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
-/* Titles & Descriptions */
+/* Content: Title & Description */
 .content {
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .title {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #0c2033;
   margin: 0 0 6px 0;
   letter-spacing: -0.3px;
 }
 
 .description {
-  font-size: 13.5px;
+  font-size: 14px;
   color: #64748b;
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
