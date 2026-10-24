@@ -88,9 +88,23 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
     await sendOtpCode();
   };
 
-  const handleVerify = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!code || code.trim().length !== 6) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Close modal on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  const verifyCode = async (codeToVerify: string) => {
+    const cleanCode = codeToVerify.trim();
+    if (cleanCode.length !== 6) {
       setError('Please enter the complete 6-digit verification code.');
       return;
     }
@@ -104,7 +118,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email.trim(),
-          code: code.trim(),
+          code: cleanCode,
           purpose: 'merchant_registration',
         }),
       });
@@ -119,6 +133,24 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
       setError(err.message || 'Verification failed. Please check the code.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    await verifyCode(code);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text');
+    const digits = pasted.replace(/\D/g, '').slice(0, 6);
+    if (digits.length > 0) {
+      e.preventDefault();
+      setCode(digits);
+      setError(null);
+      if (digits.length === 6) {
+        verifyCode(digits);
+      }
     }
   };
 
@@ -233,6 +265,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
                 onClick={() => {
                   setCode(simulatedCode);
                   setError(null);
+                  verifyCode(simulatedCode);
                 }}
                 style={{
                   backgroundColor: '#D97706',
@@ -246,7 +279,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
                   transition: 'background-color 0.15s',
                 }}
               >
-                Autofill Code
+                Autofill & Verify
               </button>
             </div>
             <p style={{ margin: '0 0 4px 0', fontSize: '12px', lineHeight: 1.4, color: '#78350F' }}>
@@ -285,16 +318,21 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
             </label>
             <input
               id="merchant-otp-input"
+              ref={inputRef}
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
               autoFocus
               value={code}
+              onPaste={handlePaste}
               onChange={(e) => {
                 const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
                 setCode(clean);
                 setError(null);
+                if (clean.length === 6) {
+                  verifyCode(clean);
+                }
               }}
               placeholder="••••••"
               style={{
