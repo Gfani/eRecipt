@@ -20,6 +20,7 @@ import { productRoutes } from './routes/productRoutes.js';
 import { settingsRoutes } from './routes/settingsRoutes.js';
 import { taxInvoicePreviewRoutes } from './routes/taxInvoicePreviewRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { idempotencyMiddleware } from './middleware/idempotency.js';
 
 export const app: Application = express();
 
@@ -28,10 +29,12 @@ app.use(cors({
   origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'X-Idempotency-Key'],
+  exposedHeaders: ['Idempotency-Key', 'X-Idempotency-Key', 'Idempotency-Replayed'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(idempotencyMiddleware);
 
 // Health check endpoints (both /health and /api/health)
 app.get(['/health', '/api/health'], (_req: Request, res: Response) => {

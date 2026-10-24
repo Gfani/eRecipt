@@ -17,11 +17,45 @@ type AppView =
   | 'admin'
   | 'registration';
 
-function parseUrlState(): { view: AppView; merchantScreen: string } {
-  const params = new URLSearchParams(window.location.search);
-  const viewParam = params.get('view');
-  const screenParam = params.get('screen');
+const SESSION_VIEW_KEY = 'ereceipt_active_view';
+const SESSION_SCREEN_KEY = 'ereceipt_active_screen';
 
+function parseUrlState(): { view: AppView; merchantScreen: string } {
+  const pathname = window.location.pathname.toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  const viewParam = (params.get('view') || '').toLowerCase();
+  const screenParam = (params.get('screen') || '').toLowerCase();
+
+  const savedView = window.sessionStorage.getItem(SESSION_VIEW_KEY) as AppView | null;
+  const savedScreen = window.sessionStorage.getItem(SESSION_SCREEN_KEY) || 'dashboard';
+
+  // 1. Pathname-based detection (e.g. /admin, /registration, /signin, /merchant/*)
+  if (pathname.includes('/admin')) {
+    return { view: 'admin', merchantScreen: 'dashboard' };
+  }
+  if (pathname.includes('/registration') || pathname.includes('/register')) {
+    return { view: 'registration', merchantScreen: 'dashboard' };
+  }
+  if (pathname.includes('/signin') || pathname.includes('/login')) {
+    return { view: 'signin', merchantScreen: 'dashboard' };
+  }
+  if (pathname.includes('/pos') || pathname.includes('/receipt-issuance')) {
+    return { view: 'receipt-issuance', merchantScreen: 'dashboard' };
+  }
+  if (pathname.includes('/merchant') || pathname.includes('/dashboard')) {
+    let screen = 'dashboard';
+    if (pathname.includes('/settings')) screen = 'settings';
+    else if (pathname.includes('/transactions') || pathname.includes('/sales')) screen = 'sales';
+    else if (pathname.includes('/audit')) screen = 'audit';
+    else if (pathname.includes('/receipt') || pathname.includes('/invoice')) screen = 'receipt';
+    else if (pathname.includes('/pos')) screen = 'pos';
+    else if (screenParam) screen = screenParam;
+    else if (savedScreen) screen = savedScreen;
+
+    return { view: 'merchant', merchantScreen: screen };
+  }
+
+  // 2. Query parameter detection (e.g. ?view=merchant&screen=settings)
   if (viewParam === 'login' || viewParam === 'signin') {
     return { view: 'signin', merchantScreen: 'dashboard' };
   }
@@ -52,6 +86,20 @@ function parseUrlState(): { view: AppView; merchantScreen: string } {
     else if (viewParam === 'dashboard' || viewParam === 'overview') screen = 'dashboard';
 
     return { view: 'merchant', merchantScreen: screen };
+  }
+
+  // 3. Saved session state on refresh (prevents jumping back to landing)
+  if (savedView && savedView !== 'landing') {
+    return { view: savedView, merchantScreen: savedScreen };
+  }
+
+  // 4. Authenticated session check: if merchant is signed in, retain merchant portal
+  const token =
+    window.localStorage.getItem('ereceipt_token') ||
+    window.localStorage.getItem('merchant_token') ||
+    window.sessionStorage.getItem('ereceipt_token');
+  if (token) {
+    return { view: 'merchant', merchantScreen: savedScreen || 'dashboard' };
   }
 
   return { view: 'landing', merchantScreen: 'dashboard' };
@@ -106,6 +154,10 @@ function App() {
       targetMerchantScreen = screen === 'merchant' ? 'dashboard' : screen;
       urlQuery = `?view=merchant&screen=${targetMerchantScreen}`;
     }
+
+    // Persist active view and screen so refresh stays right where user is
+    window.sessionStorage.setItem(SESSION_VIEW_KEY, targetView);
+    window.sessionStorage.setItem(SESSION_SCREEN_KEY, targetMerchantScreen);
 
     setCurrentView(targetView);
     setMerchantScreen(targetMerchantScreen);

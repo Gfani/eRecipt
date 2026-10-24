@@ -140,8 +140,13 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
         formPayload.append('uploadedFileSize', formData.uploadedFileSize);
       }
 
+      const idempotencyKey = `reg-${formData.tin.trim()}-${formData.email.trim().toLowerCase()}`;
       const res = await fetch('http://localhost:5000/api/registration/submit', {
         method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+          'X-Idempotency-Key': idempotencyKey,
+        },
         body: formPayload,
       });
 

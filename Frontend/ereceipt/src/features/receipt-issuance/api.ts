@@ -63,13 +63,31 @@ export async function verifyTinApi(tin: string): Promise<TinVerifyResult> {
 }
 
 /**
- * Submit draft receipt to Backend for official MoR EIMS fiscal clearance
+ * Submit draft receipt to Backend for official MoR EIMS fiscal clearance with idempotency
  */
-export async function issueReceiptApi(draft: ReceiptDraft): Promise<IssuedReceipt> {
+export async function issueReceiptApi(
+  draft: ReceiptDraft,
+  idempotencyKey?: string
+): Promise<IssuedReceipt> {
+  const token =
+    localStorage.getItem('merchant_token') ||
+    localStorage.getItem('ereceipt_token') ||
+    sessionStorage.getItem('ereceipt_token');
+
+  const key =
+    idempotencyKey ||
+    (draft as any).idempotencyKey ||
+    `idem-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
   const res = await fetch(`${API_BASE_URL}/receipts/issue`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(draft),
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': key,
+      'X-Idempotency-Key': key,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ ...draft, idempotencyKey: key }),
   });
 
   if (!res.ok) {

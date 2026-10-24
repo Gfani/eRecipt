@@ -20,8 +20,15 @@ export class ReceiptController {
         throw new ForbiddenError('Merchant registration was not found.');
       }
 
+      const rawKey =
+        req.headers['idempotency-key'] ||
+        req.headers['x-idempotency-key'] ||
+        req.body?.idempotencyKey;
+      const idempotencyKey = rawKey ? (Array.isArray(rawKey) ? rawKey[0] : String(rawKey).trim()) : undefined;
+
       const draft = {
         ...req.body,
+        idempotencyKey,
         merchantId: `MER-${merchant.tin.slice(-5)}`,
         merchantTin: merchant.tin,
         merchantName: merchant.sellerLegalName,

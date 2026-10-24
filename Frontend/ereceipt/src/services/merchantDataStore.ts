@@ -45,6 +45,7 @@ export interface StoredReceipt {
   qrPayload?: string;
   qrVerificationUrl?: string;
   status: string;
+  idempotencyKey?: string;
 }
 
 export interface MonthlyLedgerRecord {
@@ -105,8 +106,16 @@ export function saveMerchantReceipt(merchantTin: string, receipt: StoredReceipt)
       ...receipt,
       merchantTin: cleanTin,
     };
-    // Prepend new receipt and deduplicate by id
-    const updated = [boundedReceipt, ...receipts.filter((r) => r.id !== receipt.id)];
+    // Prepend new receipt and deduplicate idempotently by id, irn, or idempotencyKey
+    const updated = [
+      boundedReceipt,
+      ...receipts.filter(
+        (r) =>
+          r.id !== receipt.id &&
+          (!receipt.irn || r.irn !== receipt.irn) &&
+          (!receipt.idempotencyKey || r.idempotencyKey !== receipt.idempotencyKey)
+      ),
+    ];
     localStorage.setItem(key, JSON.stringify(updated));
 
     // Dispatch global event so all screens re-compute immediately
