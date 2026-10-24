@@ -64,16 +64,6 @@ class MerchantApplicationStorage {
     return this.cache.find((item) => item.tin === cleanTin);
   }
 
-  public updatePasswordHash(tin: string, passwordHash: string): void {
-    this.ensureLoaded();
-    const application = this.getByTin(tin);
-    if (!application) return;
-
-    application.passwordHash = passwordHash;
-    application.updatedAt = new Date().toISOString();
-    this.saveToFile();
-  }
-
   public getByPhone(phoneNumber: string): StoredMerchantApplication | undefined {
     this.ensureLoaded();
     const cleanPhone = phoneNumber.replace(/\s+/g, '');

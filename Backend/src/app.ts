@@ -19,8 +19,6 @@ import { adminRouter } from './modules/admin/admin.routes.js';
 import { receiptRoutes } from './routes/receiptRoutes.js';
 import { tinRoutes } from './routes/tinRoutes.js';
 import { productRoutes } from './routes/productRoutes.js';
-import { settingsRoutes } from './routes/settingsRoutes.js';
-import { taxInvoicePreviewRoutes } from './routes/taxInvoicePreviewRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -97,8 +95,6 @@ app.use('/api/tin', tinRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/audit', auditRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/invoices', taxInvoicePreviewRoutes);
 
 // 404 & Global Error Handling Middleware
 app.use(notFoundHandler);

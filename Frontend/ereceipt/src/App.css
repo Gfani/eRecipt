@@ -14,21 +14,18 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background-color: #123D2C;
+  background-color: var(--color-navy, #12304A);
   padding: 5px;
   border-radius: 9999px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(8px);
-  max-width: calc(100vw - 32px);
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
 .switcher-btn {
   border: none;
   background: transparent;
-  color: #D5E2D9;
+  color: #C7D4DE;
   font-size: 12px;
   font-weight: 600;
   padding: 6px 14px;
@@ -43,7 +40,7 @@
 }
 
 .switcher-btn-active {
-  background-color: #FFFFFF;
-  color: #123D2C;
+  background-color: var(--color-primary, #0D9488);
+  color: #FFFFFF;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }

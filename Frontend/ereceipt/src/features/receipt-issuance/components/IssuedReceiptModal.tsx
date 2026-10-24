@@ -297,7 +297,7 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                             textAlign: 'right',
                             fontWeight: 700,
                             fontVariantNumeric: 'tabular-nums',
-                            color: 'var(--color-navy, #123D2C)',
+                            color: 'var(--color-navy, #12304A)',
                           }}
                         >
                           {formatMoney(netLineAmount(item) + lineExcise(item))}

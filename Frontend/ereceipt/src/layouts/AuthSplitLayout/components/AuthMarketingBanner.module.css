@@ -4,7 +4,7 @@
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  background-color: var(--color-navy, #123D2C);
+  background-color: var(--color-navy, #12304A);
   color: #FFFFFF;
   padding: 56px;
   min-height: 100%;
@@ -28,7 +28,7 @@
   width: 420px;
   height: 420px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(23, 107, 77, 0.25) 0%, rgba(18, 61, 44, 0) 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.15) 0%, rgba(18, 48, 74, 0) 70%);
   pointer-events: none;
 }
 
@@ -46,9 +46,9 @@
   width: 50px;
   height: 50px;
   border-radius: var(--radius-lg, 12px);
-  background-color: var(--color-accent, #176B4D);
+  background-color: var(--color-primary, #0D9488);
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(23, 107, 77, 0.3);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
 }
 
 .headline {
@@ -64,7 +64,7 @@
   margin-top: 18px;
   font-size: 17px;
   line-height: 1.65;
-  color: #D5E2D9;
+  color: #C7D4DE;
 }
 
 .featuresGrid {
@@ -84,7 +84,7 @@
 }
 
 .checkIcon {
-  color: #91AD9C;
+  color: #5EEAD4;
   flex-shrink: 0;
 }
 
