@@ -14,49 +14,6 @@
   transform: translateY(-1px);
 }
 
-.logoImage {
-  display: block;
-  height: 36px;
-  width: auto;
-  object-fit: contain;
-  user-select: none;
-}
-
-.logoImageSm {
-  height: 28px;
-}
-
-.logoImageMd {
-  height: 36px;
-}
-
-.logoImageLg {
-  height: 48px;
-}
-
-.markWrapper {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 9px;
-  background: #ffffff;
-  padding: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.markWrapperInverse {
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
-}
-
-.markImage {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
 /* ─── Merchant Dashboard Sidebar Badge (Dark Green Background) ─── */
 .sidebarBadgeRow {
   display: inline-flex;
@@ -93,7 +50,7 @@
 /* ─── Merchant Registration & Public Views (Full Horizontal Logo) ─── */
 .fullLogoImg {
   display: block;
-  height: 50px;
+  height: 50px; /* Prominently sized as requested */
   width: auto;
   object-fit: contain;
 }

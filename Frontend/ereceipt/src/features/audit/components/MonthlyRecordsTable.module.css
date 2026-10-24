@@ -1,5 +1,5 @@
 .tableCard {
-  border: 1px solid var(--color-border-subtle, #DDE3DE);
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
   background-color: #FFFFFF;
   border-radius: var(--radius-lg, 12px);
   overflow: hidden;
@@ -7,20 +7,20 @@
 }
 
 .tableHeader {
-  border-bottom: 1px solid var(--color-border-subtle, #DDE3DE);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
   padding: 20px;
 }
 
 .title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
   margin: 0;
 }
 
 .subtitle {
   font-size: 13px;
-  color: var(--color-text-secondary, #526059);
+  color: var(--color-text-muted, #64748B);
   margin-top: 4px;
 }
 
@@ -38,18 +38,18 @@
 }
 
 .table th {
-  background-color: var(--color-bg-subtle, #FFFDF8);
-  border-bottom: 1px solid var(--color-border-subtle, #DDE3DE);
+  background-color: var(--color-bg-subtle, #F8FAFC);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
   padding: 12px 20px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-secondary, #526059);
+  color: var(--color-text-muted, #64748B);
   letter-spacing: 0.02em;
 }
 
 .table td {
   padding: 14px 20px;
-  border-bottom: 1px solid var(--color-border-subtle, #DDE3DE);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
   color: var(--color-text-body, #1F2937);
   white-space: nowrap;
 }
@@ -59,12 +59,12 @@
 }
 
 .table tr:hover td {
-  background-color: var(--color-primary-light, #E8F5EE);
+  background-color: var(--color-primary-light, #F0FDFA);
 }
 
 .monthCell {
   font-weight: 600;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
 }
 
 .amountCell {
@@ -75,13 +75,13 @@
 
 .expenseCell {
   font-variant-numeric: tabular-nums;
-  color: var(--color-text-muted, #7A847E);
+  color: var(--color-text-muted, #64748B);
 }
 
 .taxCell {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: var(--color-accent, #176B4D);
+  color: #0F766E;
 }
 
 .emptyState {
@@ -97,12 +97,12 @@
 .emptyTitle {
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
   margin: 0;
 }
 
 .emptyCopy {
   font-size: 13px;
-  color: var(--color-text-secondary, #526059);
+  color: var(--color-text-muted, #64748B);
   margin-top: 4px;
 }

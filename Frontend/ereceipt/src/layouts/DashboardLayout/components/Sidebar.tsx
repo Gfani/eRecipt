@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {profile.status === 'Approved' ? 'Verified merchant' : 'Pending accreditation'}
             </p>
           </div>
-          <ChevronDown size={15} style={{ color: '#AFC5B6' }} />
+          <ChevronDown size={15} style={{ color: '#AFC1CE' }} />
         </div>
 
         <nav className={styles.navSection}>

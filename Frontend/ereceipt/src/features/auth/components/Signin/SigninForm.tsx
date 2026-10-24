@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-import { Logo } from '../../../../components/ui/Logo/Logo';
+import axios from 'axios';
 import styles from './SigninForm.module.css';
 
-export interface LoginFormProps {
-  onRegisterClick?: () => void;
-  onHomeClick?: () => void;
-  onSuccess?: () => void;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+export interface AuthenticatedMerchant {
+  id: string;
+  role: string;
+  tin: string;
+  businessName: string;
+  tradeName?: string;
+  status: string;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({
-  onRegisterClick,
-  onHomeClick,
-  onSuccess,
+export interface SigninFormProps {
+  onLoginSuccess?: (merchant: AuthenticatedMerchant) => void;
+  onNavigateToRegister?: () => void;
+  onNavigateHome?: () => void;
+}
+
+export const LoginForm: React.FC<SigninFormProps> = ({
+  onLoginSuccess,
+  onNavigateToRegister,
+  onNavigateHome,
 }) => {
   const [tin, setTin] = useState('');
   const [password, setPassword] = useState('');
@@ -19,16 +30,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tinError, setTinError] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleTinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // only allow digits
     if (value.length <= 10) {
       setTin(value);
       if (tinError) setTinError('');
+      if (authError) setAuthError(null);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (tin.length !== 10) {
@@ -36,18 +49,53 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       return;
     }
 
-    setIsLoading(true);
+    if (!password || password.length < 6) {
+      setAuthError('Password must be at least 6 characters.');
+      return;
+    }
 
-    // Call authentication API
-    setTimeout(() => {
-      console.log('Merchant login submitted:', { tin, password, rememberMe });
-      setIsLoading(false);
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        window.location.href = '/merchant/overview';
+    setIsLoading(true);
+    setAuthError(null);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/merchant/login`, {
+        tin,
+        password,
+      });
+
+      const data = response.data?.data || response.data;
+      const token = data.token;
+      const merchant = data.user;
+
+      if (token) {
+        if (rememberMe) {
+          localStorage.setItem('ereceipt_token', token);
+          localStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
+        } else {
+          sessionStorage.setItem('ereceipt_token', token);
+          sessionStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
+        }
       }
-    }, 400);
+
+      setIsLoading(false);
+
+      if (onLoginSuccess) {
+        onLoginSuccess(merchant);
+      }
+    } catch (err: unknown) {
+      setIsLoading(false);
+      if (axios.isAxiosError(err)) {
+        const errorMsg =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          'Failed to sign in. Please verify your TIN and password.';
+        setAuthError(errorMsg);
+      } else if (err instanceof Error) {
+        setAuthError(err.message);
+      } else {
+        setAuthError('An unexpected authentication error occurred.');
+      }
+    }
   };
 
   return (
@@ -56,8 +104,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <div className={styles.leftColumn}>
         <div className={styles.formWrapper}>
           {/* Logo Header */}
-          <div className={styles.brandRow}>
-            <Logo onClick={onHomeClick ? onHomeClick : () => (window.location.href = '/')} />
+          <div
+            className={styles.brandRow}
+            style={{ cursor: onNavigateHome ? 'pointer' : 'default' }}
+            onClick={onNavigateHome}
+          >
+            <div className={styles.brandLogo}>
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            </div>
+            <span className={styles.brandTitle}>eReceipt</span>
           </div>
 
           {/* Titles & Pre-header */}
@@ -68,6 +138,33 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               Sign in to record sales and manage digital receipts.
             </p>
           </div>
+
+          {authError && (
+            <div
+              className={
+                authError.toLowerCase().includes('pending') ||
+                authError.toLowerCase().includes('review')
+                  ? styles.alertWarningBox
+                  : styles.alertBox
+              }
+              role="alert"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{ flexShrink: 0, marginTop: 2 }}
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{authError}</span>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className={styles.form}>
@@ -165,18 +262,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           {/* Registration Link */}
           <div className={styles.signupPrompt}>
             <span>New to eReceipt? </span>
-            <a
-              href="/merchant/register"
+            <button
+              type="button"
+              onClick={onNavigateToRegister}
               className={styles.signupLink}
-              onClick={(e) => {
-                if (onRegisterClick) {
-                  e.preventDefault();
-                  onRegisterClick();
-                }
-              }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
             >
               Create an account
-            </a>
+            </button>
           </div>
 
           {/* Privacy Disclaimer Footer */}
@@ -259,5 +352,3 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     </div>
   );
 };
-
-export default LoginForm;

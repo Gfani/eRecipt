@@ -70,12 +70,16 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   };
 
   const handleSidebarNavigate = (screen: string) => {
-    if (screen === 'registration') {
-      onNavigate?.('registration');
-      return;
-    }
-    if (screen === 'admin') {
-      onNavigate?.('admin');
+    if (
+      screen === 'landing' ||
+      screen === 'home' ||
+      screen === 'login' ||
+      screen === 'signin' ||
+      screen === 'registration' ||
+      screen === 'register' ||
+      screen === 'admin'
+    ) {
+      onNavigate?.(screen);
       return;
     }
     if (screen === 'receipt-issuance') {
@@ -178,15 +182,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #DDE3DE',
+                    border: '1px solid #E2E8F0',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
                     System Preferences
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
                     Configure default currency (ETB), fiscal calendar, and language preferences.
                   </p>
                 </div>
@@ -195,15 +199,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #DDE3DE',
+                    border: '1px solid #E2E8F0',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
                     Compliance Notifications
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
                     Manage SMS and Email alerts for tax report deadlines and receipt clearances.
                   </p>
                 </div>
@@ -212,15 +216,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #DDE3DE',
+                    border: '1px solid #E2E8F0',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
                     Security & API Keys
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
                     Manage Ministry of Revenue EIMS clearance credentials and digital signature keys.
                   </p>
                 </div>

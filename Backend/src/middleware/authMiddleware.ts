@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedError, ForbiddenError } from "../common/errors.js";
+import { verifyAuthToken } from "../common/authToken.js";
+import { config } from "../config/index.js";
+import { applicationStorage } from "../features/merchant-registration/storage.js";
+import { merchantManagementStorage } from "../features/admin/merchant-management/merchant.storage.js";
 
 export type UserRole = "merchant" | "officer" | "admin";
 
@@ -8,6 +12,8 @@ export interface AuthenticatedUser {
   role: UserRole;
   identifier: string; // TIN for merchant, username for officer
   name: string;
+  tin?: string;
+  tradeName?: string;
 }
 
 declare global {
@@ -20,41 +26,29 @@ declare global {
 
 /**
  * Authentication check middleware.
- * Supports Bearer token / header-based authentication for dev & demo flexibility.
+ * Strictly verifies cryptographic Bearer JWT tokens.
  */
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
-  const devRoleHeader = req.headers["x-user-role"] as UserRole | undefined;
-  const devIdHeader = req.headers["x-user-id"] as string | undefined;
-
-  // Flexible authentication for prototype & API clients
-  if (devRoleHeader) {
-    req.user = {
-      id: devIdHeader || "dev-user-1",
-      role: devRoleHeader,
-      identifier: devRoleHeader === "merchant" ? "0012847391" : "officer.demo",
-      name: devRoleHeader === "merchant" ? "Abeba Market" : "Revenue Officer Demo",
-    };
-    return next();
-  }
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    // For demo/development convenience, default to authenticated officer if in dev
-    // but flag unauthorized if strictly checked
-    throw new UnauthorizedError("Authentication token or credentials required.");
+    throw new UnauthorizedError("Authentication token is required. Format: Bearer <token>");
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1]?.trim();
   if (!token) {
     throw new UnauthorizedError("Invalid authorization format.");
   }
 
-  // Simulated decoded token payload
+  const payload = verifyJwt(token);
+
   req.user = {
-    id: "usr-1",
-    role: token.includes("officer") ? "officer" : "merchant",
-    identifier: token.includes("officer") ? "officer.demo" : "0012847391",
-    name: token.includes("officer") ? "Officer Demo" : "Abeba Market",
+    id: payload.sub,
+    role: payload.role as UserRole,
+    identifier: payload.identifier || payload.tin || payload.username || payload.sub,
+    name: payload.name,
+    tin: payload.tin,
+    tradeName: payload.tradeName,
   };
 
   next();
@@ -77,4 +71,49 @@ export function requireRole(...allowedRoles: UserRole[]) {
 
     next();
   };
+}
+
+export function requireMerchantSelfOrStaff(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void {
+  if (!req.user) {
+    throw new UnauthorizedError("User is not authenticated.");
+  }
+
+  if (
+    req.user.role === "merchant" &&
+    req.params.id !== req.user.identifier
+  ) {
+    throw new ForbiddenError("Merchants may only access their own profile.");
+  }
+
+  next();
+}
+
+export function requireApprovedMerchant(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void {
+  if (!req.user || req.user.role !== "merchant") {
+    throw new ForbiddenError("Only authenticated merchants may issue receipts.");
+  }
+
+  const application = applicationStorage.getByTin(req.user.identifier);
+  const directoryEntry = merchantManagementStorage.getDirectoryMerchantById(
+    req.user.identifier
+  );
+  if (
+    !application ||
+    application.status !== "Approved" ||
+    directoryEntry?.status === "Suspended"
+  ) {
+    throw new ForbiddenError(
+      "Only approved, active merchants may use the invoicing workflow."
+    );
+  }
+
+  next();
 }
