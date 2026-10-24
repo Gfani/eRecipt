@@ -37,7 +37,7 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
 }) => {
   const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [copied, setCopied] = useState(false);
-  const [qrMode, setQrMode] = useState<'info' | 'url'>('info');
+  const [qrMode, setQrMode] = useState<'image' | 'direct-image' | 'info'>('image');
   const profile = getStoredMerchantProfile();
   const sellerName =
     (receipt as any).merchantLegalName ||
@@ -64,7 +64,9 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
       ? amountInWords(receipt.total)
       : amountInAmharic(receipt.total);
 
-  const verificationUrl = `${window.location.origin}/?view=verify&irn=${receipt.irn}`;
+  const verificationUrl = `${window.location.origin}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
+  const receiptImageViewerUrl = `${window.location.origin}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`;
+  const receiptDirectImageUrl = `${window.location.origin}/api/receipts/${encodeURIComponent(receipt.irn)}/image`;
 
   const customerReceiptQrText = [
     `=== eReceipt MoR Digital Fiscal Receipt ===`,
@@ -92,12 +94,17 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
     `Payment: ${receipt.paymentMethod}${receipt.paymentReference ? ` (${receipt.paymentReference})` : ''}`,
     `Status: CLEARED (MoR EIMS Verified)`,
     `Digital Signature: ${receipt.digitalSignature}`,
-    `Verify: ${verificationUrl}`,
+    `View Image: ${receiptImageViewerUrl}`,
   ]
     .filter(Boolean)
     .join('\n');
 
-  const qrValue = qrMode === 'info' ? customerReceiptQrText : verificationUrl;
+  const qrValue =
+    qrMode === 'image'
+      ? receiptImageViewerUrl
+      : qrMode === 'direct-image'
+      ? receiptDirectImageUrl
+      : customerReceiptQrText;
 
   const handleCopyLink = async () => {
     try {
@@ -427,19 +434,27 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <div className={styles.qrModeSelector}>
                     <button
                       type="button"
-                      className={`${styles.qrModeBtn} ${qrMode === 'info' ? styles.qrModeBtnActive : ''}`}
-                      onClick={() => setQrMode('info')}
-                      title="QR code encodes customer's full receipt information"
+                      className={`${styles.qrModeBtn} ${qrMode === 'image' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('image')}
+                      title="QR code opens customer's visual receipt image"
                     >
-                      Customer receipt info
+                      Receipt Image
                     </button>
                     <button
                       type="button"
-                      className={`${styles.qrModeBtn} ${qrMode === 'url' ? styles.qrModeBtnActive : ''}`}
-                      onClick={() => setQrMode('url')}
-                      title="QR code encodes online verification link"
+                      className={`${styles.qrModeBtn} ${qrMode === 'direct-image' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('direct-image')}
+                      title="QR code loads direct SVG vector receipt image"
                     >
-                      Web verify link
+                      Direct Image URL
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.qrModeBtn} ${qrMode === 'info' ? styles.qrModeBtnActive : ''}`}
+                      onClick={() => setQrMode('info')}
+                      title="QR code encodes customer text summary"
+                    >
+                      Text Details
                     </button>
                   </div>
 
@@ -447,9 +462,11 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                     <ShieldCheck size={18} /> Official MoR-verified QR code
                   </p>
                   <p className={styles.qrCopy}>
-                    {qrMode === 'info'
-                      ? "Scan using any smartphone camera to immediately read customer receipt details, item breakdown, and fiscal clearance status."
-                      : "Scan to open the public Ministry of Revenues electronic invoice verification page directly in your mobile browser."}
+                    {qrMode === 'image'
+                      ? "Scan using any smartphone camera to immediately load and display the authentic visual receipt image on your phone."
+                      : qrMode === 'direct-image'
+                      ? "Scan to directly download or render the official vector SVG receipt image from the Ministry of Revenues server."
+                      : "Scan to read customer receipt details and fiscal clearance metadata in plain text format."}
                   </p>
                   <p className={styles.sigCode}>
                     Digital signature: {receipt.digitalSignature}
