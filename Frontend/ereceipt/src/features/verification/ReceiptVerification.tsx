@@ -12,6 +12,7 @@ import {
   Lock,
   AlertCircle,
   FileCheck,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { findReceiptByIrn, type StoredReceipt } from '../../services/merchantDataStore';
 import styles from './ReceiptVerification.module.css';
@@ -343,7 +344,16 @@ export const ReceiptVerification: React.FC<ReceiptVerificationProps> = ({ onNavi
 
               {/* Action Buttons */}
               <div className={styles.actionsRow}>
-                <button type="button" onClick={handlePrint} className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}>
+                <a
+                  href={`/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`}
+                  className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ImageIcon size={15} />
+                  <span>View Receipt as Image</span>
+                </a>
+                <button type="button" onClick={handlePrint} className={styles.actionBtn}>
                   <Printer size={15} />
                   <span>Print Receipt</span>
                 </button>
