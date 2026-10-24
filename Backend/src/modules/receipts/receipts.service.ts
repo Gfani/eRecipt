@@ -36,6 +36,7 @@ export class ReceiptsService {
       merchantAddress: input.merchantAddress || "Addis Ababa, Ethiopia",
       customerName: input.customerName || "Walk-in Customer",
       customerTin: input.customerTin,
+      customerNationalId: input.customerNationalId,
       customerPhone: input.customerPhone,
       items: itemsWithIds,
       subtotal: taxCalc.subtotal,
