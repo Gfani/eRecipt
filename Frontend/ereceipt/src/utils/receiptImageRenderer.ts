@@ -234,6 +234,11 @@ export function getReceiptImageUrl(
   if (receipt) {
     const data = encodeReceiptForUrl(receipt);
     if (data) params.set('data', data);
+    if (receipt.total) params.set('total', String(receipt.total));
+    if (receipt.receiptNumber) params.set('receiptNumber', String(receipt.receiptNumber));
+    if (receipt.merchantName || receipt.merchantLegalName) {
+      params.set('merchantName', String(receipt.merchantName || receipt.merchantLegalName));
+    }
   }
 
   const query = params.toString() ? `?${params.toString()}` : '';
@@ -258,6 +263,11 @@ export function getReceiptViewerUrl(
   if (receipt) {
     const data = encodeReceiptForUrl(receipt);
     if (data) params.set('data', data);
+    if (receipt.total) params.set('total', String(receipt.total));
+    if (receipt.receiptNumber) params.set('receiptNumber', String(receipt.receiptNumber));
+    if (receipt.merchantName || receipt.merchantLegalName) {
+      params.set('merchantName', String(receipt.merchantName || receipt.merchantLegalName));
+    }
   }
 
   return `${host}/?${params.toString()}`;
