@@ -27,6 +27,7 @@ export interface SendOtpResult {
   email: string;
   simulated?: boolean;
   code?: string; // provided in simulated mode for easy local testing
+  deliveryNotice?: string;
   cooldownSeconds?: number;
 }
 
@@ -232,10 +233,20 @@ class OtpService {
       console.log(`=======================================================`);
     }
 
+    const isDev = config.nodeEnv !== 'production';
+    const showCodeInResponse = deliverySimulated || isDev;
+
     return {
       success: true,
-      message: `Verification code sent to ${cleanEmail}.`,
+      message: deliverySimulated
+        ? `Verification code generated in simulation mode for ${cleanEmail}.`
+        : `Verification code sent to ${cleanEmail}.`,
       email: cleanEmail,
+      simulated: deliverySimulated,
+      code: showCodeInResponse ? code : undefined,
+      deliveryNotice: deliverySimulated
+        ? 'Resend email dispatch was simulated. The 6-digit verification code is available for development testing.'
+        : 'Email successfully dispatched via Resend to your mailbox.',
       cooldownSeconds: this.COOLDOWN_SECONDS,
     };
   }
