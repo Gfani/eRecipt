@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { merchantManagementController } from './merchant.controller.js';
-import { requireAuth, requireRole } from '../../../middleware/authMiddleware.js';
+import { requireOfficerSession } from '../../../middleware/requireOfficerSession.js';
 
 export const merchantManagementRouter = Router();
 
-// Protect all admin merchant review & directory routes
-merchantManagementRouter.use(requireAuth, requireRole('officer', 'admin'));
+merchantManagementRouter.use(requireOfficerSession);
 
 // Onboarding Applications Review
 merchantManagementRouter.get('/applications', (req, res) =>
