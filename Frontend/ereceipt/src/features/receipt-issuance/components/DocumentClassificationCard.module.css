@@ -1,5 +1,5 @@
 .card {
-  border: 1px solid var(--color-border-subtle, #DDE3DE);
+  border: 1px solid var(--color-border-subtle, #E2E8F0);
   border-radius: var(--radius-lg, 12px);
   background: #FFFFFF;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.035);
@@ -8,12 +8,12 @@
 }
 
 .header {
-  border-bottom: 1px solid var(--color-border-subtle, #DDE3DE);
+  border-bottom: 1px solid var(--color-border-subtle, #E2E8F0);
   padding: 20px;
 }
 
 .title {
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.015em;
@@ -22,7 +22,7 @@
 
 .copy {
   margin: 4px 0 0 0;
-  color: var(--color-text-secondary, #526059);
+  color: var(--color-text-muted, #64748B);
   font-size: 12px;
 }
 
@@ -62,8 +62,8 @@
 }
 
 .selectField:focus {
-  border-color: var(--color-border-focus, #176B4D);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(18, 61, 44, 0.15));
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
 }
 
 .inputField {
@@ -80,8 +80,8 @@
 }
 
 .inputField:focus {
-  border-color: var(--color-border-focus, #176B4D);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(18, 61, 44, 0.15));
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
 }
 
 .inputWithIconWrapper {

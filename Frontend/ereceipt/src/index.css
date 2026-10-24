@@ -10,7 +10,7 @@
 
 /* Typography Helpers matching Figma */
 .eyebrow {
-  color: var(--color-accent, #176B4D);
+  color: var(--color-primary, #0D9488);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -30,7 +30,7 @@
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-text-body, #334155);
 }
 
 .field-input {
@@ -53,12 +53,12 @@
 }
 
 .field-input:focus {
-  border-color: var(--color-border-focus, #176B4D);
-  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(18, 61, 44, 0.15));
+  border-color: var(--color-primary, #0D9488);
+  box-shadow: 0 0 0 3px var(--color-primary-ring, rgba(13, 148, 136, 0.15));
 }
 
 .field-input:disabled {
-  background-color: var(--color-bg-subtle, #FFFDF8);
+  background-color: var(--color-bg-subtle, #F8FAFC);
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -82,8 +82,8 @@
   min-height: 44px;
   padding: 10px 20px;
   border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-primary, #123D2C);
-  background-color: var(--color-primary, #123D2C);
+  border: 1px solid var(--color-primary, #0D9488);
+  background-color: var(--color-primary, #0D9488);
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 600;
@@ -92,12 +92,12 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover, #0E2F22);
-  border-color: var(--color-primary-hover, #0E2F22);
+  background-color: var(--color-primary-hover, #0A7F75);
+  border-color: var(--color-primary-hover, #0A7F75);
 }
 
 .btn-primary:active:not(:disabled) {
-  background-color: var(--color-primary-active, #092017);
+  background-color: var(--color-primary-active, #0F766E);
 }
 
 .btn-primary:disabled {
@@ -113,17 +113,17 @@
   min-height: 44px;
   padding: 10px 20px;
   border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-border-subtle, #DDE3DE);
+  border: 1px solid var(--color-border-input, #CBD5E1);
   background-color: #FFFFFF;
-  color: var(--color-text-heading, #17201B);
+  color: var(--color-navy, #12304A);
   font-size: 14px;
   font-weight: 600;
   transition: all 0.15s ease;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-bg-subtle, #FFFDF8);
-  border-color: #CBD5E1;
+  background-color: var(--color-bg-subtle, #F8FAFC);
+  border-color: #94A3B8;
 }
 
 .btn-secondary:disabled {

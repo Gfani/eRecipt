@@ -6,12 +6,7 @@ export interface MerchantAuthResponse {
     tin: string;
     businessName: string;
     tradeName?: string;
-    status:
-      | "Pending"
-      | "Under Review"
-      | "Approved"
-      | "Rejected"
-      | "Additional Information Required";
+    status: "Pending" | "Under Review" | "Approved" | "Rejected";
   };
 }
 

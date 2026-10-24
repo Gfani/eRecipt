@@ -11,7 +11,7 @@ export class MerchantRegistrationController {
       const input: MerchantRegistrationInput = req.body;
       const uploadedFile = req.file;
 
-      const result = await registrationService.submitRegistration(input, uploadedFile);
+      const result = registrationService.submitRegistration(input, uploadedFile);
       res.status(201).json({
         success: true,
         data: result,

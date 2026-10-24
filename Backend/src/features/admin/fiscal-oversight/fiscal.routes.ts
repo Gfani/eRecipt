@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { fiscalController } from './fiscal.controller.js';
+import { requireAuth, requireRole } from '../../../middleware/authMiddleware.js';
 
 export const fiscalOversightRouter = Router();
+
+// Protect all fiscal oversight routes
+fiscalOversightRouter.use(requireAuth, requireRole('officer', 'admin'));
 
 // Executive revenue metrics
 fiscalOversightRouter.get('/overview', fiscalController.getOverview);

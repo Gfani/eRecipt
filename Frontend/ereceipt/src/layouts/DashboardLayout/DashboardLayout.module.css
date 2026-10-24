@@ -1,6 +1,6 @@
 .layoutContainer {
   min-height: 100vh;
-  background-color: var(--color-bg-body, #F7F5EF);
+  background-color: var(--color-bg-body, #F3F6F8);
 }
 
 .mainWrapper {
@@ -11,7 +11,7 @@
 
 @media (min-width: 1024px) {
   .mainWrapper {
-    padding-left: 256px;
+    padding-left: 260px;
   }
 }
 
