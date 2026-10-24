@@ -15,8 +15,11 @@ export class ReceiptImageService {
     options: ReceiptImageOptions = {}
   ): string {
     const theme = options.theme || 'official';
+    if (theme === 'thermal') {
+      return this.generateThermalReceiptSvg(receipt, options);
+    }
     const lang = options.language || 'en';
-    const width = options.width || (theme === 'thermal' ? 380 : 540);
+    const width = options.width || 540;
 
     const items = receipt.items || [];
     const itemRowHeight = 24;
@@ -174,6 +177,89 @@ export class ReceiptImageService {
   <text x="${width / 2}" y="${totalHeight - 20}" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="sans-serif">
     Official Electronic Invoice · Validated in real-time by Ethiopian MoR
   </text>
+</svg>`;
+  }
+
+  /**
+   * Generates a thermal paper slip (80mm style) SVG image
+   */
+  public static generateThermalReceiptSvg(
+    receipt: IssuedReceipt,
+    options: ReceiptImageOptions = {}
+  ): string {
+    const width = options.width || 340;
+    const items = receipt.items || [];
+    const itemHeight = 36;
+    const totalHeight = 460 + items.length * itemHeight;
+
+    const sellerName =
+      (receipt as any).merchantLegalName ||
+      receipt.merchantName ||
+      'REGISTERED MERCHANT';
+    const sellerTin = receipt.merchantTin || 'N/A';
+    const subtotalStr = (receipt.subtotal || 0).toFixed(2);
+    const taxStr = (receipt.tax || 0).toFixed(2);
+    const totalStr = (receipt.total || 0).toFixed(2);
+
+    const itemsRows = items
+      .map((item, idx) => {
+        const y = 230 + idx * itemHeight;
+        const qty = (item as any).qty || (item as any).quantity || 1;
+        const price = (item as any).price || (item as any).unitPrice || 0;
+        const lineTotal = (item as any).lineTotal || qty * price;
+        return `
+          <text x="20" y="${y}" font-size="11" font-weight="bold" fill="#111" font-family="monospace">${(item.name || `ITEM ${idx + 1}`).slice(0, 24)}</text>
+          <text x="20" y="${y + 14}" font-size="10" fill="#444" font-family="monospace">${qty} x ${price.toFixed(2)}</text>
+          <text x="${width - 20}" y="${y + 14}" font-size="11" font-weight="bold" fill="#111" text-anchor="end" font-family="monospace">${lineTotal.toFixed(2)}</text>
+        `;
+      })
+      .join('\n');
+
+    const totalsY = 240 + items.length * itemHeight;
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${totalHeight}" width="${width}" height="${totalHeight}">
+  <!-- Thermal Slip Paper -->
+  <rect width="${width}" height="${totalHeight}" fill="#FAF9F6" />
+  <rect x="10" y="10" width="${width - 20}" height="${totalHeight - 20}" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1" stroke-dasharray="6,4" />
+
+  <!-- Merchant Header -->
+  <text x="${width / 2}" y="42" text-anchor="middle" font-size="14" font-weight="bold" fill="#111" font-family="monospace">${sellerName}</text>
+  <text x="${width / 2}" y="58" text-anchor="middle" font-size="10" fill="#444" font-family="monospace">TIN: ${sellerTin}</text>
+  <text x="${width / 2}" y="72" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">*** MoR EIMS CLEARED ***</text>
+
+  <line x1="20" y1="84" x2="${width - 20}" y2="84" stroke="#111" stroke-dasharray="2,2" />
+
+  <text x="20" y="102" font-size="10" fill="#222" font-family="monospace">REC: ${receipt.receiptNumber || 'N/A'}</text>
+  <text x="20" y="118" font-size="10" fill="#222" font-family="monospace">IRN: ${receipt.irn || 'N/A'}</text>
+  <text x="20" y="134" font-size="10" fill="#222" font-family="monospace">BUYER: ${(receipt.customerName || 'WALK-IN (B2C)').slice(0, 20)}</text>
+
+  <line x1="20" y1="146" x2="${width - 20}" y2="146" stroke="#111" stroke-dasharray="2,2" />
+
+  <text x="20" y="162" font-size="10" font-weight="bold" fill="#111" font-family="monospace">ITEM</text>
+  <text x="${width - 20}" y="162" font-size="10" font-weight="bold" fill="#111" text-anchor="end" font-family="monospace">TOTAL (ETB)</text>
+
+  <line x1="20" y1="172" x2="${width - 20}" y2="172" stroke="#444" />
+
+  <!-- Items -->
+  ${itemsRows}
+
+  <line x1="20" y1="${totalsY}" x2="${width - 20}" y2="${totalsY}" stroke="#111" stroke-dasharray="2,2" />
+
+  <text x="20" y="${totalsY + 20}" font-size="10" fill="#333" font-family="monospace">SUBTOTAL:</text>
+  <text x="${width - 20}" y="${totalsY + 20}" font-size="10" fill="#111" text-anchor="end" font-family="monospace">ETB ${subtotalStr}</text>
+
+  <text x="20" y="${totalsY + 36}" font-size="10" fill="#333" font-family="monospace">VAT (15%):</text>
+  <text x="${width - 20}" y="${totalsY + 36}" font-size="10" fill="#111" text-anchor="end" font-family="monospace">ETB ${taxStr}</text>
+
+  <line x1="20" y1="${totalsY + 46}" x2="${width - 20}" y2="${totalsY + 46}" stroke="#111" stroke-width="1.5" />
+
+  <text x="20" y="${totalsY + 66}" font-size="13" font-weight="bold" fill="#000" font-family="monospace">TOTAL ETB:</text>
+  <text x="${width - 20}" y="${totalsY + 66}" font-size="14" font-weight="bold" fill="#000" text-anchor="end" font-family="monospace">${totalStr}</text>
+
+  <!-- Digital Signature Footer -->
+  <text x="${width / 2}" y="${totalHeight - 45}" text-anchor="middle" font-size="8" fill="#555" font-family="monospace">SIG: ${(receipt.digitalSignature || 'SHA256:CLEARED').slice(0, 32)}</text>
+  <text x="${width / 2}" y="${totalHeight - 30}" text-anchor="middle" font-size="8" fill="#777" font-family="monospace">THANK YOU FOR YOUR PURCHASE!</text>
 </svg>`;
   }
 
