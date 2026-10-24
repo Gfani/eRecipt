@@ -10,20 +10,30 @@ export const otpRouter = Router();
 otpRouter.post('/send', async (req: Request, res: Response) => {
   try {
     const { email, purpose = 'auth', recipientName } = req.body;
-    if (!email || !email.trim()) {
-      res.status(400).json({ success: false, error: 'Email address is required.' });
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      res.status(400).json({ success: false, error: 'A valid email address is required.' });
       return;
     }
 
-    const result = await otpService.sendOtp(email, purpose, recipientName);
+    const cleanPurpose = typeof purpose === 'string' && purpose.trim() ? purpose.trim() : 'auth';
+    const cleanName = typeof recipientName === 'string' ? recipientName.trim() : undefined;
+
+    const result = await otpService.sendOtp(cleanEmail, cleanPurpose, cleanName);
     if (!result.success) {
       res.status(429).json(result);
       return;
     }
 
-    res.status(200).json(result);
+    res.status(200).json({
+      ...result,
+      debugNotice: result.simulated
+        ? 'Simulation mode is active: 6-digit code is provided in response and console.'
+        : undefined,
+    });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message || 'Failed to dispatch OTP.' });
+    res.status(400).json({ success: false, error: error.message || 'Failed to dispatch verification code.' });
   }
 });
 
@@ -34,12 +44,16 @@ otpRouter.post('/send', async (req: Request, res: Response) => {
 otpRouter.post('/verify', async (req: Request, res: Response) => {
   try {
     const { email, code, purpose = 'auth' } = req.body;
-    if (!email || !email.trim() || !code || !code.trim()) {
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const cleanCode = typeof code === 'string' ? code.trim() : '';
+
+    if (!cleanEmail || !cleanCode) {
       res.status(400).json({ success: false, error: 'Both email and 6-digit code are required.' });
       return;
     }
 
-    const result = otpService.verifyOtp(email, code, purpose);
+    const cleanPurpose = typeof purpose === 'string' && purpose.trim() ? purpose.trim() : 'auth';
+    const result = otpService.verifyOtp(cleanEmail, cleanCode, cleanPurpose);
     if (!result.success) {
       res.status(400).json(result);
       return;
@@ -58,19 +72,29 @@ otpRouter.post('/verify', async (req: Request, res: Response) => {
 otpRouter.post('/resend', async (req: Request, res: Response) => {
   try {
     const { email, purpose = 'auth', recipientName } = req.body;
-    if (!email || !email.trim()) {
-      res.status(400).json({ success: false, error: 'Email address is required.' });
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      res.status(400).json({ success: false, error: 'A valid email address is required.' });
       return;
     }
 
-    const result = await otpService.sendOtp(email, purpose, recipientName);
+    const cleanPurpose = typeof purpose === 'string' && purpose.trim() ? purpose.trim() : 'auth';
+    const cleanName = typeof recipientName === 'string' ? recipientName.trim() : undefined;
+
+    const result = await otpService.sendOtp(cleanEmail, cleanPurpose, cleanName);
     if (!result.success) {
       res.status(429).json(result);
       return;
     }
 
-    res.status(200).json(result);
+    res.status(200).json({
+      ...result,
+      debugNotice: result.simulated
+        ? 'Simulation mode is active: 6-digit code is provided in response and console.'
+        : undefined,
+    });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message || 'Failed to resend OTP.' });
+    res.status(400).json({ success: false, error: error.message || 'Failed to resend verification code.' });
   }
 });
