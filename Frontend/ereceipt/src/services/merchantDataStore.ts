@@ -73,92 +73,19 @@ export interface MonthlyAuditRecord {
 const STORAGE_PREFIX = 'ereceipt_merchant_receipts_';
 
 /**
- * Get all receipts issued by a specific merchant
+ * Get all receipts issued by a specific merchant.
+ * Strictly isolated per merchant TIN.
  */
 export function getMerchantReceipts(merchantTin: string): StoredReceipt[] {
-  if (!merchantTin) return [];
+  if (!merchantTin || !merchantTin.trim()) return [];
 
-  const key = `${STORAGE_PREFIX}${merchantTin}`;
+  const cleanTin = merchantTin.trim();
+  const key = `${STORAGE_PREFIX}${cleanTin}`;
   try {
     const raw = localStorage.getItem(key);
-    let receipts: StoredReceipt[] = raw ? JSON.parse(raw) : [];
-
-    // If empty and merchant is 0987654321, initialize with the 2 real user-issued receipts from DB
-    if (receipts.length === 0 && merchantTin === '0987654321') {
-      const initialRealReceipts: StoredReceipt[] = [
-        {
-          id: 'IRN-ET-2026-908427370',
-          merchantTin: '0987654321',
-          merchantName: 'Fani Market',
-          merchantLegalName: 'Fani Market',
-          merchantTradeName: 'Fani Market',
-          merchantAddress: 'Bole, Woreda 03, House 114, Addis Ababa',
-          cashierName: 'Cashier / Operator',
-          operatorId: 'CASH-014 / REG01',
-          branchCode: 'BOL01',
-          documentType: 'Electronic Cash / Payment Receipt',
-          transactionMode: 'B2C / Walk-in Customer',
-          customerName: 'Walk-in Customer',
-          customerTin: '0012345678',
-          customerPhone: '0987654321',
-          items: [
-            { id: 1, code: 'HM-076', name: 'FFKK', price: 1100, qty: 1, uom: 'BOX', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-            { id: 2, code: 'ST-018', name: 'JKLLN', price: 1800, qty: 2, uom: 'BOX', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-          ],
-          subtotal: 4700,
-          exciseTax: 0,
-          tax: 705,
-          withholdingTax: 0,
-          total: 5405,
-          paymentMethod: 'Cash',
-          receiptNumber: 'AM2081-REG01-2026-000196',
-          issuedAt: '2026-10-23T09:34:45.222Z',
-          irn: 'IRN-ET-2026-908427370',
-          rrn: 'RRN-ET-2026-101472722',
-          digitalSignature: 'SHA256:6034F1F8BB2A6060E189DF20194EIMS',
-          clearanceTimestamp: '23 Oct 2026, 12:34:45 EAT',
-          qrVerificationUrl: 'https://eims.mor.gov.et/verify/IRN-ET-2026-908427370',
-          status: 'CLEARED',
-        },
-        {
-          id: 'IRN-ET-2026-468092932',
-          merchantTin: '0987654321',
-          merchantName: 'Fani Market',
-          merchantLegalName: 'Fani Market',
-          merchantTradeName: 'Fani Market',
-          merchantAddress: 'Bole, Woreda 03, House 114, Addis Ababa',
-          cashierName: 'Cashier / Operator',
-          operatorId: 'CASH-014 / REG01',
-          branchCode: 'BOL01',
-          documentType: 'Electronic Cash / Payment Receipt',
-          transactionMode: 'B2C / Walk-in Customer',
-          customerName: 'Walk-in Customer',
-          customerPhone: '0987653421',
-          items: [
-            { id: 1, code: 'HM-076', name: 'T-shirts', price: 1500, qty: 1, uom: 'PCS', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-            { id: 2, code: 'ST-018', name: 'Pants', price: 1800, qty: 2, uom: 'PCS', discount: 0, vatCategory: 'Standard VAT (15%)', exciseRate: 0, supplyType: 'Goods' },
-          ],
-          subtotal: 5100,
-          exciseTax: 0,
-          tax: 765,
-          withholdingTax: 0,
-          total: 5865,
-          paymentMethod: 'Cash',
-          receiptNumber: 'AM2081-REG01-2026-000195',
-          issuedAt: '2026-10-23T09:06:08.034Z',
-          irn: 'IRN-ET-2026-468092932',
-          rrn: 'RRN-ET-2026-527171354',
-          digitalSignature: 'SHA256:919B368700A5357AF8829402195EIMS',
-          clearanceTimestamp: '23 Oct 2026, 12:06:08 EAT',
-          qrVerificationUrl: 'https://eims.mor.gov.et/verify/IRN-ET-2026-468092932',
-          status: 'CLEARED',
-        },
-      ];
-      localStorage.setItem(key, JSON.stringify(initialRealReceipts));
-      receipts = initialRealReceipts;
-    }
-
-    return receipts;
+    const receipts: StoredReceipt[] = raw ? JSON.parse(raw) : [];
+    // Strict isolation guarantee: filter to ensure no cross-contamination
+    return receipts.filter((r) => r.merchantTin === cleanTin);
   } catch {
     return [];
   }
@@ -168,19 +95,76 @@ export function getMerchantReceipts(merchantTin: string): StoredReceipt[] {
  * Save a new receipt exclusively for a specific merchant
  */
 export function saveMerchantReceipt(merchantTin: string, receipt: StoredReceipt): void {
-  if (!merchantTin) return;
+  if (!merchantTin || !merchantTin.trim()) return;
 
-  const key = `${STORAGE_PREFIX}${merchantTin}`;
+  const cleanTin = merchantTin.trim();
+  const key = `${STORAGE_PREFIX}${cleanTin}`;
   try {
-    const receipts = getMerchantReceipts(merchantTin);
-    // Prepend new receipt
-    const updated = [receipt, ...receipts.filter((r) => r.id !== receipt.id)];
+    const receipts = getMerchantReceipts(cleanTin);
+    const boundedReceipt: StoredReceipt = {
+      ...receipt,
+      merchantTin: cleanTin,
+    };
+    // Prepend new receipt and deduplicate by id
+    const updated = [boundedReceipt, ...receipts.filter((r) => r.id !== receipt.id)];
     localStorage.setItem(key, JSON.stringify(updated));
 
     // Dispatch global event so all screens re-compute immediately
-    window.dispatchEvent(new CustomEvent('ereceipt:receipts_updated', { detail: { merchantTin } }));
+    window.dispatchEvent(
+      new CustomEvent('ereceipt:receipts_updated', { detail: { merchantTin: cleanTin } })
+    );
   } catch (err) {
     console.error('Error saving merchant receipt:', err);
+  }
+}
+
+/**
+ * Sync receipts from backend for this merchant and merge into isolated store
+ */
+export async function syncMerchantReceipts(
+  merchantTin: string,
+  token?: string
+): Promise<StoredReceipt[]> {
+  if (!merchantTin || !merchantTin.trim()) return [];
+
+  const cleanTin = merchantTin.trim();
+  try {
+    const authToken =
+      token ||
+      localStorage.getItem('ereceipt_token') ||
+      localStorage.getItem('merchant_token');
+    const headers: Record<string, string> = {};
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    const res = await fetch(
+      `http://localhost:5000/api/receipts?merchantTin=${encodeURIComponent(cleanTin)}`,
+      { headers }
+    );
+    if (!res.ok) return getMerchantReceipts(cleanTin);
+
+    const json = await res.json();
+    const serverReceipts = json.receipts || [];
+    // Strictly isolate only receipts belonging to this merchant
+    const valid = serverReceipts.filter((r: any) => r.merchantTin === cleanTin);
+
+    const local = getMerchantReceipts(cleanTin);
+    const map = new Map<string, StoredReceipt>();
+    for (const r of valid) map.set(r.id, r);
+    for (const r of local) map.set(r.id, r);
+
+    const merged = Array.from(map.values()).sort((a, b) =>
+      (b.issuedAt || '').localeCompare(a.issuedAt || '')
+    );
+
+    localStorage.setItem(`${STORAGE_PREFIX}${cleanTin}`, JSON.stringify(merged));
+    window.dispatchEvent(
+      new CustomEvent('ereceipt:receipts_updated', { detail: { merchantTin: cleanTin } })
+    );
+    return merged;
+  } catch {
+    return getMerchantReceipts(cleanTin);
   }
 }
 
@@ -188,15 +172,21 @@ export function saveMerchantReceipt(merchantTin: string, receipt: StoredReceipt)
  * Get the latest cleared receipt for the merchant
  */
 export function getLatestMerchantReceipt(merchantTin: string): StoredReceipt | null {
-  const receipts = getMerchantReceipts(merchantTin);
+  if (!merchantTin || !merchantTin.trim()) return null;
+  const receipts = getMerchantReceipts(merchantTin.trim());
   return receipts.length > 0 ? receipts[0] : null;
 }
 
 /**
  * Compute monthly transaction ledger solely from the merchant's real receipts
  */
-export function getMerchantMonthlyLedger(merchantTin: string, filterYear?: number): MonthlyLedgerRecord[] {
-  const receipts = getMerchantReceipts(merchantTin);
+export function getMerchantMonthlyLedger(
+  merchantTin: string,
+  filterYear?: number
+): MonthlyLedgerRecord[] {
+  if (!merchantTin || !merchantTin.trim()) return [];
+
+  const receipts = getMerchantReceipts(merchantTin.trim());
   const groups = new Map<string, MonthlyLedgerRecord>();
 
   for (const receipt of receipts) {
@@ -241,8 +231,14 @@ export function getMerchantMonthlyLedger(merchantTin: string, filterYear?: numbe
 /**
  * Compute monthly audit records strictly from merchant's real receipts within date range
  */
-export function getMerchantAuditRecords(merchantTin: string, startDate: string, endDate: string): MonthlyAuditRecord[] {
-  const receipts = getMerchantReceipts(merchantTin);
+export function getMerchantAuditRecords(
+  merchantTin: string,
+  startDate: string,
+  endDate: string
+): MonthlyAuditRecord[] {
+  if (!merchantTin || !merchantTin.trim()) return [];
+
+  const receipts = getMerchantReceipts(merchantTin.trim());
   const startKey = startDate.slice(0, 7);
   const endKey = endDate.slice(0, 7);
 

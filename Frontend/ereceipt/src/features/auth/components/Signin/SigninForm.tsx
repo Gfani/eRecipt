@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Logo } from '../../../../components/ui/Logo/Logo';
+import { saveStoredMerchantProfile } from '../../../merchant-registration/profileStorage';
+import { syncMerchantReceipts } from '../../../../services/merchantDataStore';
 import styles from './SigninForm.module.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -83,7 +85,7 @@ export const LoginForm: React.FC<SigninFormProps> = ({
       const token = data.token;
       const merchant = data.user;
 
-      if (token) {
+      if (token && merchant) {
         localStorage.setItem('ereceipt_token', token);
         localStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
         localStorage.setItem('merchant_token', token);
@@ -92,6 +94,29 @@ export const LoginForm: React.FC<SigninFormProps> = ({
           sessionStorage.setItem('ereceipt_token', token);
           sessionStorage.setItem('ereceipt_merchant', JSON.stringify(merchant));
         }
+
+        // Set authoritative active profile for this merchant to ensure isolation
+        saveStoredMerchantProfile({
+          fullName: merchant.fullName || merchant.businessName || '',
+          phoneNumber: merchant.phoneNumber || '',
+          sellerLegalName: merchant.businessName || merchant.sellerLegalName || '',
+          tradeName: merchant.tradeName || merchant.businessName || '',
+          tin: merchant.tin,
+          businessLicenseNumber: merchant.businessLicenseNumber || '',
+          uploadedFileName: '',
+          uploadedFileSize: '',
+          city: merchant.city || '',
+          subCity: merchant.subCity || '',
+          buildingName: merchant.buildingName || '',
+          floor: merchant.floor || '',
+          gpsLocation: merchant.gpsLocation || '',
+          referenceNumber: merchant.referenceNumber || '',
+          status: merchant.status || 'Approved',
+          registeredAt: merchant.registeredAt || new Date().toISOString(),
+        });
+
+        // Sync real receipts from backend for this merchant (and ONLY this merchant)
+        syncMerchantReceipts(merchant.tin, token);
       }
 
       setIsLoading(false);

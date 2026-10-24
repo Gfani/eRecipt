@@ -12,9 +12,9 @@ interface TransactionsLedgerProps {
 }
 
 export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({ onNavigate }) => {
-  const profile = getStoredMerchantProfile();
-  const merchantTin = profile.tin || '0987654321';
-  const businessName = profile.tradeName || profile.sellerLegalName || 'Registered Merchant';
+  const [profile, setProfile] = useState(() => getStoredMerchantProfile());
+  const merchantTin = profile.tin;
+  const businessName = profile.tradeName || profile.sellerLegalName || (merchantTin ? `Merchant (${merchantTin})` : 'Merchant');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState<number>(2026);
@@ -22,11 +22,23 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({ onNaviga
   const [selectedRecord, setSelectedRecord] = useState<MonthlyLedgerRecord | null>(null);
 
   const [ledgerRecords, setLedgerRecords] = useState<MonthlyLedgerRecord[]>(() =>
-    getMerchantMonthlyLedger(merchantTin, selectedYear)
+    merchantTin ? getMerchantMonthlyLedger(merchantTin, selectedYear) : []
   );
 
   useEffect(() => {
+    const handleProfileUpdate = () => {
+      setProfile(getStoredMerchantProfile());
+    };
+    window.addEventListener('ereceipt:profile_updated', handleProfileUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleProfileUpdate);
+  }, []);
+
+  useEffect(() => {
     const refresh = () => {
+      if (!merchantTin) {
+        setLedgerRecords([]);
+        return;
+      }
       setLedgerRecords(getMerchantMonthlyLedger(merchantTin, selectedYear));
     };
     refresh();
@@ -136,20 +148,21 @@ export const TransactionsLedger: React.FC<TransactionsLedgerProps> = ({ onNaviga
           <div style={{ textAlign: 'center', padding: '48px 24px' }}>
             <FileText size={44} style={{ color: '#0b8060', margin: '0 auto 12px auto', display: 'block' }} />
             <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 600, color: '#17201B' }}>
-              No transactions recorded for {selectedYear}
+              {!merchantTin ? 'Merchant Sign-In Required' : `No transactions recorded for ${selectedYear}`}
             </h3>
             <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#526059', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto' }}>
-              No cleared receipts have been issued yet under TIN {merchantTin}.
-              Issue a receipt via POS to see real sales transactions recorded here.
+              {!merchantTin
+                ? 'Sign in with your verified merchant account to access your transaction records.'
+                : `No cleared receipts have been issued yet for ${businessName} (TIN: ${merchantTin}). Issue a receipt via POS to record real sales transactions.`}
             </p>
             <button
               type="button"
               className="btn-primary"
-              onClick={() => onNavigate?.('pos')}
+              onClick={() => onNavigate?.(!merchantTin ? 'signin' : 'pos')}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
               <PlusCircle size={16} />
-              <span>Issue a Receipt</span>
+              <span>{!merchantTin ? 'Sign In to Account' : 'Issue a Receipt'}</span>
             </button>
           </div>
         ) : (

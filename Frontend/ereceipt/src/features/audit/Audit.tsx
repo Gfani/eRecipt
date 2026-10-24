@@ -34,15 +34,23 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('profile');
 
   // Authenticated merchant isolation
-  const merchantProfile = getStoredMerchantProfile();
-  const merchantTin = merchantProfile.tin || '0987654321';
-  const businessName = merchantProfile.sellerLegalName || merchantProfile.tradeName || 'Fani Market';
+  const [merchantProfile, setMerchantProfile] = useState(() => getStoredMerchantProfile());
+  const merchantTin = merchantProfile.tin;
+  const businessName = merchantProfile.sellerLegalName || merchantProfile.tradeName || (merchantTin ? `Merchant (${merchantTin})` : 'Merchant');
 
   useEffect(() => {
     if (initialScreen) {
       setActiveScreen(initialScreen);
     }
   }, [initialScreen]);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setMerchantProfile(getStoredMerchantProfile());
+    };
+    window.addEventListener('ereceipt:profile_updated', handleProfileUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleProfileUpdate);
+  }, []);
 
   // Audit state
   const [auditStartDate, setAuditStartDate] = useState('2026-01-01');
@@ -51,11 +59,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'dashboard', onNav
   const [taxApproved, setTaxApproved] = useState(false);
 
   const [visibleAuditMonths, setVisibleAuditMonths] = useState(() =>
-    getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate)
+    merchantTin ? getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate) : []
   );
 
   useEffect(() => {
     const refreshRecords = () => {
+      if (!merchantTin) {
+        setVisibleAuditMonths([]);
+        return;
+      }
       setVisibleAuditMonths(getMerchantAuditRecords(merchantTin, auditStartDate, auditEndDate));
     };
 

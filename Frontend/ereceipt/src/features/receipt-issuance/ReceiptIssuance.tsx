@@ -277,7 +277,13 @@ export const ReceiptIssuanceContent: React.FC<ReceiptIssuanceProps> = ({
     setIsSubmitting(true);
 
     const profile = getStoredMerchantProfile();
-    const merchantTin = profile.tin || '0987654321';
+    const merchantTin = profile.tin;
+
+    if (!merchantTin) {
+      setIsSubmitting(false);
+      showToast('Please sign in with your registered merchant account to issue receipts.');
+      return;
+    }
 
     const draftPayload = {
       merchantTin,

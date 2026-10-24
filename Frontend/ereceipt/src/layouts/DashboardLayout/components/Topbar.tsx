@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, Wifi, CloudOff, Languages, Bell, ChevronDown, Settings, ShieldCheck, LogOut } from 'lucide-react';
-import { getStoredMerchantProfile } from '../../../features/merchant-registration';
+import { getStoredMerchantProfile, clearStoredMerchantProfile } from '../../../features/merchant-registration';
 import styles from './Topbar.module.css';
 
 interface TopbarProps {
@@ -144,10 +144,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileMenu, onNavigate }
                 className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
                 onClick={() => {
                   setProfileMenuOpen(false);
-                  localStorage.removeItem('ereceipt_token');
-                  localStorage.removeItem('merchant_token');
-                  localStorage.removeItem('ereceipt_merchant');
-                  localStorage.removeItem('merchant_user');
+                  clearStoredMerchantProfile();
                   onNavigate?.('signin');
                 }}
               >

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShoppingBag,
   FileText,
@@ -14,7 +14,13 @@ interface OverviewDashboardProps {
 }
 
 export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate }) => {
-  const profile = getStoredMerchantProfile();
+  const [profile, setProfile] = useState(() => getStoredMerchantProfile());
+
+  useEffect(() => {
+    const handleUpdate = () => setProfile(getStoredMerchantProfile());
+    window.addEventListener('ereceipt:profile_updated', handleUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleUpdate);
+  }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -25,9 +31,9 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate
 
   const merchantOwnerName = profile.fullName
     ? profile.fullName.split(' ')[0]
-    : 'Tigist';
+    : (profile.tin ? `Merchant (${profile.tin})` : 'Merchant');
 
-  const businessName = profile.tradeName || profile.sellerLegalName || 'Abeba Market';
+  const businessName = profile.tradeName || profile.sellerLegalName || (profile.tin ? `Business (TIN: ${profile.tin})` : 'Registered Business');
 
   const todayFormatted = new Intl.DateTimeFormat('en-GB', {
     weekday: 'long',

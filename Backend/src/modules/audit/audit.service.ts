@@ -9,6 +9,10 @@ export class AuditService {
    * Filter monthly financial records by date range, strictly scoped by merchant TIN
    */
   async getMonthlyRecords(filter: AuditFilterInput, merchantTin?: string): Promise<MonthlyFinancialRecord[]> {
+    if (!merchantTin) {
+      return [];
+    }
+
     const startKey = filter.startDate.slice(0, 7);
     const endKey = filter.endDate.slice(0, 7);
 

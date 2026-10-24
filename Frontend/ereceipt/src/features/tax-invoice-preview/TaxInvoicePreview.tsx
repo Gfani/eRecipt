@@ -80,16 +80,30 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Authenticated merchant isolation
-  const merchantProfile = getStoredMerchantProfile();
-  const merchantTin = merchantProfile.tin || '0987654321';
-  const businessName = merchantProfile.sellerLegalName || merchantProfile.tradeName || 'Fani Market';
+  const [merchantProfile, setMerchantProfile] = useState(() => getStoredMerchantProfile());
+  const merchantTin = merchantProfile.tin;
+  const businessName = merchantProfile.sellerLegalName || merchantProfile.tradeName || (merchantTin ? `Merchant (${merchantTin})` : 'Merchant');
 
-  const [receipt, setReceipt] = useState<StoredReceipt | null>(() => getLatestMerchantReceipt(merchantTin));
+  const [receipt, setReceipt] = useState<StoredReceipt | null>(() =>
+    merchantTin ? getLatestMerchantReceipt(merchantTin) : null
+  );
   const [recipientPhone, setRecipientPhone] = useState(receipt?.customerPhone || '+251 91 123 4567');
   const [recipientEmail, setRecipientEmail] = useState('');
 
   useEffect(() => {
+    const handleProfileUpdate = () => {
+      setMerchantProfile(getStoredMerchantProfile());
+    };
+    window.addEventListener('ereceipt:profile_updated', handleProfileUpdate);
+    return () => window.removeEventListener('ereceipt:profile_updated', handleProfileUpdate);
+  }, []);
+
+  useEffect(() => {
     const refreshReceipt = () => {
+      if (!merchantTin) {
+        setReceipt(null);
+        return;
+      }
       const latest = getLatestMerchantReceipt(merchantTin);
       setReceipt(latest);
       if (latest?.customerPhone) {
@@ -396,28 +410,28 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
                     </div>
                     <div>
                       <h2 className={styles.storeTitle}>
-                        {merchantProfile.tradeName || merchantProfile.sellerLegalName || receipt.merchantName || 'Fani Market'}
+                        {merchantProfile.tradeName || merchantProfile.sellerLegalName || receipt.merchantName || businessName}
                       </h2>
                       <p className={styles.storeTradeName}>
                         {language === 'en'
-                          ? `Trade name: ${merchantProfile.tradeName || receipt.merchantTradeName || receipt.merchantName || 'Fani Market'}`
-                          : `የንግድ ስም፡ ${merchantProfile.tradeName || receipt.merchantTradeName || receipt.merchantName || 'Fani Market'}`}
+                          ? `Trade name: ${merchantProfile.tradeName || receipt.merchantTradeName || receipt.merchantName || businessName}`
+                          : `የንግድ ስም፡ ${merchantProfile.tradeName || receipt.merchantTradeName || receipt.merchantName || businessName}`}
                       </p>
                     </div>
                   </div>
 
                   <div className={styles.sellerDetailsGrid}>
                     <span className={styles.sellerLabel}>Seller TIN:</span>
-                    <span>{merchantProfile.tin || receipt.merchantTin || '0987654321'}</span>
+                    <span>{merchantProfile.tin || receipt.merchantTin || merchantTin}</span>
 
                     <span className={styles.sellerLabel}>Branch:</span>
                     <span>{receipt.branchCode || 'Bole Main Outlet (BOL01)'}</span>
 
                     <span className={styles.sellerLabel}>VAT No:</span>
-                    <span>VAT-ET-{merchantProfile.tin || receipt.merchantTin || '0987654321'}</span>
+                    <span>VAT-ET-{merchantProfile.tin || receipt.merchantTin || merchantTin}</span>
 
                     <span className={styles.sellerLabel}>Address:</span>
-                    <span>{receipt.merchantAddress || [merchantProfile.buildingName, merchantProfile.subCity, merchantProfile.city].filter(Boolean).join(', ') || 'Bole, Woreda 03, House 114'}</span>
+                    <span>{receipt.merchantAddress || [merchantProfile.buildingName, merchantProfile.subCity, merchantProfile.city].filter(Boolean).join(', ') || 'Addis Ababa, Ethiopia'}</span>
 
                     <span className={styles.sellerLabel}>GPS Coordinates:</span>
                     <span>8.9806° N, 38.7578° E</span>

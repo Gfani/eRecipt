@@ -11,7 +11,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import Logo from '../../../components/ui/Logo/Logo';
-import { getStoredMerchantProfile } from '../../../features/merchant-registration';
+import { getStoredMerchantProfile, clearStoredMerchantProfile } from '../../../features/merchant-registration';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -119,10 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="button"
             className={styles.navItem}
             onClick={() => {
-              localStorage.removeItem('ereceipt_token');
-              localStorage.removeItem('merchant_token');
-              localStorage.removeItem('ereceipt_merchant');
-              localStorage.removeItem('merchant_user');
+              clearStoredMerchantProfile();
               onNavigate?.('signin');
               onClose();
             }}

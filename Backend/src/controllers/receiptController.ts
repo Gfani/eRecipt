@@ -90,10 +90,23 @@ export class ReceiptController {
     try {
       const { search, documentType, limit, offset } = req.query;
 
+      const merchantTin = req.user?.role === 'merchant'
+        ? req.user.identifier
+        : (req.query.merchantTin as string | undefined);
+
+      if (!merchantTin && req.user?.role !== 'officer' && req.user?.role !== 'admin') {
+        res.json({
+          success: true,
+          total: 0,
+          receipts: [],
+        });
+        return;
+      }
+
       const result = ReceiptService.getReceipts({
         search: typeof search === 'string' ? search : undefined,
         documentType: typeof documentType === 'string' ? documentType : undefined,
-        merchantTin: req.user?.role === 'merchant' ? req.user.identifier : (req.query.merchantTin as string | undefined),
+        merchantTin,
         limit: limit ? parseInt(limit as string, 10) : 50,
         offset: offset ? parseInt(offset as string, 10) : 0,
       });
