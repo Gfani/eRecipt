@@ -395,6 +395,33 @@ export class OfficerAuthService {
   }
 
   /**
+   * Check availability of username, badge number, or email
+   */
+  checkAvailability(query: { username?: string; badgeNumber?: string; email?: string }): {
+    usernameAvailable?: boolean;
+    badgeAvailable?: boolean;
+    emailAvailable?: boolean;
+  } {
+    this.ensureLoaded();
+    const result: { usernameAvailable?: boolean; badgeAvailable?: boolean; emailAvailable?: boolean } = {};
+
+    if (query.username) {
+      const cleanUser = query.username.trim().toLowerCase();
+      result.usernameAvailable = !this.officersCache.some((o) => o.username.toLowerCase() === cleanUser);
+    }
+    if (query.badgeNumber) {
+      const cleanBadge = query.badgeNumber.trim().toUpperCase();
+      result.badgeAvailable = !this.officersCache.some((o) => o.badgeNumber.toUpperCase() === cleanBadge);
+    }
+    if (query.email) {
+      const cleanMail = query.email.trim().toLowerCase();
+      result.emailAvailable = !this.officersCache.some((o) => o.email.toLowerCase() === cleanMail);
+    }
+
+    return result;
+  }
+
+  /**
    * Logout by invalidating session token
    */
   async logout(token: string): Promise<boolean> {

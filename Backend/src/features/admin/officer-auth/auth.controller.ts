@@ -205,6 +205,25 @@ export class OfficerAuthController {
   }
 
   /**
+   * GET /api/admin/auth/check-availability
+   */
+  async checkAvailability(req: Request, res: Response): Promise<void> {
+    try {
+      const username = typeof req.query.username === 'string' ? req.query.username : undefined;
+      const badgeNumber = typeof req.query.badgeNumber === 'string' ? req.query.badgeNumber : undefined;
+      const email = typeof req.query.email === 'string' ? req.query.email : undefined;
+
+      const availability = officerAuthService.checkAvailability({ username, badgeNumber, email });
+      res.status(200).json({ success: true, ...availability });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to check officer credential availability',
+      });
+    }
+  }
+
+  /**
    * POST /api/admin/auth/logout
    */
   async logout(req: Request, res: Response): Promise<void> {
