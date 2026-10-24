@@ -273,3 +273,33 @@ export function getMerchantAuditRecords(
   // Sort descending
   return Array.from(groups.values()).sort((a, b) => b.key.localeCompare(a.key));
 }
+
+/**
+ * Find a receipt by its IRN across all locally stored merchant receipt collections
+ */
+export function findReceiptByIrn(irn: string): StoredReceipt | null {
+  if (!irn || !irn.trim()) return null;
+  const targetIrn = irn.trim().toLowerCase();
+
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (key && key.startsWith('ereceipt:receipts:')) {
+        const raw = window.localStorage.getItem(key);
+        if (raw) {
+          const list: StoredReceipt[] = JSON.parse(raw);
+          const found = list.find(
+            (r) =>
+              r.irn?.toLowerCase() === targetIrn ||
+              r.receiptNumber?.toLowerCase() === targetIrn
+          );
+          if (found) return found;
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
