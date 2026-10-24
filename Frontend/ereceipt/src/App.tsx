@@ -8,6 +8,7 @@ import { ReceiptIssuance } from './features/receipt-issuance';
 import { SESSION_EXPIRED_EVENT } from './services/apiClient';
 import { ReceiptVerification } from './features/verification';
 import { ReceiptImageView } from './features/receipt-image';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import './App.css';
 
 type AppView =
@@ -203,41 +204,43 @@ function App() {
 
   return (
     <div className="app-container">
-      {currentView === 'receipt-image' ? (
-        <ReceiptImageView onBack={() => handleNavigate('landing')} />
-      ) : currentView === 'landing' ? (
-        <LandingPage
-          onNavigate={handleNavigate}
-          onSignInClick={() => handleNavigate('signin')}
-          onGetStartedClick={() => handleNavigate('registration')}
-          onScanReceiptClick={() => handleNavigate('verify')}
-          onMerchantPortalClick={() => handleNavigate('dashboard')}
-        />
-      ) : currentView === 'verify' ? (
-        <ReceiptVerification onNavigate={handleNavigate} />
-      ) : currentView === 'signin' || currentView === 'login' ? (
-        <LoginForm
-          onSuccess={() => handleNavigate('dashboard')}
-          onLoginSuccess={(_merchant) => handleNavigate('dashboard')}
-          onRegisterClick={() => handleNavigate('registration')}
-          onNavigateToRegister={() => handleNavigate('registration')}
-          onHomeClick={() => handleNavigate('landing')}
-          onNavigateToHome={() => handleNavigate('landing')}
-          onNavigateHome={() => handleNavigate('landing')}
-          onAdminClick={() => handleNavigate('admin')}
-        />
-      ) : currentView === 'receipt-issuance' ? (
-        <ReceiptIssuance onNavigate={handleNavigate} />
-      ) : currentView === 'registration' ? (
-        <MerchantRegistration
-          onSignInClick={() => handleNavigate('signin')}
-          onHomeClick={() => handleNavigate('landing')}
-        />
-      ) : currentView === 'admin' ? (
-        <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'dashboard')} />
-      ) : (
-        <Audit initialScreen={merchantScreen} onNavigate={handleNavigate} />
-      )}
+      <ErrorBoundary>
+        {currentView === 'receipt-image' ? (
+          <ReceiptImageView onBack={() => handleNavigate('landing')} />
+        ) : currentView === 'landing' ? (
+          <LandingPage
+            onNavigate={handleNavigate}
+            onSignInClick={() => handleNavigate('signin')}
+            onGetStartedClick={() => handleNavigate('registration')}
+            onScanReceiptClick={() => handleNavigate('verify')}
+            onMerchantPortalClick={() => handleNavigate('dashboard')}
+          />
+        ) : currentView === 'verify' ? (
+          <ReceiptVerification onNavigate={handleNavigate} />
+        ) : currentView === 'signin' || currentView === 'login' ? (
+          <LoginForm
+            onSuccess={() => handleNavigate('dashboard')}
+            onLoginSuccess={(_merchant) => handleNavigate('dashboard')}
+            onRegisterClick={() => handleNavigate('registration')}
+            onNavigateToRegister={() => handleNavigate('registration')}
+            onHomeClick={() => handleNavigate('landing')}
+            onNavigateToHome={() => handleNavigate('landing')}
+            onNavigateHome={() => handleNavigate('landing')}
+            onAdminClick={() => handleNavigate('admin')}
+          />
+        ) : currentView === 'receipt-issuance' ? (
+          <ReceiptIssuance onNavigate={handleNavigate} />
+        ) : currentView === 'registration' ? (
+          <MerchantRegistration
+            onSignInClick={() => handleNavigate('signin')}
+            onHomeClick={() => handleNavigate('landing')}
+          />
+        ) : currentView === 'admin' ? (
+          <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'dashboard')} />
+        ) : (
+          <Audit initialScreen={merchantScreen} onNavigate={handleNavigate} />
+        )}
+      </ErrorBoundary>
     </div>
   );
 }
