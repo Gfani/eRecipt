@@ -308,12 +308,28 @@ export class OfficerAuthService {
     }
 
     const cleanUsername = payload.username.trim().toLowerCase();
-    const existing = this.officersCache.find(
+    const cleanBadge = payload.badgeNumber.trim().toUpperCase();
+    const cleanEmail = payload.email.trim().toLowerCase();
+
+    const existingUsername = this.officersCache.find(
       (o) => o.username.toLowerCase() === cleanUsername
     );
+    if (existingUsername) {
+      throw new Error(`Officer username "${payload.username.trim()}" is already taken.`);
+    }
 
-    if (existing) {
-      throw new Error(`Officer username "${payload.username}" is already taken.`);
+    const existingBadge = this.officersCache.find(
+      (o) => o.badgeNumber.toUpperCase() === cleanBadge
+    );
+    if (existingBadge) {
+      throw new Error(`Officer badge / employee ID "${payload.badgeNumber.trim()}" is already registered.`);
+    }
+
+    const existingEmail = this.officersCache.find(
+      (o) => o.email.toLowerCase() === cleanEmail
+    );
+    if (existingEmail) {
+      throw new Error(`Official email "${payload.email.trim()}" is already associated with another officer.`);
     }
 
     const newOfficer: StoredOfficer = {
