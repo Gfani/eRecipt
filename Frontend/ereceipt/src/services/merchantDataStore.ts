@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '../config/api';
+
 export interface ReceiptItem {
   id: number | string;
   code: string;
@@ -148,7 +150,7 @@ export async function syncMerchantReceipts(
     }
 
     const res = await fetch(
-      `http://localhost:5000/api/receipts?merchantTin=${encodeURIComponent(cleanTin)}`,
+      `${API_BASE_URL}/api/receipts?merchantTin=${encodeURIComponent(cleanTin)}`,
       { headers }
     );
     if (!res.ok) return getMerchantReceipts(cleanTin);

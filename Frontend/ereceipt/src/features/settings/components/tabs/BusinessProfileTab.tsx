@@ -8,6 +8,7 @@ import {
   getStoredMerchantProfile,
   saveStoredMerchantProfile,
 } from '../../../merchant-registration';
+import { API_BASE_URL } from '../../../../config/api';
 import styles from './BusinessProfileTab.module.css';
 
 const businessProfileSchema = z.object({
@@ -68,8 +69,8 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
       sessionStorage.getItem('ereceipt_token');
     const tin = storedProfile.tin;
     const url = tin
-      ? `http://localhost:5000/api/settings/profile?tin=${encodeURIComponent(tin)}`
-      : 'http://localhost:5000/api/settings/profile';
+      ? `${API_BASE_URL}/api/settings/profile?tin=${encodeURIComponent(tin)}`
+      : `${API_BASE_URL}/api/settings/profile`;
 
     fetch(url, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -148,8 +149,8 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
       sessionStorage.getItem('ereceipt_token');
     const tin = storedProfile.tin;
     const url = tin
-      ? `http://localhost:5000/api/settings/profile?tin=${encodeURIComponent(tin)}`
-      : 'http://localhost:5000/api/settings/profile';
+      ? `${API_BASE_URL}/api/settings/profile?tin=${encodeURIComponent(tin)}`
+      : `${API_BASE_URL}/api/settings/profile`;
 
     fetch(url, {
       method: 'PATCH',

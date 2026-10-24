@@ -1,6 +1,7 @@
 import type { ReceiptDraft, IssuedReceipt, CartItem } from './types';
+import { API_BASE_URL as ROOT_API_BASE_URL } from '../../config/api';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `${ROOT_API_BASE_URL}/api`.replace(/\/+api\/api$/, '/api');
 
 export interface BackendHealthResponse {
   status: string;

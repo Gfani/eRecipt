@@ -16,6 +16,7 @@ import type {
 } from './types';
 import { initialRegistrationFormData } from './types';
 import { saveStoredMerchantProfile } from './profileStorage';
+import { API_BASE_URL } from '../../config/api';
 import styles from './MerchantRegistration.module.css';
 
 interface MerchantRegistrationProps {
@@ -141,7 +142,7 @@ export const MerchantRegistration: React.FC<MerchantRegistrationProps> = ({
       }
 
       const idempotencyKey = `reg-${formData.tin.trim()}-${formData.email.trim().toLowerCase()}`;
-      const res = await fetch('http://localhost:5000/api/registration/submit', {
+      const res = await fetch(`${API_BASE_URL}/api/registration/submit`, {
         method: 'POST',
         headers: {
           'Idempotency-Key': idempotencyKey,

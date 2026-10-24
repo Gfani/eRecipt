@@ -8,13 +8,13 @@ import {
 import { syncMerchantReceipts } from '../../../../services/merchantDataStore';
 import styles from './SigninForm.module.css';
 
+import { API_BASE_URL } from '../../../../config/api';
+
 const RESET_STEP_NONE = 0;
 const RESET_STEP_EMAIL = 1;
 const RESET_STEP_OTP = 2;
 const RESET_STEP_NEW_PASSWORD = 3;
 const RESET_STEP_DONE = 4;
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 export interface AuthenticatedMerchant {
   id: string;
