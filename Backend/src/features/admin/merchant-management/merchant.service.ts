@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { merchantManagementStorage } from './merchant.storage.js';
+import { applicationStorage } from '../../merchant-registration/storage.js';
 import type {
   MerchantApplicationItem,
   DirectoryMerchantItem,
@@ -111,6 +112,9 @@ export class MerchantManagementService {
       default:
         throw new Error(`Invalid decision kind "${payload.kind}". Must be 'approve', 'request', or 'reject'.`);
     }
+    if (payload.kind === 'reject' && !payload.reason.trim()) {
+      throw new Error('A reason is required when rejecting a merchant application.');
+    }
 
     const previousStatus = current.status;
     const updatedApplication = merchantManagementStorage.updateApplicationStatus(
@@ -198,6 +202,16 @@ export class MerchantManagementService {
     const updated = merchantManagementStorage.updateDirectoryStatus(id, status);
     if (!updated) {
       throw new Error(`Merchant "${id}" not found.`);
+    }
+
+    const application = applicationStorage.getByTin(updated.tin);
+    if (application) {
+      applicationStorage.updateStatus(
+        application.referenceNumber,
+        status === 'Suspended' ? 'Suspended' : 'Approved',
+        officerName,
+        reason
+      );
     }
 
     // Log status change

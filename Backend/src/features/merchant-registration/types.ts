@@ -3,7 +3,8 @@ export type ApplicationStatus =
   | 'Under Review'
   | 'Approved'
   | 'Rejected'
-  | 'Additional Information Required';
+  | 'Additional Information Required'
+  | 'Suspended';
 
 export interface MerchantRegistrationInput {
   // Step 1: Account details

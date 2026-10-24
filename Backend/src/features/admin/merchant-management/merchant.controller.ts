@@ -114,8 +114,8 @@ export class MerchantManagementController {
 
       const result = await merchantManagementService.submitDecision(ref, {
         kind,
-        reason: reason || '',
-        officerName: activeOfficer || 'Revenue Compliance Officer',
+        reason: typeof reason === 'string' ? reason.trim() : '',
+        officerName: req.user?.name || activeOfficer || 'Revenue Compliance Officer',
       });
 
       res.status(200).json({
@@ -192,11 +192,18 @@ export class MerchantManagementController {
         });
         return;
       }
+      if (status === 'Suspended' && (!reason || !String(reason).trim())) {
+        res.status(400).json({
+          success: false,
+          error: 'A reason is required when suspending a merchant.',
+        });
+        return;
+      }
 
       const updated = await merchantManagementService.updateStatus(
         id,
         status,
-        officerName,
+        req.user?.name || officerName,
         reason
       );
 
