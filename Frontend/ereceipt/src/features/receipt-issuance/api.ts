@@ -90,10 +90,24 @@ export async function verifyTinApi(tin: string): Promise<TinVerifyResult> {
  * Submit draft receipt to Backend for official MoR EIMS fiscal clearance
  */
 export async function issueReceiptApi(draft: ReceiptDraft): Promise<IssuedReceipt> {
+  const token =
+    (typeof window !== 'undefined' &&
+      (localStorage.getItem('ereceipt_token') ||
+        localStorage.getItem('merchant_token') ||
+        sessionStorage.getItem('ereceipt_token'))) ||
+    null;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}/receipts/issue`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(draft),
   });
 
