@@ -68,6 +68,7 @@ export async function verifyTinApi(tin: string): Promise<TinVerifyResult> {
 export async function issueReceiptApi(draft: ReceiptDraft): Promise<IssuedReceipt> {
   const res = await fetch(`${API_BASE_URL}/receipts/issue`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(draft),
   });
