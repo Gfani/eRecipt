@@ -98,3 +98,24 @@ otpRouter.post('/resend', async (req: Request, res: Response) => {
     res.status(400).json({ success: false, error: error.message || 'Failed to resend verification code.' });
   }
 });
+
+/**
+ * GET /api/otp/status
+ * Query parameters: email (required), purpose (optional, defaults to 'auth')
+ */
+otpRouter.get('/status', (req: Request, res: Response) => {
+  try {
+    const email = typeof req.query.email === 'string' ? req.query.email.trim().toLowerCase() : '';
+    const purpose = typeof req.query.purpose === 'string' && req.query.purpose.trim() ? req.query.purpose.trim() : 'auth';
+
+    if (!email || !email.includes('@')) {
+      res.status(400).json({ success: false, error: 'A valid email query parameter is required.' });
+      return;
+    }
+
+    const status = otpService.checkEmailVerificationStatus(email, purpose);
+    res.status(200).json({ success: true, email, purpose, ...status });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Failed to check OTP status.' });
+  }
+});

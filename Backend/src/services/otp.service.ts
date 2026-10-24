@@ -349,6 +349,42 @@ class OtpService {
     return expiresAt !== undefined && expiresAt > Date.now();
   }
 
+  /**
+   * Checks whether an email is currently verified or has a pending code
+   */
+  public checkEmailVerificationStatus(email: string, purpose: string = 'auth'): {
+    verified: boolean;
+    pending: boolean;
+    expiresInSeconds?: number;
+  } {
+    this.ensureLoaded();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const key = this.getKey(cleanEmail, purpose);
+
+    const verifiedExpiresAt = this.verifiedEmails.get(key);
+    if (verifiedExpiresAt && verifiedExpiresAt > Date.now()) {
+      return {
+        verified: true,
+        pending: false,
+        expiresInSeconds: Math.ceil((verifiedExpiresAt - Date.now()) / 1000),
+      };
+    }
+
+    const record = this.otpCache.get(key);
+    if (record && record.expiresAt > Date.now()) {
+      return {
+        verified: false,
+        pending: true,
+        expiresInSeconds: Math.ceil((record.expiresAt - Date.now()) / 1000),
+      };
+    }
+
+    return {
+      verified: false,
+      pending: false,
+    };
+  }
+
   public async sendMerchantStatusNotification(input: {
     email: string;
     recipientName: string;
