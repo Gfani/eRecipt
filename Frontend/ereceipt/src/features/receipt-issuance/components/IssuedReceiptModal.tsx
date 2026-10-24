@@ -552,8 +552,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <QRCodeSVG
                     id="receipt-qr-svg"
                     value={qrValue}
-                    size={136}
-                    level="M"
+                    size={144}
+                    level={qrMode === 'data-uri' ? 'L' : 'M'}
                     includeMargin={false}
                     fgColor="#123D2C"
                   />
