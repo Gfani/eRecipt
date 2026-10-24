@@ -69,12 +69,11 @@ The system has two primary interfaces:
 
 Customers and authorized users can scan the receipt's QR code with any smartphone camera to immediately load the authentic **visual receipt image** rather than raw text.
 
-The QR code points directly to the receipt image visual viewer and MoR vector image endpoint:
-- **Visual Receipt Image:** Real-time rendered vector SVG/PNG invoice featuring the official Ethiopian Ministry of Revenues header, fiscal clearance stamp, merchant details, line-item table, and cryptographic digital signature.
-- **Multiple Layout Modes:** Standard full tax invoice or 80mm POS thermal slip format.
-- **Bilingual Display:** Switch between English and Amharic (አማርኛ).
-- **Client Download & Print:** Immediate one-click download as PNG raster image or vector SVG, plus thermal receipt printing.
-- **Verification Portal:** Public verification page displays clearance status and audit trail directly from the MoR EIMS registry.
+The QR code generator supports two output modes:
+- **Embedded Web Receipt Viewer (`/?view=receipt-image&irn=...&data=...`):** Full interactive viewer with theme toggle (Modern Invoice / 80mm POS Thermal Slip), Amharic/English bilingual toggle, PNG/SVG download, and thermal printing. The full receipt payload is encoded directly into query parameters, guaranteeing instant rendering even if the device cannot access the backend database.
+- **Direct SVG Data URI (`data:image/svg+xml,...`):** Completely self-contained vector graphic encoded directly inside the QR code matrix. When scanned by camera or barcode scanners, it opens natively as a crisp visual receipt image with zero network or server requests.
+- **Cross-Device Mobile Access (`0.0.0.0` Binding):** Both the Vite frontend dev server (port 5173) and Express backend (port 5000) bind to `0.0.0.0`, allowing phones and tablets on the same Wi-Fi network to connect via the detected LAN IP address (e.g. `http://192.168.x.x:5173`).
+- **MoR Vector Image Endpoint (`/api/receipts/:irn/image`):** Dynamic SVG endpoint rendering high-resolution fiscal receipts on-demand with official Ministry of Revenues clearance stamps and SHA-256 cryptographic signatures.
 
 ## System Workflow
 
