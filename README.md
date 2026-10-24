@@ -208,6 +208,40 @@ To send live verification emails to real inboxes:
 
 ---
 
+## Revenue Officer & Admin Onboarding
+
+Authorized tax officers and administrators can access the portal via `http://localhost:5173/?view=admin` or by clicking **"Admin"** in the navigation header.
+
+### 1. Officer Registration
+New Ministry officers can onboard using the **"Officer Registration"** tab:
+- **Full Legal Name**: Official name (minimum 3 characters).
+- **Officer Username**: Alphanumeric identifier (3-30 characters).
+- **Badge / Employee ID**: Official government badge (e.g. `RO-401`, unique).
+- **Official Email**: Government email address (e.g. `officer@mor.gov.et`, unique).
+- **Branch & Role**: Assignable branches and roles (`REVENUE_OFFICER`, `SENIOR_AUDITOR`, `ADMIN`).
+- **Authorization Declaration**: Mandatory certification checkbox.
+- Upon successful submission, an active 24-hour session token is issued, recorded to the audit log, and the officer transitions directly to the workspace.
+
+### 2. Built-in Demo Credentials
+| Account | Username | Password | Role |
+|---|---|---|---|
+| **Fanuel** | `officer.fani` | `Password123` | Revenue Officer |
+| **Abebe** | `officer.demo` | `Revenue123` | Senior Tax Auditor |
+| **Admin** | `admin` | `Admin123` | System Administrator |
+
+### 3. Admin Authentication Endpoints
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/admin/auth/register` | Onboards new officer and issues session token |
+| `POST` | `/api/admin/auth/login` | Authenticates username/password and dispatches 2FA OTP |
+| `POST` | `/api/admin/auth/verify-2fa` | Validates 2FA code and issues bearer token |
+| `POST` | `/api/admin/auth/resend-2fa` | Resends 2FA code respecting cooldown |
+| `GET` | `/api/admin/auth/check-availability` | Verifies availability of username, badge, or email |
+| `GET` | `/api/admin/auth/me` | Returns authenticated officer session details |
+| `POST` | `/api/admin/auth/logout` | Invalidates active officer session |
+
+---
+
 ## Technology Stack
 
 The following technologies should be updated to reflect the tools actually selected and configured in the repository.
