@@ -215,8 +215,34 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     e.preventDefault();
     setAuthError('');
 
-    if (!regFullName.trim() || !regUsername.trim() || !regBadgeNumber.trim() || !regEmail.trim() || !regPassword) {
+    const cleanName = regFullName.trim();
+    const cleanUser = regUsername.trim();
+    const cleanBadge = regBadgeNumber.trim().toUpperCase();
+    const cleanMail = regEmail.trim();
+
+    if (!cleanName || !cleanUser || !cleanBadge || !cleanMail || !regPassword) {
       setAuthError('All fields marked with an asterisk are required.');
+      return;
+    }
+
+    if (cleanName.length < 3) {
+      setAuthError('Full name must be at least 3 characters long.');
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9._-]{3,30}$/.test(cleanUser)) {
+      setAuthError('Officer username must be 3-30 characters with letters, numbers, dots or underscores.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanMail)) {
+      setAuthError('Please enter a valid official email address (e.g., officer@mor.gov.et).');
+      return;
+    }
+
+    if (cleanBadge.length < 3) {
+      setAuthError('Officer badge number or employee ID must be at least 3 characters.');
       return;
     }
 
