@@ -220,13 +220,15 @@ export class OfficerAuthService {
       expiresAt: Date.now() + 10 * 60 * 1000,
     });
 
-    await otpService.sendOtp(officer.email, 'admin_login', officer.name);
+    const otpResult = await otpService.sendOtp(officer.email, 'admin_login', officer.name);
 
     return {
       requires2FA: true,
       tempToken,
       email: officer.email,
       maskedEmail: maskEmail(officer.email),
+      code: otpResult.simulated || process.env.NODE_ENV !== 'production' ? otpResult.code : undefined,
+      simulatedCode: otpResult.simulated || process.env.NODE_ENV !== 'production' ? otpResult.code : undefined,
     };
   }
 

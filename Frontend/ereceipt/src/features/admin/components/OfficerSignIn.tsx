@@ -105,7 +105,13 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
         setTempToken(data.data.tempToken);
         setMaskedEmail(data.data.maskedEmail || data.data.email || 'your official email');
         setTwoFaCooldown(45);
-        setTwoFaCode('');
+        const code = data.data.code || data.data.simulatedCode || '';
+        if (code) {
+          setTwoFaCode(code);
+          setTwoFaSuccessNotice(`Simulation Mode: Your 2FA security code is ${code}`);
+        } else {
+          setTwoFaCode('');
+        }
         setAuthError('');
         return;
       }
