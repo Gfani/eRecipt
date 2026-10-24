@@ -65,20 +65,16 @@ The system has two primary interfaces:
 - Display receipt details, including merchant information, items, quantities, totals, applicable taxes, and customer identification (mandatory 10-digit TIN for B2B; optional TIN and Fayda FIN for B2C).
 - Track receipt status and retain appropriate records of voided receipts.
 
-### 4. Receipt Verification
+### 4. Receipt Verification & Visual Receipt Image QR Scanning
 
-Customers and authorized users should be able to scan a receipt's QR code to verify its authenticity.
+Customers and authorized users can scan the receipt's QR code with any smartphone camera to immediately load the authentic **visual receipt image** rather than raw text.
 
-The verification page is intended to display relevant receipt information, such as:
-
-- Receipt number.
-- Merchant name and identification details.
-- Transaction date and time.
-- Total transaction amount.
-- Applicable tax amount.
-- Current receipt status.
-
-Verification should retrieve information from the system rather than relying solely on information encoded in the QR code.
+The QR code points directly to the receipt image visual viewer and MoR vector image endpoint:
+- **Visual Receipt Image:** Real-time rendered vector SVG/PNG invoice featuring the official Ethiopian Ministry of Revenues header, fiscal clearance stamp, merchant details, line-item table, and cryptographic digital signature.
+- **Multiple Layout Modes:** Standard full tax invoice or 80mm POS thermal slip format.
+- **Bilingual Display:** Switch between English and Amharic (አማርኛ).
+- **Client Download & Print:** Immediate one-click download as PNG raster image or vector SVG, plus thermal receipt printing.
+- **Verification Portal:** Public verification page displays clearance status and audit trail directly from the MoR EIMS registry.
 
 ## System Workflow
 
