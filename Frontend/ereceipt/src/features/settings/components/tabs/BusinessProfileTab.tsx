@@ -83,12 +83,8 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
       {/* Read-Only Ministry Verified Identifiers Card */}
       <div className={styles.verifiedCardWrapper}>
         <VerifiedIdentifiersCard
-          tin={
-            storedProfile.tin && storedProfile.tin.length === 10
-              ? `${storedProfile.tin.slice(0, 3)}•••••${storedProfile.tin.slice(-2)}`
-              : storedProfile.tin || '—'
-          }
-          merchantReference={storedProfile.referenceNumber || '—'}
+          tin={storedProfile.tin || '—'}
+          merchantReference={storedProfile.referenceNumber || (storedProfile.tin ? `MCH-${storedProfile.tin.slice(-4)}` : '—')}
           taxAuthority="Ministry of Revenues (MoR)"
         />
       </div>
@@ -174,7 +170,7 @@ export const BusinessProfileTab: React.FC<BusinessProfileTabProps> = ({
               id="phone"
               type="tel"
               className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
-              placeholder="+251 91 123 4567"
+              placeholder="+251 9XX XXX XXXX"
               {...register('phone')}
             />
             {errors.phone ? (

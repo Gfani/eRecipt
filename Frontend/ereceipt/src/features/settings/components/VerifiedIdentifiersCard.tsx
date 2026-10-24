@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, Copy, Check, Info } from 'lucide-react';
+import { ShieldCheck, Lock, Copy, Check, Info, Eye, EyeOff } from 'lucide-react';
 import styles from './VerifiedIdentifiersCard.module.css';
 
 export interface VerifiedIdentifiersCardProps {
@@ -14,9 +14,33 @@ export const VerifiedIdentifiersCard: React.FC<VerifiedIdentifiersCardProps> = (
   taxAuthority = 'Ministry of Revenues (MoR)',
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [showFullTin, setShowFullTin] = useState(false);
 
-  const handleCopy = (label: string, text: string) => {
-    navigator.clipboard?.writeText(text);
+  const rawTin = tin && tin !== '—' ? tin.trim() : '';
+
+  const maskedTin =
+    rawTin && rawTin.length === 10
+      ? `${rawTin.slice(0, 3)}•••••${rawTin.slice(-2)}`
+      : rawTin || '—';
+
+  const displayedTin = showFullTin ? (rawTin || '—') : maskedTin;
+
+  const handleCopy = (label: string, textToCopy: string) => {
+    if (!textToCopy || textToCopy === '—') return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+    } catch {
+      // ignore
+    }
     setCopiedField(label);
     setTimeout(() => {
       setCopiedField(null);
@@ -44,23 +68,47 @@ export const VerifiedIdentifiersCard: React.FC<VerifiedIdentifiersCardProps> = (
       </div>
 
       <div className={styles.grid}>
-        {/* Masked Taxpayer Identification Number */}
+        {/* Taxpayer Identification Number */}
         <div className={styles.field}>
           <span className={styles.fieldLabel}>
             <Lock size={12} />
             Tax Identification Number (TIN)
           </span>
           <div className={styles.fieldValueRow}>
-            <span className={styles.maskedValue}>{tin}</span>
-            <button
-              type="button"
-              className={styles.copyButton}
-              onClick={() => handleCopy('tin', tin)}
-              aria-label="Copy masked TIN"
-              title="Copy TIN"
+            <span
+              className={styles.maskedValue}
+              title={showFullTin ? 'Full TIN' : 'Masked for security (Click eye to view)'}
             >
-              {copiedField === 'tin' ? <Check size={15} color="var(--color-success)" /> : <Copy size={15} />}
-            </button>
+              {displayedTin}
+            </span>
+            <div className={styles.actionButtons}>
+              {rawTin && rawTin !== '—' && (
+                <button
+                  type="button"
+                  className={styles.copyButton}
+                  onClick={() => setShowFullTin((prev) => !prev)}
+                  aria-label={showFullTin ? 'Hide full TIN' : 'Show full TIN'}
+                  title={showFullTin ? 'Hide full TIN' : 'Show full TIN'}
+                >
+                  {showFullTin ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              )}
+              {rawTin && rawTin !== '—' && (
+                <button
+                  type="button"
+                  className={styles.copyButton}
+                  onClick={() => handleCopy('tin', rawTin)}
+                  aria-label="Copy full TIN"
+                  title={copiedField === 'tin' ? 'Copied full TIN!' : 'Copy full TIN'}
+                >
+                  {copiedField === 'tin' ? (
+                    <Check size={15} color="var(--color-success)" />
+                  ) : (
+                    <Copy size={15} />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -72,15 +120,21 @@ export const VerifiedIdentifiersCard: React.FC<VerifiedIdentifiersCardProps> = (
           </span>
           <div className={styles.fieldValueRow}>
             <span className={styles.maskedValue}>{merchantReference}</span>
-            <button
-              type="button"
-              className={styles.copyButton}
-              onClick={() => handleCopy('ref', merchantReference)}
-              aria-label="Copy Merchant Reference"
-              title="Copy Merchant Reference"
-            >
-              {copiedField === 'ref' ? <Check size={15} color="var(--color-success)" /> : <Copy size={15} />}
-            </button>
+            {merchantReference && merchantReference !== '—' && (
+              <button
+                type="button"
+                className={styles.copyButton}
+                onClick={() => handleCopy('ref', merchantReference)}
+                aria-label="Copy Merchant Reference"
+                title={copiedField === 'ref' ? 'Copied reference!' : 'Copy Merchant Reference'}
+              >
+                {copiedField === 'ref' ? (
+                  <Check size={15} color="var(--color-success)" />
+                ) : (
+                  <Copy size={15} />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

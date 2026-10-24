@@ -122,6 +122,12 @@
   letter-spacing: 0.05em;
 }
 
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .copyButton {
   background: none;
   border: none;
