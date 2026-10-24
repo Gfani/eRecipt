@@ -58,6 +58,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <a href="#customers" className={styles.navLink}>For Customers</a>
             <a href="#merchants" className={styles.navLink}>For Merchants</a>
             <a href="#about" className={styles.navLink}>About</a>
+            <a
+              href="/admin"
+              className={styles.navLink}
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate?.('admin');
+              }}
+              style={{ color: '#0b8060', fontWeight: 600 }}
+            >
+              Tax Authority
+            </a>
           </nav>
 
           <div className={styles.navActions}>
