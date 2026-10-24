@@ -170,6 +170,44 @@ The entire eReceipt platform is fully containerized with **Docker** and **Docker
 
 ---
 
+## Merchant Email Verification & Resend Setup
+
+The merchant registration workflow requires 6-digit email OTP verification at Step 1 before advancing to Step 2 (Tax Identity & TIN).
+
+### 1. Development Simulation Mode (Zero Configuration)
+By default, if `RESEND_API_KEY` is not provided in `Backend/.env`:
+- The backend automatically runs in **simulation mode**.
+- The 6-digit verification code is printed to the backend terminal log.
+- The registration modal displays a **Simulation / Dev Mode** banner containing the code and an **"Autofill & Verify"** button, ensuring developers and testers are never blocked.
+- Verification codes expire after 10 minutes and have a 45-second resend cooldown.
+
+### 2. Live Email Delivery via Resend
+To send live verification emails to real inboxes:
+
+1. Create a free account at [resend.com](https://resend.com) and generate an API key.
+2. In `Backend/.env`, configure:
+   ```env
+   RESEND_API_KEY=re_your_api_key_here
+   RESEND_FROM_EMAIL=eReceipt <onboarding@resend.dev>
+   ```
+3. **Important Sandbox Limitation:**
+   - Free Resend accounts using the default domain `onboarding@resend.dev` can **only send to the verified account owner email**.
+   - If a test user registers with any other email address, the backend gracefully catches the restriction, logs the diagnostic reason, and activates simulation fallback so registration continues seamlessly.
+4. **Custom Domain (Production):**
+   - Verify your custom domain at [resend.com/domains](https://resend.com/domains) (e.g. `mail.ereceipt.et`).
+   - Set `RESEND_FROM_EMAIL=eReceipt Verification <noreply@mail.ereceipt.et>`.
+   - Real emails will be delivered to any recipient worldwide.
+
+### 3. OTP API Endpoints
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/otp/send` | Dispatches 6-digit verification code to email (or generates simulation code) |
+| `POST` | `/api/otp/verify` | Validates submitted 6-digit OTP code against session store |
+| `POST` | `/api/otp/resend` | Dispatches a new code respecting 45s cooldown |
+| `GET` | `/api/otp/status` | Checks if an email has an active verification or pending code |
+
+---
+
 ## Technology Stack
 
 The following technologies should be updated to reflect the tools actually selected and configured in the repository.
