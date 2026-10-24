@@ -10,7 +10,8 @@ import {
   Receipt, 
   Globe, 
   Smartphone,
-  ArrowLeft
+  ArrowLeft,
+  Share2
 } from 'lucide-react';
 import styles from './ReceiptImageView.module.css';
 import { 
@@ -227,16 +228,28 @@ export const ReceiptImageView: React.FC<ReceiptImageViewProps> = ({ irn: propIrn
 
           <button
             onClick={handleDownloadPng}
-            disabled={downloading || !irn}
+            disabled={downloading || (!irn && !receiptData)}
             className={styles.actionButtonPrimary}
           >
             <Download size={16} />
             <span>{downloading ? 'Saving...' : 'Save Image'}</span>
           </button>
 
-          <button onClick={handlePrint} disabled={!irn} className={styles.actionButtonSecondary}>
+          <button onClick={handlePrint} disabled={!irn && !receiptData} className={styles.actionButtonSecondary}>
             <Printer size={16} />
             <span className={styles.hideMobile}>Print</span>
+          </button>
+
+          <button 
+            onClick={() => {
+              navigator.clipboard?.writeText(window.location.href);
+              alert('Receipt link copied to clipboard!');
+            }}
+            className={styles.actionButtonSecondary}
+            title="Share or Copy Receipt Link"
+          >
+            <Share2 size={16} />
+            <span className={styles.hideMobile}>Share</span>
           </button>
         </div>
       </header>
