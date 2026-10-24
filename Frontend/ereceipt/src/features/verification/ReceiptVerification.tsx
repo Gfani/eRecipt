@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { findReceiptByIrn, type StoredReceipt } from '../../services/merchantDataStore';
+import { getReceiptViewerUrl, generateCompactReceiptSvg } from '../../utils/receiptImageRenderer';
 import styles from './ReceiptVerification.module.css';
 
 interface ReceiptVerificationProps {
@@ -27,6 +28,7 @@ export const ReceiptVerification: React.FC<ReceiptVerificationProps> = ({ onNavi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showInlineImage, setShowInlineImage] = useState(false);
 
   // Read URL parameters on mount (e.g. ?view=verify&irn=IRN-ET-...)
   useEffect(() => {
@@ -344,14 +346,22 @@ export const ReceiptVerification: React.FC<ReceiptVerificationProps> = ({ onNavi
 
               {/* Action Buttons */}
               <div className={styles.actionsRow}>
-                <a
-                  href={`/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`}
+                <button
+                  type="button"
+                  onClick={() => setShowInlineImage((prev) => !prev)}
                   className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                >
+                  <ImageIcon size={15} />
+                  <span>{showInlineImage ? 'Hide Receipt Image' : 'View Receipt Image'}</span>
+                </button>
+                <a
+                  href={getReceiptViewerUrl(receipt.irn, {}, undefined, receipt)}
+                  className={styles.actionBtn}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <ImageIcon size={15} />
-                  <span>View Receipt as Image</span>
+                  <span>Open Full Image (New Tab)</span>
                 </a>
                 <button type="button" onClick={handlePrint} className={styles.actionBtn}>
                   <Printer size={15} />
@@ -366,6 +376,7 @@ export const ReceiptVerification: React.FC<ReceiptVerificationProps> = ({ onNavi
                   onClick={() => {
                     setReceipt(null);
                     setSearchInput('');
+                    setShowInlineImage(false);
                   }}
                   className={styles.actionBtn}
                 >
@@ -373,6 +384,27 @@ export const ReceiptVerification: React.FC<ReceiptVerificationProps> = ({ onNavi
                   <span>Verify another receipt</span>
                 </button>
               </div>
+
+              {/* Inline SVG Graphic Receipt Viewer */}
+              {showInlineImage && (
+                <div className={styles.inlinePreviewCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: 440, marginBottom: 12, color: '#F8FAFC' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700 }}>Fiscal Vector Graphic Receipt</span>
+                    <a
+                      href={getReceiptViewerUrl(receipt.irn, {}, undefined, receipt)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: 12, color: '#38BDF8', textDecoration: 'underline' }}
+                    >
+                      Fullscreen viewer →
+                    </a>
+                  </div>
+                  <div
+                    className={styles.inlinePreviewSvgWrap}
+                    dangerouslySetInnerHTML={{ __html: generateCompactReceiptSvg(receipt) }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
