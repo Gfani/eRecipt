@@ -83,3 +83,14 @@ export interface AdminCredentials {
   username: string;
   password: string;
 }
+
+export interface OfficerProfile {
+  id: string;
+  username: string;
+  name: string;
+  badgeNumber: string;
+  role: 'REVENUE_OFFICER' | 'SENIOR_AUDITOR' | 'ADMIN';
+  email: string;
+  branch: string;
+  createdAt: string;
+}
