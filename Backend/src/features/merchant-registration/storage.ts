@@ -64,6 +64,14 @@ class MerchantApplicationStorage {
     return this.cache.find((item) => item.tin === cleanTin);
   }
 
+  public getByEmail(email: string): StoredMerchantApplication | undefined {
+    this.ensureLoaded();
+    const cleanEmail = email.trim().toLowerCase();
+    return this.cache.find(
+      (item) => item.email?.trim().toLowerCase() === cleanEmail
+    );
+  }
+
   public updatePasswordHash(tin: string, passwordHash: string): void {
     this.ensureLoaded();
     const application = this.getByTin(tin);

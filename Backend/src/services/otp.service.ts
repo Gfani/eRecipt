@@ -314,7 +314,10 @@ class OtpService {
     // Code matches and valid: clear active OTP so it cannot be reused
     this.otpCache.delete(key);
     this.persistStore();
-    if (purpose === 'merchant_registration') {
+    if (
+      purpose === 'merchant_registration' ||
+      purpose === 'merchant_password_reset'
+    ) {
       this.verifiedEmails.set(key, Date.now() + this.EXPIRY_MINUTES * 60 * 1000);
     }
 
