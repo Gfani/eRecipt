@@ -196,7 +196,7 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
           <div class="rule"></div>
           <p><b>*** MoR EIMS CLEARED ***</b><br>IRN: ${receipt.irn}<br>RRN: ${receipt.rrn}<br>${receipt.clearanceTimestamp}</p>
           <div class="rule"></div>
-          <p style="text-align:left;"><b>BUYER:</b> ${receipt.customerName || 'Walk-in Customer'}<br>TIN: ${receipt.customerTin || 'N/A'}</p>
+          <p style="text-align:left;"><b>BUYER:</b> ${receipt.customerName || 'Walk-in Customer'}<br>TIN: ${receipt.customerTin || 'N/A'}${receipt.customerNationalId ? `<br>FIN: ${receipt.customerNationalId}` : ''}</p>
           <div class="rule"></div>
           <table>
             <tr><td><b>Item</b></td><td class="align-right"><b>Qty</b></td><td class="align-right"><b>Total (ETB)</b></td></tr>
@@ -491,7 +491,11 @@ export const TaxInvoicePreview: React.FC<TaxInvoicePreviewProps> = ({ onNavigate
                 <div className={styles.buyerDetailsGrid}>
                   <div>
                     <span className={styles.buyerLabel}>TIN:</span>
-                    <span>{receipt.customerTin || 'Not provided'}</span>
+                    <span>{receipt.customerTin || (receipt.transactionMode?.startsWith('B2C') ? 'Optional / Not provided' : 'Not provided')}</span>
+                  </div>
+                  <div>
+                    <span className={styles.buyerLabel}>Fayda FIN:</span>
+                    <span>{receipt.customerNationalId || (receipt.transactionMode?.startsWith('B2C') ? 'Optional / Not provided' : 'Not provided')}</span>
                   </div>
                   <div>
                     <span className={styles.buyerLabel}>VAT:</span>

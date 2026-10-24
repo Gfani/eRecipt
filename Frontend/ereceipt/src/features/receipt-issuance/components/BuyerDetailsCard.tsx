@@ -23,7 +23,7 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
   onVerifyTin,
 }) => {
   const isB2B = transactionMode.startsWith('B2B');
-  const isNameRequired = isB2B || highValueB2C;
+  const isNameRequired = isB2B;
   const isTinRequired = isB2B;
 
   return (
@@ -32,7 +32,7 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
         <div>
           <h2 className={styles.title}>Buyer details</h2>
           <p className={styles.copy}>
-            Registered and high-value buyers require statutory identification.
+            B2B transactions require registered business buyer details. TIN and Fayda FIN are optional for B2C walk-in customers.
           </p>
         </div>
 
@@ -48,14 +48,13 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
       <div className={styles.grid}>
         {highValueB2C && (
           <div className={styles.highValueAlert}>
-            <strong>High-value B2C identification required.</strong> Grand total is at least ETB
-            10,000. Enter the buyer’s full name and either a 10-digit TIN or Fayda FIN.
+            <strong>High-value B2C transaction (≥ 10,000 ETB).</strong> Buyer name, customer TIN, and Fayda National ID (FIN) are optional for walk-in consumers.
           </div>
         )}
 
         <div>
           <label className={styles.fieldLabel} htmlFor="buyer-name-input">
-            Buyer full / legal name {isNameRequired && '*'}
+            Buyer full / legal name {isNameRequired ? '*' : <span className={styles.optionalBadge}>(Optional for B2C)</span>}
           </label>
           <input
             id="buyer-name-input"
@@ -69,7 +68,7 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
 
         <div>
           <label className={styles.fieldLabel} htmlFor="buyer-vat-input">
-            Buyer VAT registration number
+            Buyer VAT registration number <span className={styles.optionalBadge}>(Optional)</span>
           </label>
           <input
             id="buyer-vat-input"
@@ -82,7 +81,7 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
 
         <div>
           <label className={styles.fieldLabel} htmlFor="buyer-tin-input">
-            Buyer 10-digit TIN {isTinRequired && '*'}
+            Buyer 10-digit TIN {isTinRequired ? '*' : <span className={styles.optionalBadge}>(Optional for B2C)</span>}
           </label>
           <div className={styles.tinInputRow}>
             <input
@@ -116,21 +115,25 @@ export const BuyerDetailsCard: React.FC<BuyerDetailsCardProps> = ({
             >
               {buyer.tin.length === 10
                 ? '✓ 10 digits entered. Ready for MoR verification.'
-                : `Must be exactly 10 digits (${buyer.tin.length}/10 digits)`}
+                : isTinRequired
+                ? `Must be exactly 10 digits (${buyer.tin.length}/10 digits)`
+                : buyer.tin.length > 0
+                ? `Optional for B2C (${buyer.tin.length}/10 digits entered)`
+                : 'Optional for B2C walk-in customers'}
             </span>
           </div>
         </div>
 
         <div>
           <label className={styles.fieldLabel} htmlFor="buyer-fin-input">
-            Ethiopian National ID (Fayda FIN)
+            Ethiopian National ID (Fayda FIN) <span className={styles.optionalBadge}>(Optional)</span>
           </label>
           <input
             id="buyer-fin-input"
             value={buyer.nationalId}
             onChange={(e) => onBuyerChange({ nationalId: e.target.value })}
             className={styles.inputField}
-            placeholder="Required for high-value B2C if no TIN"
+            placeholder="Optional for B2C (e.g. FIN-ET-XXXXXXXX)"
           />
         </div>
 

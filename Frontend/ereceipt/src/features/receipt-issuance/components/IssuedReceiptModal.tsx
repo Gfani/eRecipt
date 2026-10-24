@@ -247,8 +247,8 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
                   <p className={styles.buyerLabel}>Buyer / {receipt.transactionMode}</p>
                   <p className={styles.buyerName}>{receipt.customerName || 'Walk-in customer'}</p>
                   <p className={styles.buyerMeta}>
-                    TIN: {receipt.customerTin || 'Not provided'}<br />
-                    Fayda FIN: {receipt.customerNationalId || 'Not provided'}<br />
+                    TIN: {receipt.customerTin || (receipt.transactionMode?.startsWith('B2C') ? 'Optional (Not provided)' : 'Not provided')}<br />
+                    Fayda FIN: {receipt.customerNationalId || (receipt.transactionMode?.startsWith('B2C') ? 'Optional (Not provided)' : 'Not provided')}<br />
                     VAT: {receipt.customerVat || 'Not provided'}<br />
                     Contact: {receipt.customerPhone || 'Not provided'}
                   </p>
