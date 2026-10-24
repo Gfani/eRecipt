@@ -176,15 +176,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #DDE3DE',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
                     System Preferences
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
                     Configure default currency (ETB), fiscal calendar, and language preferences.
                   </p>
                 </div>
@@ -193,15 +193,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #DDE3DE',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
                     Compliance Notifications
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
                     Manage SMS and Email alerts for tax report deadlines and receipt clearances.
                   </p>
                 </div>
@@ -210,15 +210,15 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
                 <div
                   style={{
                     backgroundColor: '#FFFFFF',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid #DDE3DE',
                     borderRadius: '12px',
                     padding: '32px',
                   }}
                 >
-                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
                     Security & API Keys
                   </h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
                     Manage Ministry of Revenue EIMS clearance credentials and digital signature keys.
                   </p>
                 </div>
@@ -237,11 +237,11 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
               <p className={styles.copy}>Summary of current fiscal activities and MoR API connectivity.</p>
             </div>
           </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '32px' }}>
-            <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#0F172A' }}>
+          <div style={{ backgroundColor: '#fff', border: '1px solid #DDE3DE', borderRadius: '12px', padding: '32px' }}>
+            <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 700, color: '#17201B' }}>
               Abeba Market Dashboard
             </h2>
-            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#64748B' }}>
+            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#526059' }}>
               Your electronic tax register is online and connected to Ministry of Revenue real-time clearance.
             </p>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
@@ -256,7 +256,7 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
                 type="button"
                 onClick={() => setActiveScreen('audit')}
                 className="btn-primary"
-                style={{ backgroundColor: '#12304A', borderColor: '#12304A' }}
+                style={{ backgroundColor: '#123D2C', borderColor: '#123D2C' }}
               >
                 Go to Monthly Audit
               </button>
@@ -278,8 +278,8 @@ export const Audit: React.FC<AuditProps> = ({ initialScreen = 'audit', onNavigat
               <p className={styles.copy}>Search and filter recorded sales transactions.</p>
             </div>
           </div>
-          <div style={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '32px' }}>
-            <p style={{ margin: 0, fontSize: '14px', color: '#64748B' }}>
+          <div style={{ backgroundColor: '#fff', border: '1px solid #DDE3DE', borderRadius: '12px', padding: '32px' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#526059' }}>
               All cleared receipts are recorded cryptographically and audited monthly.
             </p>
             <button
