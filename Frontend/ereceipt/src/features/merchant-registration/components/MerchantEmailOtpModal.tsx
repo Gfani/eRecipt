@@ -9,6 +9,8 @@ interface MerchantEmailOtpModalProps {
   onVerified: () => void;
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
 export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
   email,
   recipientName,
@@ -46,7 +48,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
       setIsResending(true);
       setError(null);
 
-      const res = await fetch('http://localhost:5000/api/otp/send', {
+      const res = await fetch(`${API_BASE_URL}/api/otp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -56,7 +58,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
         throw new Error(data.message || data.error || 'Failed to dispatch verification code.');
       }
@@ -86,7 +88,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
     setError(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/otp/verify', {
+      const res = await fetch(`${API_BASE_URL}/api/otp/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,7 +98,7 @@ export const MerchantEmailOtpModal: React.FC<MerchantEmailOtpModalProps> = ({
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
         throw new Error(data.message || data.error || 'Invalid or expired verification code.');
       }
