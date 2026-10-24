@@ -11,6 +11,10 @@ import {
   Check,
   Languages,
   Plus,
+  Image as ImageIcon,
+  Download,
+  ExternalLink,
+  FileText,
 } from 'lucide-react';
 import type { IssuedReceipt } from '../types';
 import {
@@ -22,6 +26,7 @@ import {
 } from '../types';
 import { getStoredMerchantProfile } from '../../merchant-registration';
 import { QRCodeSVG } from 'qrcode.react';
+import { downloadReceiptAsPng, getReceiptImageUrl } from '../../../utils/receiptImageRenderer';
 import styles from './IssuedReceiptModal.module.css';
 
 interface IssuedReceiptModalProps {
@@ -37,6 +42,9 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
 }) => {
   const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'document' | 'image'>('document');
+  const [imageTheme, setImageTheme] = useState<'modern' | 'thermal'>('modern');
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
   const [qrMode, setQrMode] = useState<'image' | 'direct-image' | 'info'>('image');
   const profile = getStoredMerchantProfile();
   const sellerName =
@@ -67,6 +75,22 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
   const verificationUrl = `${window.location.origin}/?view=verify&irn=${encodeURIComponent(receipt.irn)}`;
   const receiptImageViewerUrl = `${window.location.origin}/?view=receipt-image&irn=${encodeURIComponent(receipt.irn)}`;
   const receiptDirectImageUrl = `${window.location.origin}/api/receipts/${encodeURIComponent(receipt.irn)}/image`;
+  const renderedReceiptImageUrl = getReceiptImageUrl(receipt.irn, {
+    theme: imageTheme,
+    lang: language,
+  });
+
+  const handleDownloadPng = async () => {
+    try {
+      setIsDownloadingImage(true);
+      await downloadReceiptAsPng(receipt.irn, { theme: imageTheme, lang: language });
+    } catch (err) {
+      console.error('Failed to download receipt as PNG:', err);
+      window.open(receiptDirectImageUrl, '_blank');
+    } finally {
+      setIsDownloadingImage(false);
+    }
+  };
 
   const customerReceiptQrText = [
     `=== eReceipt MoR Digital Fiscal Receipt ===`,
@@ -204,6 +228,25 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
             </span>
           </div>
 
+          <div className={styles.modalTabs}>
+            <button
+              type="button"
+              className={`${styles.modalTabBtn} ${activeTab === 'document' ? styles.modalTabBtnActive : ''}`}
+              onClick={() => setActiveTab('document')}
+            >
+              <FileText size={14} />
+              <span>Fiscal Document</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.modalTabBtn} ${activeTab === 'image' ? styles.modalTabBtnActive : ''}`}
+              onClick={() => setActiveTab('image')}
+            >
+              <ImageIcon size={14} />
+              <span>Receipt Image</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={onClose}
@@ -215,7 +258,58 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
         </div>
 
         <div className={styles.scrollArea}>
-          <div className={styles.receiptDoc}>
+          {activeTab === 'image' ? (
+            <div className={styles.imagePreviewWrapper}>
+              <div className={styles.imagePreviewToolbar}>
+                <div className={styles.imageThemeSelector}>
+                  <button
+                    type="button"
+                    className={`${styles.imageThemeBtn} ${imageTheme === 'modern' ? styles.imageThemeBtnActive : ''}`}
+                    onClick={() => setImageTheme('modern')}
+                  >
+                    Standard Invoice
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.imageThemeBtn} ${imageTheme === 'thermal' ? styles.imageThemeBtnActive : ''}`}
+                    onClick={() => setImageTheme('thermal')}
+                  >
+                    Thermal Slip (80mm)
+                  </button>
+                </div>
+
+                <div className={styles.imagePreviewActions}>
+                  <button
+                    type="button"
+                    onClick={handleDownloadPng}
+                    disabled={isDownloadingImage}
+                    className={styles.downloadPngBtn}
+                  >
+                    <Download size={14} />
+                    <span>{isDownloadingImage ? 'Generating PNG...' : 'Download PNG'}</span>
+                  </button>
+                  <a
+                    href={renderedReceiptImageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.openVectorBtn}
+                  >
+                    <ExternalLink size={14} />
+                    <span>Open Vector SVG</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className={styles.imageCanvas}>
+                <img
+                  src={renderedReceiptImageUrl}
+                  alt={`Official Electronic Receipt ${receipt.receiptNumber}`}
+                  className={styles.previewReceiptImg}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className={styles.receiptDoc}>
             {/* MoR Banner */}
             <div className={styles.morBanner}>
               <div className={styles.morLeft}>
@@ -475,18 +569,29 @@ export const IssuedReceiptModal: React.FC<IssuedReceiptModalProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className={styles.modalFooter}>
-          <div className={styles.footerLeft}>
-            <button
-              type="button"
-              onClick={() => setLanguage((l) => (l === 'en' ? 'am' : 'en'))}
-              className={styles.actionBtn}
-            >
-              <Languages size={15} />
-              <span>{language === 'en' ? 'Show in አማርኛ' : 'Show in English'}</span>
-            </button>
+      <div className={styles.modalFooter}>
+        <div className={styles.footerLeft}>
+          <button
+            type="button"
+            onClick={handleDownloadPng}
+            disabled={isDownloadingImage}
+            className={styles.actionBtn}
+          >
+            <Download size={15} />
+            <span>{isDownloadingImage ? 'Generating PNG...' : 'Save image (.png)'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setLanguage((l) => (l === 'en' ? 'am' : 'en'))}
+            className={styles.actionBtn}
+          >
+            <Languages size={15} />
+            <span>{language === 'en' ? 'Show in አማርኛ' : 'Show in English'}</span>
+          </button>
 
             <button
               type="button"
