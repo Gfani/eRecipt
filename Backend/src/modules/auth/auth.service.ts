@@ -1,8 +1,14 @@
-import { UnauthorizedError, ForbiddenError } from "../../common/errors.js";
-import { MerchantLoginInput, OfficerLoginInput } from "./auth.schema.js";
+import { ForbiddenError, UnauthorizedError } from "../../common/errors.js";
+import {
+  MerchantLoginInput,
+  OfficerLoginInput,
+  MerchantPasswordResetInput,
+  MerchantPasswordResetRequestInput,
+} from "./auth.schema.js";
 import { MerchantAuthResponse, OfficerAuthResponse } from "./auth.types.js";
 import { applicationStorage } from "../../features/merchant-registration/storage.js";
-import { verifyPassword, signJwt } from "../../common/auth/security.js";
+import { verifyPassword, hashPassword, signJwt } from "../../common/auth/security.js";
+import { otpService } from "../../services/otp.service.js";
 
 export class AuthService {
   /**
@@ -102,6 +108,40 @@ export class AuthService {
         status: app.status,
       },
     };
+  }
+
+  async requestMerchantPasswordReset(
+    input: MerchantPasswordResetRequestInput
+  ): Promise<void> {
+    const application = applicationStorage.getByEmail(input.email);
+    if (!application?.emailVerified || !application.email) {
+      return;
+    }
+
+    await otpService.sendOtp(
+      application.email,
+      "merchant_password_reset",
+      application.fullName
+    );
+  }
+
+  async resetMerchantPassword(input: MerchantPasswordResetInput): Promise<void> {
+    const email = input.email.trim().toLowerCase();
+    if (!otpService.consumeVerifiedEmail(email, "merchant_password_reset")) {
+      throw new ForbiddenError(
+        "Verify the password reset code before choosing a new password."
+      );
+    }
+
+    const application = applicationStorage.getByEmail(email);
+    if (!application?.emailVerified) {
+      throw new UnauthorizedError("Password reset request is invalid.");
+    }
+
+    applicationStorage.updatePasswordHash(
+      application.tin,
+      await hashPassword(input.password)
+    );
   }
 
   /**
