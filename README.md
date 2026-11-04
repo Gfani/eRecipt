@@ -34,7 +34,7 @@ Add the names of the project members below.
 | 4 | *Fuad Aman* | *Frontend* |
 | 5 | *Gelila Sintayehu* | *Backend and integration* |
 | 6 | *Gemechu Teso* | *Frontend* |
-
+| 7 | *Ezana Girmay Amare*| *Frontend* |
 
 ## Overview
 
