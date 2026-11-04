@@ -30,7 +30,7 @@ Add the names of the project members below.
 |---:|---|---|
 | 1 | *Fanuel Goitom* | *Mobilee App development and deployment* |
 | 2 | *Fiema Yaregal* | *Database and Figma design* |
-| 3 | *Fikirte Gebretsadik* | *Backend * |
+| 3 | *Fikirte Gebretsadik* | *Backend* |
 | 4 | *Fuad Aman* | *Frontend* |
 | 5 | *Gelila Sintayehu* | *Backend and integration* |
 | 6 | *Gemechu Teso* | *Frontend* |
