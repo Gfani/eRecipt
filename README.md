@@ -35,6 +35,7 @@ Add the names of the project members below.
 | 5 | *Gelila Sintayehu* | *Backend and integration* |
 | 6 | *Gemechu Teso* | *Frontend* |
 
+
 ## Overview
 
 eReceipt provides a platform where merchants can manage their businesses and issue digital receipts, while authorized tax administrators (Gebiwoch) review merchant registrations and oversee compliance-related activities.
