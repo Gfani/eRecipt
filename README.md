@@ -6,6 +6,8 @@
 
 ## 🚀 Live Releases & Production Deployments
 
+## Demo link: https://drive.google.com/file/d/1FdH3Fpu-jOFTZARDCoZU1ZKXvUOMCIhx/view?usp=sharing
+
 The system is fully containerized and hosted live on **Microsoft Azure Container Apps** with automated GitHub Actions CI/CD:
 
 | Portal | Live Release URL | Description | Default Credentials |
