@@ -41,7 +41,6 @@ services:
   - type: web
     name: ereceipt-frontend
     runtime: static
-    plan: free
     rootDir: Frontend/ereceipt
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
