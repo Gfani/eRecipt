@@ -65,56 +65,10 @@ function parseUrlState(): { view: AppView; merchantScreen: string } {
   const viewParam = (params.get('view') || '').toLowerCase();
   const screenParam = (params.get('screen') || '').toLowerCase();
 
-  const savedView = (window.localStorage.getItem(SESSION_VIEW_KEY) ||
-    window.sessionStorage.getItem(SESSION_VIEW_KEY)) as AppView | null;
-  const savedScreen =
-    window.localStorage.getItem(SESSION_SCREEN_KEY) ||
-    window.sessionStorage.getItem(SESSION_SCREEN_KEY) ||
-    'dashboard';
-
-  // Public receipt verification or image routes
-  if (viewParam === 'receipt-image' || viewParam === 'image' || pathname.startsWith('/receipt-image')) {
-    return { view: 'receipt-image', merchantScreen: 'dashboard' };
+  // 1. Explicit query parameter detection (highest priority)
+  if (viewParam === 'landing' || viewParam === 'home') {
+    return { view: 'landing', merchantScreen: 'dashboard' };
   }
-  if (viewParam === 'verify' || pathname.startsWith('/verify') || params.get('irn')) {
-    return { view: 'verify', merchantScreen: 'dashboard' };
-  }
-
-  // 1. Pathname-based detection (e.g. /admin, /registration, /signin)
-  if (pathname.includes('/admin')) {
-    return { view: 'admin', merchantScreen: 'dashboard' };
-  }
-  if (pathname.includes('/registration') || pathname.includes('/register')) {
-    return { view: 'registration', merchantScreen: 'dashboard' };
-  }
-  if (pathname.includes('/signin') || pathname.includes('/login')) {
-    return { view: 'signin', merchantScreen: 'dashboard' };
-  }
-
-  // Protected merchant pathnames: require active authenticated session
-  if (pathname.includes('/pos') || pathname.includes('/receipt-issuance')) {
-    if (!isMerchantAuthenticated()) {
-      return { view: 'signin', merchantScreen: 'dashboard' };
-    }
-    return { view: 'receipt-issuance', merchantScreen: 'dashboard' };
-  }
-  if (pathname.includes('/merchant') || pathname.includes('/dashboard')) {
-    if (!isMerchantAuthenticated()) {
-      return { view: 'signin', merchantScreen: 'dashboard' };
-    }
-    let screen = 'dashboard';
-    if (pathname.includes('/settings')) screen = 'settings';
-    else if (pathname.includes('/transactions') || pathname.includes('/sales')) screen = 'sales';
-    else if (pathname.includes('/audit')) screen = 'audit';
-    else if (pathname.includes('/receipt') || pathname.includes('/invoice')) screen = 'receipt';
-    else if (pathname.includes('/pos')) screen = 'pos';
-    else if (screenParam) screen = screenParam;
-    else if (savedScreen) screen = savedScreen;
-
-    return { view: 'merchant', merchantScreen: screen };
-  }
-
-  // 2. Query parameter detection (e.g. ?view=signin, ?view=registration)
   if (viewParam === 'login' || viewParam === 'signin') {
     return { view: 'signin', merchantScreen: 'dashboard' };
   }
@@ -124,8 +78,12 @@ function parseUrlState(): { view: AppView; merchantScreen: string } {
   if (viewParam === 'admin') {
     return { view: 'admin', merchantScreen: 'dashboard' };
   }
-
-  // Protected query parameters: require active authentication
+  if (viewParam === 'receipt-image' || viewParam === 'image') {
+    return { view: 'receipt-image', merchantScreen: 'dashboard' };
+  }
+  if (viewParam === 'verify') {
+    return { view: 'verify', merchantScreen: 'dashboard' };
+  }
   if (viewParam === 'receipt-issuance' || viewParam === 'pos') {
     if (!isMerchantAuthenticated()) {
       return { view: 'signin', merchantScreen: 'dashboard' };
@@ -155,42 +113,67 @@ function parseUrlState(): { view: AppView; merchantScreen: string } {
     return { view: 'merchant', merchantScreen: screen };
   }
 
-  // 3. Saved state on refresh or app relaunch (if user is authenticated)
+  // 2. Pathname-based detection (only if no explicit viewParam overrode it)
+  if (pathname.startsWith('/receipt-image')) {
+    return { view: 'receipt-image', merchantScreen: 'dashboard' };
+  }
+  if (pathname.startsWith('/verify') || params.get('irn')) {
+    return { view: 'verify', merchantScreen: 'dashboard' };
+  }
+  if (pathname.startsWith('/admin')) {
+    return { view: 'admin', merchantScreen: 'dashboard' };
+  }
+  if (pathname.startsWith('/registration') || pathname.startsWith('/register')) {
+    return { view: 'registration', merchantScreen: 'dashboard' };
+  }
+  if (pathname.startsWith('/signin') || pathname.startsWith('/login')) {
+    return { view: 'signin', merchantScreen: 'dashboard' };
+  }
+  if (pathname.startsWith('/pos') || pathname.startsWith('/receipt-issuance')) {
+    if (!isMerchantAuthenticated()) {
+      return { view: 'signin', merchantScreen: 'dashboard' };
+    }
+    return { view: 'receipt-issuance', merchantScreen: 'dashboard' };
+  }
+  if (pathname.startsWith('/merchant') || pathname.startsWith('/dashboard')) {
+    if (!isMerchantAuthenticated()) {
+      return { view: 'signin', merchantScreen: 'dashboard' };
+    }
+    let screen = 'dashboard';
+    if (pathname.includes('/settings')) screen = 'settings';
+    else if (pathname.includes('/transactions') || pathname.includes('/sales')) screen = 'sales';
+    else if (pathname.includes('/audit')) screen = 'audit';
+    else if (pathname.includes('/receipt') || pathname.includes('/invoice')) screen = 'receipt';
+    else if (pathname.includes('/pos')) screen = 'pos';
+    else if (screenParam) screen = screenParam;
+
+    return { view: 'merchant', merchantScreen: screen };
+  }
+
+  // 3. Saved state on refresh (only if active session exists)
+  const savedView = (window.localStorage.getItem(SESSION_VIEW_KEY) ||
+    window.sessionStorage.getItem(SESSION_VIEW_KEY)) as AppView | null;
+  const savedScreen =
+    window.localStorage.getItem(SESSION_SCREEN_KEY) ||
+    window.sessionStorage.getItem(SESSION_SCREEN_KEY) ||
+    'dashboard';
+
   if (savedView && savedView !== 'landing') {
-    if (savedView === 'admin') {
-      if (isOfficerAuthenticated()) {
-        return { view: 'admin', merchantScreen: 'dashboard' };
-      }
-    } else if (savedView === 'receipt-issuance' || (savedView as string) === 'pos') {
-      if (isMerchantAuthenticated()) {
-        return { view: 'receipt-issuance', merchantScreen: 'dashboard' };
-      }
-    } else if (savedView === 'merchant') {
-      if (isMerchantAuthenticated()) {
-        return { view: 'merchant', merchantScreen: savedScreen };
-      }
-    } else {
+    if (savedView === 'admin' && isOfficerAuthenticated()) {
+      return { view: 'admin', merchantScreen: 'dashboard' };
+    } else if (
+      (savedView === 'receipt-issuance' || (savedView as string) === 'pos') &&
+      isMerchantAuthenticated()
+    ) {
+      return { view: 'receipt-issuance', merchantScreen: 'dashboard' };
+    } else if (savedView === 'merchant' && isMerchantAuthenticated()) {
+      return { view: 'merchant', merchantScreen: savedScreen };
+    } else if (savedView === 'registration' || savedView === 'signin') {
       return { view: savedView, merchantScreen: savedScreen };
     }
   }
 
-  // 4. Stay logged in on app restart / browser refresh when user is authenticated
-  if (isMerchantAuthenticated()) {
-    const defaultScreen =
-      savedScreen && savedScreen !== 'signin' && savedScreen !== 'landing'
-        ? savedScreen
-        : 'dashboard';
-    if (savedView === 'receipt-issuance') {
-      return { view: 'receipt-issuance', merchantScreen: 'dashboard' };
-    }
-    return { view: 'merchant', merchantScreen: defaultScreen };
-  }
-
-  if (isOfficerAuthenticated() && (savedView === 'admin' || pathname.includes('admin'))) {
-    return { view: 'admin', merchantScreen: 'dashboard' };
-  }
-
-  // 5. Default: Start from the Landing Page
+  // 4. Default: Start from Landing Page
   return { view: 'landing', merchantScreen: 'dashboard' };
 }
 
@@ -240,7 +223,7 @@ function App() {
 
     if (screen === 'landing' || screen === 'home') {
       targetView = 'landing';
-      urlQuery = '?view=landing';
+      urlQuery = '/';
     } else if (screen === 'registration' || screen === 'register') {
       targetView = 'registration';
       urlQuery = '?view=registration';
@@ -251,13 +234,15 @@ function App() {
         window.localStorage.removeItem('merchant_token');
         window.localStorage.removeItem('merchant_user');
         window.localStorage.removeItem('ereceipt_merchant');
+        window.localStorage.removeItem('officer_token');
+        window.localStorage.removeItem('officer_user');
         window.localStorage.removeItem(SESSION_VIEW_KEY);
         window.localStorage.removeItem(SESSION_SCREEN_KEY);
         window.sessionStorage.removeItem(SESSION_VIEW_KEY);
         window.sessionStorage.removeItem(SESSION_SCREEN_KEY);
       } catch {}
       targetView = 'landing';
-      urlQuery = '?view=landing';
+      urlQuery = '/';
     } else if (screen === 'login' || screen === 'signin') {
       targetView = 'signin';
       urlQuery = '?view=signin';
@@ -308,7 +293,7 @@ function App() {
     setMerchantScreen(targetMerchantScreen);
 
     if (pushHistory) {
-      const newUrl = `${window.location.pathname}${urlQuery}`;
+      const newUrl = urlQuery.startsWith('?') ? `/${urlQuery}` : urlQuery;
       window.history.pushState({ view: targetView, screen: targetMerchantScreen }, '', newUrl);
     }
   };
@@ -364,7 +349,7 @@ function App() {
             onHomeClick={() => handleNavigate('landing')}
           />
         ) : currentView === 'admin' ? (
-          <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'dashboard')} />
+          <Admin onReturnToMerchant={(screen) => handleNavigate(screen || 'landing')} />
         ) : isMerchantAuthenticated() ? (
           <Audit initialScreen={merchantScreen} onNavigate={handleNavigate} />
         ) : (
