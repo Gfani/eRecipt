@@ -42,10 +42,10 @@ jobs:
         working-directory: Frontend/ereceipt
         run: npm ci
 
-      - name: Build Web Assets with Azure Production API
+      - name: Build Web Assets with Render Production API
         working-directory: Frontend/ereceipt
         env:
-          VITE_API_BASE_URL: https://backend.salmonwater-89ba5a67.southafricanorth.azurecontainerapps.io
+          VITE_API_BASE_URL: https://ereceipt-backend.onrender.com
         run: npm run build
 
       - name: Sync Capacitor Android Project

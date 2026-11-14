@@ -1,0 +1,66 @@
+# ==============================================================================
+# eReceipt - Render Infrastructure as Code (Blueprint)
+# Deploying both Backend (Node Web Service) and Frontend (Static Site)
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Express / Node.js Backend API Service
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: ereceipt-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: Backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: EIMS_SECRET_KEY
+        value: mor-eims-fiscal-secret-key-2026
+      - key: EIMS_CLEARANCE_MODE
+        value: simulation
+      - key: TAX_RATE
+        value: "0.15"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: "eReceipt <notifications@merihcare.live>"
+
+  # ----------------------------------------------------------------------------
+  # 2. React + Vite Frontend Application (Static Site - 100% Free CDN)
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: ereceipt-frontend
+    runtime: static
+    plan: free
+    region: oregon
+    rootDir: Frontend/ereceipt
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    autoDeploy: true
+    routes:
+      # Single-Page Application (SPA) routing: redirect all paths to index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      # Set this to your live Backend URL (e.g., https://ereceipt-backend.onrender.com)
+      - key: VITE_API_BASE_URL
+        sync: false
+
