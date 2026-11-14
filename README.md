@@ -6,6 +6,8 @@
 
 ## 🚀 Live Releases & Production Deployments
 
+### Demo link: https://drive.google.com/file/d/1FdH3Fpu-jOFTZARDCoZU1ZKXvUOMCIhx/view?usp=sharing
+
 The system is fully containerized and hosted live on **Microsoft Azure Container Apps** with automated GitHub Actions CI/CD:
 
 | Portal | Live Release URL | Description | Default Credentials |
@@ -28,10 +30,11 @@ Add the names of the project members below.
 |---:|---|---|
 | 1 | *Fanuel Goitom* | *Mobilee App development and deployment* |
 | 2 | *Fiema Yaregal* | *Database and Figma design* |
-| 3 | *Fikirte Gebretsadik* | *Backend * |
+| 3 | *Fikirte Gebretsadik* | *Backend* |
 | 4 | *Fuad Aman* | *Frontend* |
 | 5 | *Gelila Sintayehu* | *Backend and integration* |
 | 6 | *Gemechu Teso* | *Frontend* |
+| 7 | *Ezana Girmay Amare*| *Frontend* |
 
 ## Overview
 
