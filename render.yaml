@@ -13,7 +13,7 @@ services:
     plan: free
     region: oregon
     rootDir: Backend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
@@ -42,7 +42,7 @@ services:
     name: ereceipt-frontend
     runtime: static
     rootDir: Frontend/ereceipt
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     staticPublishPath: ./dist
     autoDeploy: true
     routes:
