@@ -155,6 +155,42 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
     }
   };
 
+  // Instant 1-Click Demo Sign In without OTP
+  const handleQuickDemoLogin = async (demoUser: string, demoPass: string) => {
+    setUsername(demoUser);
+    setPassword(demoPass);
+    setIsFormReady(true);
+    setAuthError('');
+    setIsLoading(true);
+
+    try {
+      const data = await postOfficerAuth('/api/admin/auth/login', {
+        username: demoUser,
+        password: demoPass,
+        rememberMe: true,
+      });
+
+      if (data.data?.token) {
+        localStorage.setItem('officer_token', data.data.token);
+        localStorage.setItem('officer_user', JSON.stringify(data.data.officer));
+        onSuccess(data.data.officer);
+        return;
+      }
+
+      if (data.data?.requires2FA) {
+        setIs2FA(true);
+        setTempToken(data.data.tempToken);
+        setMaskedEmail(data.data.maskedEmail || data.data.email || 'your official email');
+        setTwoFaCooldown(45);
+        return;
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Quick demo sign-in failed.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Handle 2FA verification submission
   const submit2FA = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -516,19 +552,15 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                   <ShieldCheck size={16} /> Quick Demo Officer Sign In
                 </div>
                 <p style={{ margin: 0, fontSize: '11px', color: '#15803D' }}>
-                  Click to fill pre-accredited officer credentials:
+                  Instant Trial Sign-in (No OTP or verification required):
                 </p>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
                   <button
                     type="button"
-                    onClick={() => {
-                      setUsername('officer.fani');
-                      setPassword('Password123');
-                      setIsFormReady(true);
-                      setAuthError('');
-                    }}
+                    disabled={isLoading}
+                    onClick={() => handleQuickDemoLogin('officer.fani', 'Password123')}
                     style={{
-                      padding: '5px 10px',
+                      padding: '6px 12px',
                       fontSize: '11px',
                       fontWeight: 600,
                       backgroundColor: '#176B4D',
@@ -538,18 +570,14 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    Fanuel (officer.fani)
+                    Fanuel (officer.fani) · 1-Click
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setUsername('officer.demo');
-                      setPassword('Revenue123');
-                      setIsFormReady(true);
-                      setAuthError('');
-                    }}
+                    disabled={isLoading}
+                    onClick={() => handleQuickDemoLogin('officer.demo', 'Revenue123')}
                     style={{
-                      padding: '5px 10px',
+                      padding: '6px 12px',
                       fontSize: '11px',
                       fontWeight: 600,
                       backgroundColor: '#E2E8F0',
@@ -559,18 +587,14 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    Abebe (officer.demo)
+                    Abebe (officer.demo) · 1-Click
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setUsername('admin');
-                      setPassword('Admin123');
-                      setIsFormReady(true);
-                      setAuthError('');
-                    }}
+                    disabled={isLoading}
+                    onClick={() => handleQuickDemoLogin('admin', 'Admin123')}
                     style={{
-                      padding: '5px 10px',
+                      padding: '6px 12px',
                       fontSize: '11px',
                       fontWeight: 600,
                       backgroundColor: '#F1F5F9',
@@ -580,7 +604,24 @@ export const OfficerSignIn: React.FC<OfficerSignInProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    Admin (admin)
+                    Admin (admin) · 1-Click
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => handleQuickDemoLogin('officer@revenue.gov.et', 'Admin#2026')}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      backgroundColor: '#FEF3C7',
+                      color: '#92400E',
+                      border: '1px solid #FCD34D',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    MoR (officer@revenue.gov.et) · 1-Click
                   </button>
                 </div>
               </div>

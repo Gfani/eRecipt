@@ -8,17 +8,18 @@
 
 ### Demo link: https://drive.google.com/file/d/1FdH3Fpu-jOFTZARDCoZU1ZKXvUOMCIhx/view?usp=sharing
 
-The system is fully containerized and hosted live on **Microsoft Azure Container Apps** with automated GitHub Actions CI/CD:
+The system is deployed and hosted live on the **Render Cloud Platform** with automated GitHub Actions CI/CD and continuous Blueprint orchestration:
 
-| Portal | Live Release URL | Description | Default Credentials |
+| Portal | Live Release URL | Description | Default / Trial Credentials |
 |---|---|---|---|
-| 👑 **Admin Portal** | [**tinyurl.com/admin-erecipt**](https://tinyurl.com/admin-erecipt) | Tax Authority & Revenue Officer Portal for reviewing merchant applications, approving licenses, and auditing tax invoices | `officer@revenue.gov.et`<br>`Admin#2026` |
-| 🛒 **Merchant Portal** | [**tinyurl.com/eReciptL**](https://tinyurl.com/eReciptL) | Business Workspace for merchant onboarding, sales registration, product catalogs, and POS digital receipt issuance | Registered Merchant TIN & Password |
+| 👑 **Admin Portal** | [**Live Admin Portal**](https://ereceipt-frontend-jno0.onrender.com/?view=admin) | Tax Authority & Revenue Officer Portal for reviewing merchant applications, approving licenses, and auditing tax invoices | `officer.fani` / `Password123`<br>`officer.demo` / `Revenue123`<br>`admin` / `Admin123`<br>*(Instant 1-Click Demo Login, No OTP required)* |
+| 🛒 **Merchant Portal** | [**Live Merchant Portal**](https://ereceipt-frontend-jno0.onrender.com/) | Business Workspace for merchant onboarding, sales registration, product catalogs, and POS digital receipt issuance | Registered Merchant TIN & Password<br>Demo TIN: `0987654321` |
 | 📱 **Merchant Android App** | [**Download APK (v1.0.0)**](https://github.com/gelila0913/eReceipt/releases/download/v1.0.0/eReceipt-Merchant.apk) | Native Android APK for point-of-sale receipt issuance, mobile bottom navigation, and fiscal records | [Release Notes & APK](https://github.com/gelila0913/eReceipt/releases/tag/v1.0.0) |
-| 🔍 **Public QR Verification** | [**Verify Receipt**](https://ereceipt-frontend.salmonwater-89ba5a67.southafricanorth.azurecontainerapps.io/verify) | Public scanner to view, authenticate, and verify cleared tax receipts | Any scannable receipt QR code |
+| 🔍 **Public QR Verification** | [**Verify Receipt**](https://ereceipt-frontend-jno0.onrender.com/verify) | Public scanner to view, authenticate, and verify cleared tax receipts | Any scannable receipt QR code |
+| ⚙️ **Backend REST API** | [**API Health**](https://ereceipt-backend-cib6.onrender.com/api/health) | High-performance Express/Node API with fiscal clearance engine and Resend email OTP gateway | Root: [API Docs](https://ereceipt-backend-cib6.onrender.com/api) |
 
 > [!NOTE]
-> All services run on Docker containers orchestrated via Nginx and Express on Azure Container Apps, backed by Azure Database for PostgreSQL Flexible Server.
+> Deployed on **Render** using Infrastructure as Code ([`render.yaml`](render.yaml)): Backend API hosted as an Express Web Service, and Frontend served via high-performance global CDN with automated Single Page App (SPA) rewrites.
 
 ---
 
@@ -300,7 +301,7 @@ Planned development milestones:
 - [x] Implement digital receipt generation, thermal print previews, and persistent storage.
 - [x] Implement QR-code-based receipt verification with scannable clear URL.
 - [x] Test security, validation, idempotency, and end-to-end workflows.
-- [x] Containerize with Docker and deploy to Microsoft Azure with automated CI/CD.
+- [x] Deploy to Render Cloud Platform with automated CI/CD and Blueprints.
 
 ## Future Improvements
 

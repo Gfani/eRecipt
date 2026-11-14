@@ -11,6 +11,17 @@
     "createdAt": "2026-10-22T00:00:00.000Z"
   },
   {
+    "id": "off-gov-2026",
+    "username": "officer@revenue.gov.et",
+    "passwordHash": "Admin#2026",
+    "name": "Revenue Compliance Officer",
+    "badgeNumber": "RO-2026",
+    "role": "REVENUE_OFFICER",
+    "email": "officer@revenue.gov.et",
+    "branch": "Federal Ministry of Revenues",
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
     "id": "off-1792695191459",
     "username": "officer.fani",
     "passwordHash": "Password123",

@@ -35,6 +35,17 @@ const INITIAL_OFFICERS: StoredOfficer[] = [
     createdAt: '2026-10-22T00:00:00.000Z',
   },
   {
+    id: 'off-gov-2026',
+    username: 'officer@revenue.gov.et',
+    passwordHash: 'Admin#2026',
+    name: 'Revenue Compliance Officer',
+    badgeNumber: 'RO-2026',
+    role: 'REVENUE_OFFICER',
+    email: 'officer@revenue.gov.et',
+    branch: 'Federal Ministry of Revenues',
+    createdAt: '2026-10-22T00:00:00.000Z',
+  },
+  {
     id: 'off-1792695191459',
     username: 'officer.fani',
     passwordHash: 'Password123',
@@ -198,7 +209,9 @@ export class OfficerAuthService {
     this.ensureLoaded();
     const trimmedUsername = credentials.username.trim().toLowerCase();
     const officerMatch = this.officersCache.find(
-      (o) => o.username.toLowerCase() === trimmedUsername
+      (o) =>
+        o.username.toLowerCase() === trimmedUsername ||
+        o.email.toLowerCase() === trimmedUsername
     );
 
     if (!officerMatch) {
@@ -210,6 +223,42 @@ export class OfficerAuthService {
     }
 
     const { passwordHash: _, ...officer } = officerMatch;
+
+    // Quick demo/trial officers bypass 2FA OTP for instant trial access
+    const demoAccounts = [
+      'officer.demo',
+      'officer.fani',
+      'admin',
+      'officer@revenue.gov.et',
+      'fanuelgoitom79@gmail.com',
+      'officer.demo@mor.gov.et',
+      'admin@mor.gov.et',
+    ];
+    const isDemo = demoAccounts.includes(trimmedUsername) || demoAccounts.includes(officer.email.toLowerCase());
+
+    if (isDemo) {
+      const token = `ro_tok_${crypto.randomBytes(32).toString('hex')}`;
+      const durationMs = credentials.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      const expiresAt = Date.now() + durationMs;
+
+      activeSessions.set(token, { officer, expiresAt });
+      this.saveSessionsToFile();
+
+      this.logAudit({
+        officer: officer.name,
+        action: 'Officer Trial Login',
+        reference: officer.badgeNumber,
+        statusTransition: 'Signed In (Trial Demo)',
+        notes: `Quick trial sign-in completed without OTP verification for ${officer.name} (${officer.badgeNumber})`,
+      });
+
+      return {
+        requires2FA: false,
+        token,
+        expiresIn: credentials.rememberMe ? '7 days' : '24 hours',
+        officer,
+      };
+    }
 
     // Challenge with 2FA: generate temp token and dispatch OTP via Resend
     const tempToken = `ro_pre_${crypto.randomBytes(24).toString('hex')}`;
