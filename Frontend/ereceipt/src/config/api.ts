@@ -10,7 +10,7 @@
 
 // Default backend URL (used when VITE_API_BASE_URL is not explicitly passed)
 export const DEFAULT_BACKEND_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://ereceipt-backend.onrender.com';
+  import.meta.env.VITE_API_BASE_URL || 'https://ereceipt-backend-cib6.onrender.com';
 
 // Backward-compatibility alias
 export const LIVE_AZURE_BACKEND = DEFAULT_BACKEND_URL;

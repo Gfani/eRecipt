@@ -45,7 +45,7 @@ jobs:
       - name: Build Web Assets with Render Production API
         working-directory: Frontend/ereceipt
         env:
-          VITE_API_BASE_URL: https://ereceipt-backend.onrender.com
+          VITE_API_BASE_URL: https://ereceipt-backend-cib6.onrender.com
         run: npm run build
 
       - name: Sync Capacitor Android Project
