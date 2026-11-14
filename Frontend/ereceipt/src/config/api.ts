@@ -1,15 +1,19 @@
 /**
  * Centralized API Base URL configuration.
  *
- * In production or Docker (behind Nginx / Azure App Service / reverse proxy):
- * Defaults to relative '' so all `/api` requests go to the same origin without CORS or mixed-content issues.
+ * In production (Render / Cloud):
+ * Uses VITE_API_BASE_URL if defined (e.g. https://ereceipt-backend.onrender.com).
  *
  * In local dev:
  * Vite's proxy automatically routes `/api` requests to http://localhost:5000.
  */
 
-export const LIVE_AZURE_BACKEND =
-  'https://backend.salmonwater-89ba5a67.southafricanorth.azurecontainerapps.io';
+// Default backend URL (used when VITE_API_BASE_URL is not explicitly passed)
+export const DEFAULT_BACKEND_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://ereceipt-backend.onrender.com';
+
+// Backward-compatibility alias
+export const LIVE_AZURE_BACKEND = DEFAULT_BACKEND_URL;
 
 export const API_BASE_URL: string = (() => {
   // 1. Explicit Vite environment variable override
@@ -26,9 +30,8 @@ export const API_BASE_URL: string = (() => {
     return '';
   }
 
-  // 3. Everywhere else (Azure production web container, Capacitor Android mobile APK):
-  // ALWAYS communicate directly with the official live Azure backend!
-  return LIVE_AZURE_BACKEND;
+  // 3. Production web deployment or Capacitor Android mobile APK:
+  return DEFAULT_BACKEND_URL;
 })().replace(/\/+$/, '');
 
 export default API_BASE_URL;
