@@ -123,6 +123,7 @@ export const Admin: React.FC<AdminProps> = ({ onReturnToMerchant }) => {
     } catch {}
     setCurrentOfficer(null);
     setSignedIn(false);
+    onReturnToMerchant?.('landing');
   };
 
   const loadAdminData = () => {

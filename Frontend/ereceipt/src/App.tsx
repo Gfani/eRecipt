@@ -150,7 +150,12 @@ function parseUrlState(): { view: AppView; merchantScreen: string } {
     return { view: 'merchant', merchantScreen: screen };
   }
 
-  // 3. Saved state on refresh (only if active session exists)
+  // 3. Root URL "/" always renders the Landing Page (never forces Admin)
+  if ((pathname === '/' || pathname === '') && !viewParam) {
+    return { view: 'landing', merchantScreen: 'dashboard' };
+  }
+
+  // 4. Saved state on refresh (only if active session exists)
   const savedView = (window.localStorage.getItem(SESSION_VIEW_KEY) ||
     window.sessionStorage.getItem(SESSION_VIEW_KEY)) as AppView | null;
   const savedScreen =
