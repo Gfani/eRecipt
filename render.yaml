@@ -42,7 +42,6 @@ services:
     name: ereceipt-frontend
     runtime: static
     plan: free
-    region: oregon
     rootDir: Frontend/ereceipt
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
