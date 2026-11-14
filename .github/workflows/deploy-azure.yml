@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Build, Test & Deploy to Azure
+name: CI/CD Pipeline - Build, Test & Validate
 
 on:
   push:
@@ -11,11 +11,10 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: azure-deployment
-  cancel-in-progress: false
+  group: ci-pipeline
+  cancel-in-progress: true
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -49,61 +48,22 @@ jobs:
           npm run build
 
   # ----------------------------------------------------------------------------
-  # Job 2: Build & Push Docker Containers, then Deploy to Azure (CD)
+  # Job 2: Render Deployment Status (CD)
+  # Deployment is managed automatically by Render via render.yaml blueprint.
+  # If RENDER_DEPLOY_HOOK_URL is configured in GitHub secrets, trigger it here.
   # ----------------------------------------------------------------------------
-  deploy:
-    name: Build Containers & Deploy to Azure
+  deploy-render:
+    name: Notify Render Deployment
     needs: validate
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/Fani'
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Log in to Azure CLI
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Log in to Azure Container Registry (ACR)
-        run: az acr login --name acrereceipt23993
-
-      - name: Set Image Tag
-        id: vars
-        run: echo "SHA_TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-
-      - name: Build and Push Backend Docker Image
+      - name: Trigger Render Deploy Hook (Optional)
         run: |
-          docker build \
-            -t acrereceipt23993.azurecr.io/ereceipt-backend:latest \
-            -t acrereceipt23993.azurecr.io/ereceipt-backend:${{ steps.vars.outputs.SHA_TAG }} \
-            ./Backend
-          docker push acrereceipt23993.azurecr.io/ereceipt-backend:latest
-          docker push acrereceipt23993.azurecr.io/ereceipt-backend:${{ steps.vars.outputs.SHA_TAG }}
-
-      - name: Build and Push Frontend Docker Image
-        run: |
-          docker build \
-            --build-arg VITE_API_BASE_URL="https://backend.salmonwater-89ba5a67.southafricanorth.azurecontainerapps.io" \
-            -t acrereceipt23993.azurecr.io/ereceipt-frontend:latest \
-            -t acrereceipt23993.azurecr.io/ereceipt-frontend:${{ steps.vars.outputs.SHA_TAG }} \
-            ./Frontend/ereceipt
-          docker push acrereceipt23993.azurecr.io/ereceipt-frontend:latest
-          docker push acrereceipt23993.azurecr.io/ereceipt-frontend:${{ steps.vars.outputs.SHA_TAG }}
-
-      - name: Deploy to Azure Container Apps
-        run: |
-          echo "Updating live Backend container..."
-          RESEND_KEY=$(echo "cmVfTXp5ZE5SVHJfRm9OUnNtTVNtZnFqc2Q2eFRQVFR4a0Nn" | base64 -d)
-          az containerapp update \
-            --name backend \
-            --resource-group rg-ereceipt-prod \
-            --image acrereceipt23993.azurecr.io/ereceipt-backend:${{ steps.vars.outputs.SHA_TAG }} \
-            --set-env-vars "RESEND_API_KEY=$RESEND_KEY" "RESEND_FROM_EMAIL=eReceipt <notifications@merihcare.live>"
-
-          echo "Updating live Frontend container..."
-          az containerapp update \
-            --name ereceipt-frontend \
-            --resource-group rg-ereceipt-prod \
-            --image acrereceipt23993.azurecr.io/ereceipt-frontend:${{ steps.vars.outputs.SHA_TAG }}
-
-          echo "🚀 CI/CD Deployment succeeded! Both containers are now updated."
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "Triggering Render deployment hook..."
+            curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+            echo "Render webhook triggered successfully."
+          else
+            echo "Render is configured to automatically deploy from GitHub pushes via render.yaml."
+          fi
